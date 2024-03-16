@@ -1,0 +1,133 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500&family=Roboto:wght@400;500&display=swap');
+
+nav{
+
+}
+
+
+.navbar{
+    left:0;
+    top:0;
+    background-color: #2B3499;
+    color:white;
+    height: 125%;
+    width: 14rem;
+    position: fixed;
+    /* position: absolute; */
+    padding: 2rem 1rem;
+    font-family: 'Poppins', sans-serif;
+    font-family: 'Roboto', sans-serif;
+}
+
+.content_container{
+    margin: 3.5rem 0 0 0;
+}
+
+.nav_arrow {
+    display: flex;
+    align-items: center;
+    justify-content:space-between;
+}
+
+.nav_arrow h2{
+    font-size: 30px;
+}
+.nav_arrow span{
+    padding-left: 3rem;
+    cursor: pointer;
+}
+
+
+.dashboard_items {
+    text-decoration: none;
+    color: white;
+}
+
+.dashboard_items:hover{
+    color: #FF9209;
+}
+
+.dashboard_items:hover::after{
+    color: #FF9209;
+}
+.navbar 
+ul{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+    list-style: none;
+    text-transform: capitalize;
+    font-weight: 500;
+    font-size:18px;
+    font-style: 'Roboto';
+}
+
+.content_container ul li{
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-around;
+    flex-direction: column;
+    margin: 0.6rem 0.5rem;
+    padding: 0.1rem 0;
+    width: 100%;
+    border-radius: 1rem;
+    font-family: 'Poppins', sans-serif;
+    font-family: 'Roboto', sans-serif;
+
+}
+
+.content_container ul li:hover{
+    cursor: pointer;
+}
+
+
+.nav_active{
+    width:5rem;
+    left:0;
+    top:0;
+    background-color: #2B3499;
+    height: 100vh;
+}
+
+
+.nav_arrow_active{
+    opacity: 0;
+}
+
+
+.content_container_active{
+    opacity: 0;
+}
+
+.right_arrow{
+    opacity: 0;
+    display: none;
+}
+
+.right_arrow_active{
+    width: 4rem;
+    height: 3rem;
+    color: white;
+    padding: 0.5rem;
+    cursor: pointer;
+}
+
+
+.navbar,
+.nav_arrow,
+.right_arrow,
+.content_container {
+    transition: all 0.3s ease;
+}
+
+.closed {
+    transform: translateX(-100%);
+    opacity: 0;
+}
+
+.open {
+    transform: translateX(0);
+    opacity: 1;
+}
