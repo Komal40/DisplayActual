@@ -1,14 +1,14 @@
 import React, { useEffect } from "react";
 import { useLocation } from "react-router-dom";
-// import { useUser } from "../../UserContext";
 import { IoNotificationsOutline } from "react-icons/io5";
 import { useState } from "react";
 import { useUser } from "../../UserContext";
 
+
 export default function DashBoardAbove() {
   const [currentTime, setCurrentTime] = useState(new Date());
-  // const userData=localStorage.getItem('userData')
-  const {userData}=useUser()
+  const userDataString = localStorage.getItem('Login');
+  const userData = userDataString ? JSON.parse(userDataString) : null;
 
   useEffect(() => {
     // Update the current time every second
@@ -55,8 +55,6 @@ export default function DashBoardAbove() {
   };
   
 
-  
-
 
   return (
     <div>
@@ -65,7 +63,7 @@ export default function DashBoardAbove() {
           <div>
             <p className="dashboard_content">
               Name: <h4>
-              {userData.fName} {userData.lName}
+              {userData ? `${userData.fName} ${userData.lName}` : "Loading..."}
                 </h4>
             </p>
           </div>

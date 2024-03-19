@@ -14,6 +14,7 @@ export default function Login() {
   const {setLoginData}=useUser()
 
 
+
   const clickLogin = async (e) => {
     e.preventDefault();
   
@@ -38,14 +39,13 @@ export default function Login() {
       if (response.ok) {
         const data = await response.json();
         console.log("loginData", data);
+
+        localStorage.setItem('Login',JSON.stringify(data))
         if (data.token) {
-          // Store token in localStorage
           localStorage.setItem('Token', JSON.stringify(data.token));
           setLoginData(data)
-  
-          // Retrieve token from localStorage
-          const token = localStorage.getItem('Token');
-          if (token !== undefined && token !== null) {
+          // const token = localStorage.getItem('Token');
+          if (data.token !== undefined && data.token !== null) {
             // Token exists, navigate to dashboard
             setName("");
             setPass("");
@@ -56,10 +56,10 @@ export default function Login() {
           }
         }
       } 
-      else if (response.status == 401) {
-        localStorage.removeItem("Token");
-        navigate('/');
-      }
+      // else if (response.status == 401) {
+      //   localStorage.removeItem("Token");
+      //   navigate('/');
+      // }
       else {
         console.error("HTTP Error:", response.status);
         navigate('/');

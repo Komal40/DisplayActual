@@ -4,7 +4,7 @@ const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
  
-const [userData, setUserData]=useState({})
+const [userData, setUserData]=useState(null)
 
 const setLoginData=(data)=>{
   setUserData(data)
