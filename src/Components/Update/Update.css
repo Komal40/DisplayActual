@@ -1,0 +1,286 @@
+.update_main{
+    margin-left: 16rem;
+    margin-top: 1rem;
+}
+
+.update_linecontainer{
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.update_add_btn{
+    background-color: var(--color-orange);
+    width: 12rem;
+    height: 2rem;
+    margin-left: 2rem;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    overflow: hidden;
+
+    /* margin-top: 1rem; */
+}
+
+.update_dropdown select{
+    width: 9rem;
+    height: 2rem;
+    border-radius: 10px;
+    padding-left: 1rem;
+    font-size:15px;
+    font-weight: 700;
+    border: 2px solid #ECECEC;
+    color:#4f4d4d
+}
+
+.update_add_btn button{
+    border:none;
+    background-color: var(--color-orange);
+    font-size: 15px;
+    font-weight: 500;
+    color: white;
+    padding: 5px;
+    font-family: var(--font-family);
+    cursor: pointer;
+
+}
+
+.update_plus{
+    background-color: white;
+    border-radius: 50%;
+    border: none;
+    padding: 4px;
+    font-size: 20px;
+    margin-left: 10px;
+    margin-right: 10px;
+    color: var(--color-orange);
+    cursor: pointer;
+}
+
+.update_error{
+    margin-left: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.update_linecontainer2{
+    margin-top: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.update_dropdown2 select{
+    width: 14rem;
+    height: 2rem;
+    border-radius: 10px;
+    padding-left: 1rem;
+    font-size:15px;
+    font-weight: 700;
+    border: 2px solid #ECECEC;
+    color:#4f4d4d;
+    margin-left: 2rem;
+}
+
+.update_regsave{
+    border: none;
+    padding: 4px;
+    font-size: 27px;
+    margin-left: 10px;
+    color: white;
+    cursor: pointer;
+}
+
+
+
+.update__btn{
+    background-color: var(--color-orange);
+    width: 12rem;
+    height: 2.3rem;
+    margin-left: 2rem;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+
+    /* margin-top: 1rem; */
+}
+
+
+.update__btn button{
+    border:none;
+    background-color: var(--color-orange);
+    font-size: 15px;
+    font-weight: 500;
+    color: white;
+    padding: 5px;
+    font-family: var(--font-family);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.updates__cont{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+}
+.updateparts__btn{
+    margin-right: 20rem;
+}
+
+
+.updateparts__btn button{
+    background-color: var(--color-orange);
+    width: 8rem;
+    height: 2.3rem;
+    margin-left: 2rem;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: none;
+    cursor: pointer;
+    font-size: 15px;
+    color: white;
+    /* margin-top: 1rem; */
+}
+
+.update_linecontainer3{
+    margin-top: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.update__components{
+    margin-top: 2rem;
+    background-color: var(--color-skin);
+    border-radius: 20px;
+    width: 20vw;
+    height: max-content;
+    padding: 15px;
+    overflow: hidden;
+    margin-right: 2rem;
+  
+}
+
+.updattee{
+    margin-left: 15rem;
+    display: flex;
+    flex-wrap: wrap;
+    width: 80vw;
+}
+
+.update_below_content{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* components for remove and update */
+
+
+.update_remove_btn1{
+    background-color: var(--color-orange);
+    width: 15rem;
+    height: 2rem;
+    margin-left: 2rem;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    overflow: hidden;
+
+    /* margin-top: 1rem; */
+}
+
+.update_remove_btn2{
+    background-color: var(--color-red);
+    width: 15rem;
+    height: 2rem;
+    margin-left: 2rem;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    overflow: hidden;
+
+    /* margin-top: 1rem; */
+}
+
+.update_remove_btn1 button{
+    border:none;
+    background-color: var(--color-orange);
+    font-size: 15px;
+    font-weight: 500;
+    color: white;
+    padding: 4px;
+    font-family: var(--font-family);
+    cursor: pointer;
+
+}
+.update_remove_btn2 button{
+    border:none;
+    background-color: var(--color-red);
+    font-size: 15px;
+    font-weight: 500;
+    color: white;
+    padding: 4px;
+    font-family: var(--font-family);
+    cursor: pointer;
+
+}
+
+
+.update_below1_content{
+    margin-top:0.5rem;
+    margin-left: -25px;
+}
+
+.updateComp_container{
+    display: flex;
+    flex-wrap: wrap;
+}
+
+
+.update_addSection{
+    width: 6vw;
+    height: 25vh;
+    background-color: var(--color-green);
+    margin-top: 2rem;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.addstation{
+    background-color: white;
+    border-radius: 50%;
+    font-size: 10px;
+    width: 2rem;
+    height: 2rem;
+    cursor: pointer;
+    color:var(--color-green);
+    margin-bottom: 10px;
+}
+
+.addStation_text{
+    color: white;
+    font-size: 1.2rem;
+}
+
+
+
+

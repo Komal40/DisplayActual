@@ -1,0 +1,58 @@
+.parts_container{
+    margin-left: 16rem;
+}
+
+.parts_heading p{
+    margin-top: 2rem;
+    font-size: 18px;
+}
+
+.parts_details{
+    margin-top: 2rem;
+}
+
+.parts_details p{
+    padding: 15px;
+}
+
+.parts_err{
+    margin:20px;
+}
+
+.parts_details input{
+    border: 2px solid var(--color-orange);
+    width: 15rem;
+    height: 2rem;
+    border-radius: 10px;
+    margin-left: 2rem;
+    padding-left: 10px;
+}
+
+.parts_add{
+    background-color: var(--color-orange);
+    width: 8rem;
+    height: 2.3rem;
+    margin-left: 22%;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    margin-top: 2%;
+}
+
+
+.parts_add button{
+    border:none;
+    background-color: var(--color-orange);
+    font-size: 15px;
+    font-weight: 500;
+    color: white;
+    padding: 5px;
+    font-family: var(--font-family);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+

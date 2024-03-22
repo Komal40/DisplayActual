@@ -1,0 +1,184 @@
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+  }
+  
+  .modal-content {
+    background-color: #fefefe;
+    border-radius: 20px;
+/* background-color: red; */
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    height: 80%;
+  }
+  
+  .close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
+  .show {
+    display: block;
+  }
+
+.addnostation{
+    padding-top: 2rem;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.subSign{
+    background-color:var(--color-blue) ;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    margin-left: 1em;
+    cursor: pointer;
+}
+
+.count_var{
+    width: 30px;
+    height: 30px;
+    background-color: #FAFAFA;
+    margin-left: 1em;
+    text-align: center;
+    /* filter: drop-shadow(30px 10px 4px  #FAFAFA); */
+}
+
+
+
+.count_var.active {
+    background-color: none;/* Add your desired background color for active state */;
+  }
+
+  .addStations{
+    margin-top: 2rem;
+  }
+
+  .addStaionName{
+    display: flex;
+    margin-bottom: 20px;
+  }
+
+.addstation_component{
+    background-color: var(--color-grey);
+    /* height: 35vh; */
+    height: max-content;
+    width: 15vw;
+    border-radius:15px;
+    padding-left: 20px;
+    padding-top: 15px;
+    padding-bottom: 20px;
+    margin: 1rem;
+}
+
+.addStation_container{
+    display: flex;
+    /* flex-wrap: wrap; */
+    flex-direction: row;
+    /* border: 2px solid red; */
+    overflow-x: auto; 
+}
+
+.addStations {
+  min-width: 18vw;
+}
+
+.addStation_container::-webkit-scrollbar {
+  display: none; 
+}
+
+.dropdown_addStation select{
+    margin-top: 1rem;
+    width: 10rem;
+    height: 2rem;
+    border-radius: 10px;
+    padding-left: 0.4rem;
+    font-size:15px;
+    font-weight: 500;
+    border: 2px solid #ECECEC;
+    color:#4f4d4d
+}
+
+.INP{
+  width: 4.3em;
+}
+
+.addstation_component input{
+    border:2px solid var(--color-orange);
+    border-radius: 6px;
+    height: 2.3em;
+    margin-bottom: 5px;
+    padding-left: 6px;
+}
+
+
+.addStationsBtn {
+  position: absolute;
+  bottom: 0%;
+  right: 15%;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  /* display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  margin-top: auto;
+  padding: 20px; */
+}
+
+
+.dropdown_morn_eve_Station select{
+  width: 10rem;
+  height: 2rem;
+  border-radius: 10px;
+  padding-left: 0.4rem;
+  font-size:15px;
+  font-weight: 500;
+  border: 2px solid #ECECEC;
+  color:#4f4d4d;
+  
+}
+
+.morn_eve{
+  color: var(--color-orange);
+}
+
+
+
+
+.addStationsBtn button {
+  padding: 10px;
+  /* Add other styles as needed */
+}
+
+.addstationcancelbtn{
+  width: 8rem;
+  height: 2.3rem;
+  border-radius: 20px; 
+  background-color: white;
+  color: var(--color-orange);
+  border: 2px solid var(--color-orange);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: var(--font-family);
+}
+
+

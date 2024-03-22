@@ -1,0 +1,52 @@
+.addStationsBtnLine {
+    position: absolute;
+    bottom: 5%;
+    right: 15%;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.newLine_dropdown{
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.newLineinput{
+    padding-top: 2rem;
+    padding-left: 15px;
+}
+
+.newLineinput input{
+    width: 12rem;
+    height: 2rem;
+    margin-right: 5rem;
+    padding-left: 10px;
+    border: 2px solid var(--color-grey);
+    border-radius: 8px;
+}
+
+
+.change_port_num select{
+    width: 14rem;
+    height: 2rem;
+    margin-top: 1rem;
+    border-radius: 10px;
+    padding-left: 1rem;
+    font-size:15px;
+    font-weight: 700;
+    border: 2px solid #ECECEC;
+    color:#4f4d4d;
+    /* margin-left: 2rem; */
+}
+
+.change_port_num{
+    margin: 1.5rem;
+}
+.changeport__container{
+    display: flex;
+    flex-wrap: wrap;
+    height: 20rem;
+}
+

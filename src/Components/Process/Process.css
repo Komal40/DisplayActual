@@ -1,0 +1,20 @@
+.process_container{
+    margin-left: 16rem;
+}
+
+.process_head {
+    margin-top: 2%;
+    display: flex;
+}
+
+.process_head p{
+    padding-right: 1%;
+}
+
+.process_para{
+    display: flex;
+}
+
+.process_err p{
+    padding: 10px;
+}

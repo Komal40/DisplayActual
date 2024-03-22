@@ -9,6 +9,10 @@
   background-color: grey;
 }
 
+.date_time{
+  width: 15rem;
+}
+
 .operator_cont{
     display: flex;
     margin-left: 15rem;

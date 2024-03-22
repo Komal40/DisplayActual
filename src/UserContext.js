@@ -5,14 +5,19 @@ const UserContext = createContext();
 export const UserProvider = ({ children }) => {
  
 const [userData, setUserData]=useState(null)
+const [totalLines, setTotalLines]=useState(0)
 
 const setLoginData=(data)=>{
   setUserData(data)
 }
 
+const getTotalLines=(data)=>{
+  setTotalLines(data)
+}
+
   return (
     <UserContext.Provider value={{
-      userData, setLoginData
+      userData, setLoginData,getTotalLines,totalLines
     }}>
       {children}
     </UserContext.Provider>

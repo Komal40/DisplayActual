@@ -3,20 +3,23 @@ import "./Dashboard.css";
 import Line from "../Line/Line";
 import Operator from "../Operator/Operator";
 import DashboardR from "../DashboardR/DashboardR";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSubmit } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import io from "socket.io-client";
-
+import { io as socketIOClient } from "socket.io-client";
+import { useUser } from "../../UserContext";
 
 export default function Dashboard() {
   const [stationData, setStationData] = useState({});
-  const [selectedLine, setSelectedLine] = useState("1");
+  const [selectedLine, setSelectedLine] = useState(1);
+  const [processData, setProcessData] = useState([]);
   const [activeLine, setActiveLine] = useState(null);
   const [socket, setSocket] = useState(null);
+  const {getTotalLines}=useUser()
 
   const navigate = useNavigate();
   const token = JSON.parse(localStorage.getItem("Token"));
+ const floor_no=JSON.parse(localStorage.getItem('floor_no'))
   console.log("object token", token);
   const currentDate = new Date();
   const month = currentDate.getMonth() + 1;
@@ -77,7 +80,7 @@ export default function Dashboard() {
 
       try {
         const params = new URLSearchParams();
-        params.append("floor_no", "G01 F02");
+        params.append("floor_no", floor_no);
 
         const response = await fetch(fullLink, {
           method: "POST",
@@ -104,12 +107,15 @@ export default function Dashboard() {
           const lines = JSON.parse(linesString);
           // Parse totalLines
           const totalLines = parseInt(responseData.totalLines);
+          getTotalLines(totalLines)
 
           setStationData({
             stations: stations,
             lines: lines,
             totalLines: totalLines,
           });
+
+          console.log("object set station data", setStationData);
         } else {
           const errorData = await response.text();
           console.error("API Error:", errorData);
@@ -123,39 +129,7 @@ export default function Dashboard() {
   }, [navigate, token]);
 
 
-  useEffect(() => {
-    // Initialize WebSocket connection using socket.io-client
-    const socket = io("ws://192.168.1.6:5000");
-
-    socket.on("connect", () => {
-      console.log("Connected to WebSocket server");
-    });
-
-    socket.on("message", (data) => {
-      console.log("Data received from WebSocket server:", data); // Log the received data
-      if (data.event === "update_work_for_operator") {
-        // Update station data based on the received data
-        updateStationData(data.data);
-      }
-    });
-
-    socket.on("error", (error) => {
-      console.error("WebSocket error:", error);
-    });
-
-    socket.on("disconnect", () => {
-      console.log("WebSocket connection closed");
-    });
-
-    setSocket(socket);
-
-    return () => {
-      // Close WebSocket connection when component unmounts
-      socket.close();
-    };
-  }, []);
-
-
+  
   const updateStationData = (updatedData) => {
     setStationData((prevData) => {
       const updatedStations = prevData.stations.map((station) => {
@@ -176,22 +150,59 @@ export default function Dashboard() {
       return { ...prevData, stations: updatedStations };
     });
   };
-  
 
 
+  useEffect(() => {
+    const link = "ws://192.168.1.6:5000";
 
+    // Get the current date
+    const currentDate = new Date();
 
+    // Get the current month (returns a number from 0 to 11, where 0 is January)
+    const currentMonth = currentDate.getMonth() + 1; // Adding 1 to match the human-readable format
 
+    // Get the current date of the month
+    const currentDay = currentDate.getDate();
+
+    // Convert the month and date to strings with leading zeros if necessary
+    const formattedMonth =
+      currentMonth < 10 ? `0${currentMonth}` : `${currentMonth}`;
+    const formattedDay = currentDay < 10 ? `0${currentDay}` : `${currentDay}`;
+
+    // Construct the WebSocket connection URL with query parameters
+    const fullUrl = `${link}?month=${encodeURIComponent(
+      formattedMonth
+    )}&date=${encodeURIComponent(formattedDay)}`;
+
+    const socket = socketIOClient(link, {
+      transports: ["websocket"],
+      withCredentials: true,
+    });
+
+    socket.on("update_work_for_operator", (data) => {
+      console.log("Received update from WebSocket:", data);
+      setProcessData(data.all_stations_data);
+    });
+
+    return () => {
+      socket.disconnect(); // Cleanup on component unmount
+    };
+  }, []);
 
   const handleLineClick = (line) => {
-    setSelectedLine(line);
+    const data=parseInt(line.split("L")[1])
+    setSelectedLine(data);
   };
+  
 
   const getLineNumber = (line) => {
     // Extract the last part of the line string and convert it to a number
     const lineNumber = parseInt(line.split("L")[1]);
     return isNaN(lineNumber) ? "" : `Line ${lineNumber}`;
   };
+
+  console.log("processData",processData)
+  console.log("object stationData",stationData)
 
   return (
     <>
@@ -208,39 +219,38 @@ export default function Dashboard() {
             ))}
         </div>
       </div>
-      <div className="stations-container">
-        {/* {stationData.stations &&
-          Object.entries(stationData.stations).map(
-            ([line, stations], index) =>
-              selectedLine === line && (
-                <div key={index}>
-                  <h3>Line: {line}</h3>
-                
-                  {stations.map((station, index) => (
-                    <div className="station-box" key={index}>
-                      {station}
-                    </div>
-                  ))}
-                </div>
-              )
-          )} */}
 
+      <div className="stations-container">       
         {stationData.stations &&
           Object.entries(stationData.stations).map(
             ([line, stations], index) => (
               <div
                 key={index}
-                style={{ display: selectedLine === line ? "block" : "none" }}
+                style={{ display: selectedLine == `${parseInt(line.split("L")[1])}` ? "block" : "none" }}
               >
                 <Line no={parseInt(line.split("L")[1])} />
-                <div className="dashboard_stations"> 
-                {stations.map((station, index) => (
-                  // <div className="station-box" key={index}>
-                   
-                      <div className="operator_line" >
+                <div className="dashboard_stations">
+                  {stations.map((station, index) => {
+                    const stationProcessData = processData.filter(
+                      (data) => data.station_id == station
+                    );
+                    
+                    console.log("object station process data",stationProcessData)
+                    // Check if stationProcessData is not empty before accessing its properties
+          const shift = stationProcessData.length > 0 ? stationProcessData[0].shift : "Unknown";
+          const passed = stationProcessData.length > 0 ? stationProcessData[0].passed : 0;
+          const failed = stationProcessData.length > 0 ? stationProcessData[0].failed : 0;
+          const startTime=stationProcessData.length>0?stationProcessData[0].start_shift_time:""
+          const endTime=stationProcessData.length>0?stationProcessData[0].end_shift_time:""
+          
+                    return (
+                      <div className="operator_line" key={index}>
                         <div className="operator_container1">
                           <div>
-                            <h3>Morning Shift</h3>
+                            <h4>Shift Timings</h4>
+                            {startTime && endTime && (
+                            <h5>{`(${startTime} - ${endTime})`}</h5>
+                          )}
                             <p className="operator_content">
                               Operator&nbsp;:&nbsp; <h4>jhvfhvfdnvnfdf</h4>
                             </p>
@@ -248,22 +258,24 @@ export default function Dashboard() {
                               Operator Skill:&nbsp;&nbsp;<h4></h4>
                             </p>
                             <p className="operator_content">
-                              Station :&nbsp;&nbsp; <h4>{station.station_id}</h4>
+                              Station :&nbsp;&nbsp;{" "}
+                              <h4>{station}</h4>
                             </p>
                             <p className="operator_content">
                               Process :&nbsp;&nbsp;<h4></h4>
                             </p>
+                            <p className="operator_content">
+                              Shift :&nbsp;&nbsp;<h4>{shift}</h4>
+                            </p>
                           </div>
-                          <div className="operator_below_content">
-                            
-                           {station.passed+station.failed || 0} Done&nbsp;Pass: {station.passed || 0}&nbsp; Fail: {station.failed || 0}&nbsp;
+                          <div className="operator_below_content">                            
+                            Done:{passed+failed } &nbsp;Pass: <span>{passed||0}</span> Fail: <span>{failed||0}</span>
                           </div>
                         </div>
                       </div>
-                    // {/* </div> */}
-               
-                ))}
-              </div>
+                    )
+                  })}
+                </div>
               </div>
             )
           )}

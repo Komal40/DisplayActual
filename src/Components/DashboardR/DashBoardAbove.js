@@ -77,7 +77,7 @@ export default function DashBoardAbove() {
               User Id:<h4></h4>
             </p>
           </div>
-          <div>
+          <div className="date_time">
             <p className="dashboard_content">{formattedDateTime()}</p>
           </div>
           <div className="dashboard_content">

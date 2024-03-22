@@ -3,6 +3,7 @@ import "./Login.css";
 import bg from "../Images/bg.png";
 import { json, useNavigate } from "react-router-dom";
 import { useUser } from "../../UserContext";
+import { Link } from "react-router-dom";
 
 
 export default function Login() {
@@ -42,6 +43,7 @@ export default function Login() {
 
         localStorage.setItem('Login',JSON.stringify(data))
         if (data.token) {
+          localStorage.setItem('floor_no', JSON.stringify(data.floor_no))
           localStorage.setItem('Token', JSON.stringify(data.token));
           setLoginData(data)
           // const token = localStorage.getItem('Token');
@@ -132,6 +134,7 @@ export default function Login() {
                   <div className="login_btn">
                     <button type="submit">Login</button>
                   </div>
+                  
                   <div className="pass_or_fail">
                     <div>
                       {error && <div className="error_message">{error}</div>}
@@ -139,6 +142,11 @@ export default function Login() {
                     <div className="success_msg">
                       {msg && <div className="success_message">{msg}</div>}
                     </div>
+                  </div>
+                  <div style={{marginTop:'2%'}}>
+                  <h4>Don't have an account{"  "}?{"      "}
+                    <Link to=''>Sign Up</Link>
+                  </h4>
                   </div>
                   <div></div>
                 </form>
