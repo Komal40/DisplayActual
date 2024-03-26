@@ -5,10 +5,11 @@
 .process_head {
     margin-top: 2%;
     display: flex;
+
 }
 
 .process_head p{
-    padding-right: 1%;
+    
 }
 
 .process_para{

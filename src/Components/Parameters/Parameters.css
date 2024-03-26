@@ -3,5 +3,29 @@
 }
 
 .parameters_head{
-   
+ display: flex;
+ width: 70%;
+ justify-content: space-around; 
+}
+
+.parameters_read{
+    display: flex;
+}
+
+.parameter_value{
+    display: flex;
+    padding: 2%;
+}
+
+.parameter_value p{
+    margin-right: 2%;
+}
+
+.parameter_value input{
+    border: 2px solid var(--color-orange);
+    border-radius: 10px;
+    height: 2rem;
+    width: 10rem;
+    margin-left: 2rem;
+    padding-left: 10px;
 }
