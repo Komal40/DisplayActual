@@ -3,32 +3,52 @@ import './Parts.css';
 import DashboardR from "../DashboardR/DashboardR";
 
 function Parts() {
-    const [showMsg, setShowMsg]=useState(false);
+    const [showMsg, setShowMsg]=useState('');
+    const [resMsg,setResMsg]=useState('')
+    const [showErrPopup,setShowErrPopup]=useState(false)
 
     const popUpRef=useRef()
-
+    const errRef=useRef()
+    const [showPopup, setShowPopup] = useState(false); 
+    const [errorMessage, setErrorMessage] = useState("");
     const [partId, setPartId] = useState('');
     const [partName, setPartName] = useState('');
     const [error, setError] = useState('');
 const token = JSON.parse(localStorage.getItem("Token"));
 const login = JSON.parse(localStorage.getItem("Login"))
 
-useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (popUpRef.current && !popUpRef.current.contains(event.target)) {
-        setShowMsg(false);
-      }
-    };
 
-    document.addEventListener("mousedown", handleClickOutside);
 
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+// const handleClickOutside = (e) => {
+//     if (e.target.classList.contains("err_param_popup")) {
+//       // If clicked outside of the pop-up
+//       setShowErrPopup(false); // Close the pop-up
+//     }
+//     if (e.target.classList.contains("success_param_popup")) {
+//       // If clicked outside of the pop-up
+//       setShowMsg(false); // Close the pop-up
+//     }
+//   };
+
+//   useEffect(() => {
+//     if (showErrPopup || showMsg) {
+//       document.addEventListener("mousedown", handleClickOutside);
+//     } else {
+//       document.removeEventListener("mousedown", handleClickOutside);
+//     }
+//     return () => {
+//       document.removeEventListener("mousedown", handleClickOutside);
+//     };
+//   }, [showErrPopup, showMsg]);
 
 
     const Add_part = async (e) => {
+
+        if(!partId || !partName){
+            setErrorMessage("Please fill all the fields.");
+            setShowErrPopup(true); // Show the pop-up if validation fails
+            return;
+        }
         e.preventDefault();
         const link = process.env.REACT_APP_BASE_URL;
         console.log('Base URL:', link);
@@ -51,9 +71,12 @@ useEffect(() => {
             });
 
             if (response.ok) {
-                setShowMsg(true)
-                // Handle successful response here
-                console.log('Part added successfully!');
+                setShowPopup(true)
+
+                const data=await response.json()
+                setShowMsg(data.Message) 
+                setPartId('')
+                setPartName('')
             } else {
                 // Handle error response here
                 console.error('Failed to add part');
@@ -64,6 +87,31 @@ useEffect(() => {
             setError("An unexpected error occurred");
         }
     };
+
+    
+   
+  const handleClickOutside = (e) => {
+    if (e.target.classList.contains("err_parts_popup")) {
+      // If clicked outside of the pop-up
+      setShowErrPopup(false); // Close the pop-up
+    }
+    if (e.target.classList.contains("success_parts_popup")) {
+      // If clicked outside of the pop-up
+      setShowPopup(false); // Close the pop-up
+    }
+  };
+
+  useEffect(() => {
+    if (showErrPopup || showPopup) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showErrPopup, showPopup]);
+    
 
     return (
         <div>
@@ -85,14 +133,29 @@ useEffect(() => {
                     <button onClick={Add_part}>ADD</button>
                 </div>
 
-                <div className="parts_err"><p>{error}</p></div>
+                {/* <div className="parts_err"><p>{error}</p></div> */}
             </div>
 
-            {showMsg && (
-        <div ref={popUpRef} className="parts_popup">
-          <p>Part Added Successfully!</p>
+            {showErrPopup && (
+        <div className="err_parts_popup">
+          <div className="err_parts_content">
+         <p>Please Fill all the details!</p>
+            </div>
         </div>
       )}
+
+
+{
+  showPopup && (
+    <div className="success_parts_popup">
+          <div className="success_parts_content">
+          <p>{showMsg}</p>
+            </div>
+        </div>
+  )
+}
+
+ 
         </div>
     );
 }

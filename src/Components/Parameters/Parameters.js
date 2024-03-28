@@ -7,12 +7,23 @@ function Parameters() {
   const [parts, setParts] = useState([]);
   const [processName, setProcessName] = useState([]);
   const [selectedPartNo, setSelectedPartNo] = useState("");
+  const [selectedProcessNo, setSelectedProcessNo] = useState("");
+  const [paramName, setParamName] = useState("");
+  const [paramId, setParamId] = useState("");
+  const [min, setMin] = useState("");
+  const [max, setMax] = useState("");
+  const [unit, setUnit] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [showMsg, setShowMsg] = useState("");
+  const [showPopup, setShowPopup] = useState(false);
+  const [showErrPopup, setShowErrPopup] = useState(false);
+
+  const [successMessage, setSuccessMessage] = useState("");
   const token = JSON.parse(localStorage.getItem("Token"));
   const login = JSON.parse(localStorage.getItem("Login"));
 
   const getParts = async (e) => {
     const link = process.env.REACT_APP_BASE_URL;
-
     const endPoint = "/floorincharge/get_parts";
     const fullLink = link + endPoint;
 
@@ -41,6 +52,33 @@ function Parameters() {
     getParts();
   }, []);
 
+  const closePopup = () => {
+    // Function to close the pop-up
+    setShowErrPopup(false);
+  };
+
+  const handleClickOutside = (e) => {
+    if (e.target.classList.contains("err_param_popup")) {
+      // If clicked outside of the pop-up
+      setShowErrPopup(false); // Close the pop-up
+    }
+    if (e.target.classList.contains("success_param_popup")) {
+      // If clicked outside of the pop-up
+      setShowPopup(false); // Close the pop-up
+    }
+  };
+
+  useEffect(() => {
+    if (showErrPopup || showPopup) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showErrPopup, showPopup]);
+
   const getProcesses = async (e) => {
     // e.preventDefault();
     const link = process.env.REACT_APP_BASE_URL;
@@ -63,9 +101,62 @@ function Parameters() {
 
       if (response.ok) {
         const data = await response.json();
-        console.log("get processes Successfully", data.data);
+
         setProcessName(data.data);
         console.log("object processName", processName);
+      } else {
+        console.error("Failed to fetch parts", response.error);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  const addParameters = async (e) => {
+    if (!paramName || !paramId || !selectedPartNo || !selectedProcessNo) {
+      setErrorMessage("Please fill all the fields.");
+      setShowErrPopup(true); // Show the pop-up if validation fails
+      return;
+    }
+
+    // e.preventDefault();
+    const link = process.env.REACT_APP_BASE_URL;
+    console.log("Base URL:", link);
+    const endPoint = "/floorincharge/add_parameter";
+    const fullLink = link + endPoint;
+
+    try {
+      const params = new URLSearchParams();
+      params.append("parameter_name", paramName);
+      params.append("parameter_no", selectedProcessNo + " " + paramId);
+      params.append("process_no", selectedProcessNo);
+      params.append("belongs_to_part", selectedPartNo);
+      params.append("added_by_owner", login.employee_id);
+      params.append("min", min);
+      params.append("max", max);
+      params.append("unit", unit);
+
+      // Log individual parameters
+      params.forEach((value, key) => console.log(`${key}: ${value}`));
+
+      const response = await fetch(fullLink, {
+        method: "POST",
+        body: params,
+        headers: {
+          "Content-type": "application/x-www-form-urlencoded",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        setShowPopup(true);
+        const data = await response.json();
+        console.log("objectresponse.Message", data.Message);
+        setShowMsg(data.Message);
+        setParamId('')
+        setParamName('')
+        setSelectedPartNo('')
+        setSelectedProcessNo('')
       } else {
         console.error("Failed to fetch parts", response.error);
       }
@@ -90,11 +181,32 @@ function Parameters() {
     setShowParameterValue(selectedValue === "Yes");
   };
 
+  const handleProcessChange = (e) => {
+    const val = e.target.value;
+    setSelectedProcessNo(val);
+  };
+
   return (
     <div>
       <div>
         <DashboardR />
       </div>
+
+      {showErrPopup && (
+        <div className="err_param_popup">
+          <div className="err_param_content">
+            <p>Please Fill all the details!</p>
+          </div>
+        </div>
+      )}
+
+      {showPopup && (
+        <div className="success_param_popup">
+          <div className="success_param_content">
+            <p>{showMsg}</p>
+          </div>
+        </div>
+      )}
 
       <div className="parameters_container">
         <div className="parameters_head">
@@ -114,7 +226,7 @@ function Parameters() {
           <div className="process_head">
             <p>Select Process Name:</p>
             <div className="update_dropdown">
-              <select>
+              <select onChange={handleProcessChange}>
                 <option>Select</option>
                 {processName &&
                   processName.map((part, index) => (
@@ -128,19 +240,43 @@ function Parameters() {
         <div className="parts_details">
           <p>
             Enter Parameter Name:
-            <input placeholder="Process Name" />
+            <input
+              placeholder="Parameter Name"
+              value={paramName}
+              onChange={(e) => setParamName(e.target.value)}
+            />
+          </p>
+          <p>
+            Enter Parameter Id:
+            <input
+              placeholder="Parameter Id"
+              value={paramId}
+              onChange={(e) => setParamId(e.target.value)}
+            />
           </p>
           <p>
             Enter Minimum:
-            <input placeholder="Maximum" />
+            <input
+              placeholder="Enter Min Value"
+              value={min}
+              onChange={(e) => setMin(e.target.value)}
+            />
           </p>
           <p>
             Enter Maximum:
-            <input placeholder="Minimum" />
+            <input
+              placeholder="Enter Max Value"
+              value={max}
+              onChange={(e) => setMax(e.target.value)}
+            />
           </p>
           <p>
             Enter Unit:
-            <input placeholder="Unit" />
+            <input
+              placeholder="Enter Unit"
+              value={unit}
+              onChange={(e) => setUnit(e.target.value)}
+            />
           </p>
         </div>
 
@@ -169,12 +305,17 @@ function Parameters() {
         )}
 
         <div className="parts_add">
-          <button>ADD</button>
+          <button onClick={addParameters}>ADD</button>
         </div>
 
         <div className="process_err">
           <p>Error Message:</p>
         </div>
+
+        {/* <div className="process_err">
+          <p>{errorMessage}</p>
+          <p>{successMessage}</p>
+        </div> */}
       </div>
     </div>
   );
