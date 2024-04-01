@@ -9,6 +9,7 @@ import Update from './Components/Update/Update';
 import Parts from './Components/Parts/Parts';
 import Process from './Components/Process/Process';
 import Parameters from './Components/Parameters/Parameters';
+import Task from './Components/Task/Task';
 
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
       <Route path='/parts' element={<ProtectedRoute Component={Parts}/>}/>
       <Route path='/process' element={<ProtectedRoute Component={Process}/>}/>
       <Route path='/para' element={<ProtectedRoute Component={Parameters}/>}/>
+      <Route path='/task' element={<ProtectedRoute Component={Task}/>}/>
     </Routes>
     </BrowserRouter>
     </>

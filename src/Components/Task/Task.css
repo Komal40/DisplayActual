@@ -1,0 +1,151 @@
+.task__main{
+    margin-left: 14rem;
+
+}
+
+.task_left_head{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.task__head{
+    display: flex;
+    justify-content: space-between;
+    margin-right:4rem;
+    margin-left: 2rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    align-items: center;
+}
+
+.task_right_head{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.task_left_view, .task_right_view{
+    font-size: 18px;
+}
+
+
+.task_right_btn,
+.task_left_btn{
+    background-color: var(--color-orange);
+    color:white;
+    /* background-color: #FF6C22; */
+    width: 8.5rem;
+    height: 2.3rem;
+    margin-left: 2rem;
+    font-size: 15px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: none;
+    cursor: pointer;
+}
+
+.task_qty_section{
+    display: flex;
+    /* justify-content: space-around; */
+    align-items: center;
+    margin: 2rem;
+
+}
+
+
+
+.task__qty{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.task__qty > * {
+    margin-right: 1rem; 
+  }
+
+.task_dropdown{
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.update_dropdown{
+    margin-left: 10px;
+}
+
+.task_qty_input{
+    border: 2px solid var(--color-orange);
+    border-radius: 8px;
+    width: 5rem;
+    padding-left: 10px;
+    height: 2rem;
+}
+
+
+.task_station_input{
+    border: 2px solid var(--color-orange);
+    border-radius: 8px;
+    padding-left: 10px;
+    width: 4rem;
+    height:1.6rem;
+}
+
+
+.task_qty_btn{
+    background-color: var(--color-orange);
+    color: white;
+    width: max-content;
+    padding: 20px;
+    height: 2.3rem;
+    margin-left: 2rem;
+    font-size: 15px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: none;
+    cursor: pointer;
+}
+
+.task_stations{
+background-color: var(--color-grey);
+border-radius: 10px;
+ display: flex;
+ width: max-content;
+ height: max-content;
+ margin: 1.5rem;
+}
+
+.task_stations_left{
+padding: 20px;
+}
+
+.task_stations_right{
+padding: 20px;
+}
+
+.task_stations_container{
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.task_dropdown select{
+    border-radius: 10px;
+    border: 2px solid #ECECEC;
+    color:#4f4d4d;
+    /* margin: 2px; */
+}
+
+.task_dropdown{
+    padding: 6px;
+}
+
+.task_stations_part{
+    padding: 7px;
+}
