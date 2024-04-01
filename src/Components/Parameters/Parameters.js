@@ -5,8 +5,7 @@ import useTokenExpirationCheck from "../useTokenExpirationCheck";
 import { useNavigate } from "react-router-dom";
 
 function Parameters() {
-
-  const navigate=useNavigate()
+  const navigate = useNavigate();
 
   const [showParameterValue, setShowParameterValue] = useState(false);
   const [parts, setParts] = useState([]);
@@ -24,13 +23,11 @@ function Parameters() {
   const [showErrPopup, setShowErrPopup] = useState(false);
 
   const [successMessage, setSuccessMessage] = useState("");
- 
 
   const login = JSON.parse(localStorage.getItem("Login"));
 
   const token = JSON.parse(localStorage.getItem("Token"));
   const tokenExpired = useTokenExpirationCheck(token, navigate);
-
 
   const getParts = async (e) => {
     const link = process.env.REACT_APP_BASE_URL;
@@ -163,10 +160,10 @@ function Parameters() {
         const data = await response.json();
         console.log("objectresponse.Message", data.Message);
         setShowMsg(data.Message);
-        setParamId('')
-        setParamName('')
-        setSelectedPartNo('')
-        setSelectedProcessNo('')
+        setParamId("");
+        setParamName("");
+        setSelectedPartNo("");
+        setSelectedProcessNo("");
       } else {
         console.error("Failed to fetch parts", response.error);
       }
@@ -281,7 +278,7 @@ function Parameters() {
             />
           </p>
           <p>
-            Enter Unit:
+            Enter Unit :
             <input
               placeholder="Enter Unit"
               value={unit}

@@ -2,11 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./Line.css";
 // import { useUser } from "../../UserContext";
 
-
-function Line({ no}) {
-
-  
-
+function Line({ no }) {
   return (
     <div>
       <div className="dashboard__below_container">
@@ -23,7 +19,8 @@ function Line({ no}) {
           <div>
             <div>
               <p className="dashboard_content">
-                <h4 style={{display:'flex'}}>Stations:{' '}
+                <h4 style={{ display: "flex" }}>
+                  Stations:{" "}
                   {/* {lineData.stations_count &&
                     lineData.stations_count
                       .filter((item) => item.line_number == `${no}`)
@@ -41,7 +38,8 @@ function Line({ no}) {
           <div>
             <div>
               <p className="dashboard_content">
-                <h4 style={{display:'flex'}}>{'Part Name: '}
+                <h4 style={{ display: "flex" }}>
+                  {"Part Name: "}
                   {/* {lineData.part_data &&
                     lineData.part_data
                       .filter((part) => part.line_id === `${no}`)
@@ -77,10 +75,10 @@ function Line({ no}) {
             </p>
           </div>
           <div>
-          <p className="dashboard_content">
-            <h4>Done</h4>
-          </p>
-        </div>
+            <p className="dashboard_content">
+              <h4>Done</h4>
+            </p>
+          </div>
         </div>
       </div>
 

@@ -9,11 +9,11 @@ const useTokenExpirationCheck = (token, navigate) => {
       const expirationTimeInSeconds = decodedToken.exp;
       const expirationDate = new Date(expirationTimeInSeconds * 1000);
       const currentDate = new Date();
-    //   const expirationDate = new Date(decodedToken.exp * 1000);
-  console.log("object expiration", expirationDate);
-  console.log("object currentdate", currentDate);
-  console.log("Expiration date time:", expirationDate.getTime());
-  console.log("Current date time:", currentDate.getTime());
+      //   const expirationDate = new Date(decodedToken.exp * 1000);
+      console.log("object expiration", expirationDate);
+      console.log("object currentdate", currentDate);
+      console.log("Expiration date time:", expirationDate.getTime());
+      console.log("Current date time:", currentDate.getTime());
 
       // Check if the token is expired
       if (currentDate > expirationDate) {
@@ -39,7 +39,9 @@ const useTokenExpirationCheck = (token, navigate) => {
     if (tokenExpired) {
       alert("Your session has expired. Please log in again.");
       localStorage.removeItem("Token");
+      localStorage.removeItem("TotalLines");
       localStorage.removeItem("Login");
+      localStorage.removeItem("floor_no");
       navigate("/");
     }
   }, [tokenExpired, navigate]);

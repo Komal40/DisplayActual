@@ -5,30 +5,27 @@ import { json, useNavigate } from "react-router-dom";
 import { useUser } from "../../UserContext";
 import { Link } from "react-router-dom";
 
-
 export default function Login() {
   const [name, setName] = useState("");
   const [pass, setPass] = useState("");
   const [error, setError] = useState("");
   const [msg, setMsg] = useState("");
   const navigate = useNavigate();
-  const {setLoginData}=useUser()
-
-
+  const { setLoginData } = useUser();
 
   const clickLogin = async (e) => {
     e.preventDefault();
-  
+
     const link = process.env.REACT_APP_BASE_URL;
-    console.log('Base URL:', link);
-    const endPoint = '/floorincharge/login';
+    console.log("Base URL:", link);
+    const endPoint = "/floorincharge/login";
     const fullLink = link + endPoint;
-  
+
     try {
       const params = new URLSearchParams();
       params.append("employee_id", name);
       params.append("password", pass);
-      
+
       const response = await fetch(fullLink, {
         method: "POST",
         body: params,
@@ -36,35 +33,35 @@ export default function Login() {
           "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
         },
       });
-  
+
       if (response.ok) {
         const data = await response.json();
         console.log("loginData", data);
 
-        localStorage.setItem('Login',JSON.stringify(data))
+        localStorage.setItem("Login", JSON.stringify(data));
         if (data.token) {
-          localStorage.setItem('floor_no', JSON.stringify(data.floor_no))
-          localStorage.setItem('Token', JSON.stringify(data.token));
-          setLoginData(data)
+          localStorage.setItem("floor_no", JSON.stringify(data.floor_no));
+          localStorage.setItem("Token", JSON.stringify(data.token));
+          setLoginData(data);
           // const token = localStorage.getItem('Token');
           if (data.token !== undefined && data.token !== null) {
             // Token exists, navigate to dashboard
             setName("");
             setPass("");
-            navigate('/app');
+            navigate("/app");
           } else {
             // Token does not exist, show error message
             setError("Failed to login. Please try again later.");
           }
         }
-      } 
+      }
       // else if (response.status == 401) {
       //   localStorage.removeItem("Token");
       //   navigate('/');
       // }
       else {
         console.error("HTTP Error:", response.status);
-        navigate('/');
+        navigate("/");
         setError("Failed to login. Please try again later.");
       }
     } catch (error) {
@@ -72,9 +69,6 @@ export default function Login() {
       setError("An unexpected error occurred");
     }
   };
-  
-  
-
 
   return (
     <>
@@ -134,7 +128,7 @@ export default function Login() {
                   <div className="login_btn">
                     <button type="submit">Login</button>
                   </div>
-                  
+
                   <div className="pass_or_fail">
                     <div>
                       {error && <div className="error_message">{error}</div>}
@@ -143,10 +137,11 @@ export default function Login() {
                       {msg && <div className="success_message">{msg}</div>}
                     </div>
                   </div>
-                  <div style={{marginTop:'2%'}}>
-                  <h4>Don't have an account{"  "}?{"      "}
-                    <Link to=''>Sign Up</Link>
-                  </h4>
+                  <div style={{ marginTop: "2%" }}>
+                    <h4>
+                      Don't have an account{"  "}?{"      "}
+                      <Link to="">Sign Up</Link>
+                    </h4>
                   </div>
                   <div></div>
                 </form>

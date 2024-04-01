@@ -16,11 +16,11 @@ export default function Dashboard() {
   const [processData, setProcessData] = useState([]);
   const [activeLine, setActiveLine] = useState(null);
   const [socket, setSocket] = useState(null);
-  const {getTotalLines}=useUser()
+  const { getTotalLines } = useUser();
 
   const navigate = useNavigate();
   const token = JSON.parse(localStorage.getItem("Token"));
- const floor_no=JSON.parse(localStorage.getItem('floor_no'))
+  const floor_no = JSON.parse(localStorage.getItem("floor_no"));
   console.log("object token", token);
   const currentDate = new Date();
   const month = currentDate.getMonth() + 1;
@@ -36,8 +36,8 @@ export default function Dashboard() {
   // console.log("Current date time:", currentDate.getTime());
   // const [tokenExpired, setTokenExpired] = useState(false);
 
-   // Call the custom hook
-   const tokenExpired = useTokenExpirationCheck(token, navigate);
+  // Call the custom hook
+  const tokenExpired = useTokenExpirationCheck(token, navigate);
 
   // useEffect(() => {
   //   if (token) {
@@ -111,7 +111,9 @@ export default function Dashboard() {
           const lines = JSON.parse(linesString);
           // Parse totalLines
           const totalLines = parseInt(responseData.totalLines);
-          getTotalLines(totalLines)
+          // Set totalLines in local storage
+          localStorage.setItem("TotalLines", totalLines);
+          getTotalLines(totalLines);
 
           setStationData({
             stations: stations,
@@ -132,8 +134,6 @@ export default function Dashboard() {
     fetchData();
   }, [navigate, token]);
 
-
-  
   const updateStationData = (updatedData) => {
     setStationData((prevData) => {
       const updatedStations = prevData.stations.map((station) => {
@@ -154,7 +154,6 @@ export default function Dashboard() {
       return { ...prevData, stations: updatedStations };
     });
   };
-
 
   useEffect(() => {
     const link = "ws://192.168.1.6:5000";
@@ -194,10 +193,9 @@ export default function Dashboard() {
   }, []);
 
   const handleLineClick = (line) => {
-    const data=parseInt(line.split("L")[1])
+    const data = parseInt(line.split("L")[1]);
     setSelectedLine(data);
   };
-  
 
   const getLineNumber = (line) => {
     // Extract the last part of the line string and convert it to a number
@@ -205,8 +203,8 @@ export default function Dashboard() {
     return isNaN(lineNumber) ? "" : `Line ${lineNumber}`;
   };
 
-  console.log("processData",processData)
-  console.log("object stationData",stationData)
+  console.log("processData", processData);
+  console.log("object stationData", stationData);
 
   return (
     <>
@@ -222,30 +220,35 @@ export default function Dashboard() {
               </button>
             ))} */}
 
-{stationData.lines &&
-  stationData.lines
-    .sort((a, b) => {
-      // Extract the line numbers from the line names
-      const lineA = parseInt(a.split("L")[1]);
-      const lineB = parseInt(b.split("L")[1]);
-      // Compare the line numbers
-      return lineA - lineB;
-    })
-    .map((line, index) => (
-      <button key={index} onClick={() => handleLineClick(line)}>
-        {`Line ${parseInt(line.split("L")[1])}`}
-      </button>
-    ))}
+          {stationData.lines &&
+            stationData.lines
+              .sort((a, b) => {
+                // Extract the line numbers from the line names
+                const lineA = parseInt(a.split("L")[1]);
+                const lineB = parseInt(b.split("L")[1]);
+                // Compare the line numbers
+                return lineA - lineB;
+              })
+              .map((line, index) => (
+                <button key={index} onClick={() => handleLineClick(line)}>
+                  {`Line ${parseInt(line.split("L")[1])}`}
+                </button>
+              ))}
         </div>
       </div>
 
-      <div className="stations-container">       
+      <div className="stations-container">
         {stationData.stations &&
           Object.entries(stationData.stations).map(
             ([line, stations], index) => (
               <div
                 key={index}
-                style={{ display: selectedLine == `${parseInt(line.split("L")[1])}` ? "block" : "none" }}
+                style={{
+                  display:
+                    selectedLine == `${parseInt(line.split("L")[1])}`
+                      ? "block"
+                      : "none",
+                }}
               >
                 <Line no={parseInt(line.split("L")[1])} />
                 <div className="dashboard_stations">
@@ -253,23 +256,41 @@ export default function Dashboard() {
                     const stationProcessData = processData.filter(
                       (data) => data.station_id == station
                     );
-                    
-                    console.log("object station process data",stationProcessData)
+
+                    console.log(
+                      "object station process data",
+                      stationProcessData
+                    );
                     // Check if stationProcessData is not empty before accessing its properties
-          const shift = stationProcessData.length > 0 ? stationProcessData[0].shift : "Unknown";
-          const passed = stationProcessData.length > 0 ? stationProcessData[0].passed : 0;
-          const failed = stationProcessData.length > 0 ? stationProcessData[0].failed : 0;
-          const startTime=stationProcessData.length>0?stationProcessData[0].start_shift_time:""
-          const endTime=stationProcessData.length>0?stationProcessData[0].end_shift_time:""
-          
+                    const shift =
+                      stationProcessData.length > 0
+                        ? stationProcessData[0].shift
+                        : "Unknown";
+                    const passed =
+                      stationProcessData.length > 0
+                        ? stationProcessData[0].passed
+                        : 0;
+                    const failed =
+                      stationProcessData.length > 0
+                        ? stationProcessData[0].failed
+                        : 0;
+                    const startTime =
+                      stationProcessData.length > 0
+                        ? stationProcessData[0].start_shift_time
+                        : "";
+                    const endTime =
+                      stationProcessData.length > 0
+                        ? stationProcessData[0].end_shift_time
+                        : "";
+
                     return (
                       <div className="operator_line" key={index}>
                         <div className="operator_container1">
                           <div>
                             <h4>Shift Timings</h4>
                             {startTime && endTime && (
-                            <h5>{`(${startTime} - ${endTime})`}</h5>
-                          )}
+                              <h5>{`(${startTime} - ${endTime})`}</h5>
+                            )}
                             <p className="operator_content">
                               Operator&nbsp;:&nbsp; <h4>jhvfhvfdnvnfdf</h4>
                             </p>
@@ -277,8 +298,7 @@ export default function Dashboard() {
                               Operator Skill:&nbsp;&nbsp;<h4></h4>
                             </p>
                             <p className="operator_content">
-                              Station :&nbsp;&nbsp;{" "}
-                              <h4>{station}</h4>
+                              Station :&nbsp;&nbsp; <h4>{station}</h4>
                             </p>
                             <p className="operator_content">
                               Process :&nbsp;&nbsp;<h4></h4>
@@ -287,12 +307,14 @@ export default function Dashboard() {
                               Shift :&nbsp;&nbsp;<h4>{shift}</h4>
                             </p>
                           </div>
-                          <div className="operator_below_content">                            
-                            Done:{passed+failed } &nbsp;Pass: <span>{passed||0}</span> Fail: <span>{failed||0}</span>
+                          <div className="operator_below_content">
+                            Done:{passed + failed} &nbsp;Pass:{" "}
+                            <span>{passed || 0}</span> Fail:{" "}
+                            <span>{failed || 0}</span>
                           </div>
                         </div>
                       </div>
-                    )
+                    );
                   })}
                 </div>
               </div>

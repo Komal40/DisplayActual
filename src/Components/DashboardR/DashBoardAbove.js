@@ -2,17 +2,16 @@ import React, { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { IoNotificationsOutline } from "react-icons/io5";
 import { useState } from "react";
-import './DashboardAbove.css'
+import "./DashboardAbove.css";
 
 import { useUser } from "../../UserContext";
 
-
 export default function DashBoardAbove() {
   const [currentTime, setCurrentTime] = useState(new Date());
-  const userDataString = localStorage.getItem('Login');
+  const userDataString = localStorage.getItem("Login");
   const userData = userDataString ? JSON.parse(userDataString) : null;
-  const [notify, setNotify]=useState([])
-  const [showModal, setShowModal] = useState(false); 
+  const [notify, setNotify] = useState([]);
+  const [showModal, setShowModal] = useState(false);
   const token = JSON.parse(localStorage.getItem("Token"));
   const login = JSON.parse(localStorage.getItem("Login"));
 
@@ -32,34 +31,33 @@ export default function DashBoardAbove() {
     second: "numeric",
     hour12: true,
   });
-  
+
   const formattedDateTime = () => {
     const suffixes = ["st", "nd", "rd"];
     const currentDate = new Date();
-  
+
     // Get the date components
     const day = currentDate.getDate();
     const monthName = currentDate.toLocaleString("en-US", { month: "short" });
     const year = currentDate.getFullYear();
-  
+
     // Get the time components
     const hours = currentDate.getHours();
     const minutes = currentDate.getMinutes();
     const seconds = currentDate.getSeconds();
-  
+
     // Get the suffix for the day
     let daySuffix = "th";
     if (day >= 1 && day <= 3) {
       daySuffix = suffixes[day - 1] || "th";
     }
-  
+
     // Format the date and time string
     const formattedDate = `${day}${daySuffix} ${monthName} ${year}`;
     const formattedTime = `${hours}:${minutes}:${seconds}`;
-  
+
     return `${formattedDate} : ${formattedTime}`;
   };
-  
 
   const showNotification = async (e) => {
     e.preventDefault();
@@ -81,13 +79,12 @@ export default function DashBoardAbove() {
       });
 
       if (response.ok) {
-        setShowModal(true); 
+        setShowModal(true);
 
         const data = await response.json();
-        console.log(data)
-        setNotify(data.Notifications)
-        console.log("get notification",notify);
-
+        console.log(data);
+        setNotify(data.Notifications);
+        console.log("get notification", notify);
       } else {
         console.error("Failed to fetch parts", response.error);
       }
@@ -96,16 +93,18 @@ export default function DashBoardAbove() {
     }
   };
 
-
   return (
     <div>
       <div className="dashboard_container">
         <div className="dashboard_navbar">
           <div>
             <p className="dashboard_content">
-              Name: <h4>
-              {userData ? `${userData.fName} ${userData.lName}` : "Loading..."}
-                </h4>
+              Name:{" "}
+              <h4>
+                {userData
+                  ? `${userData.fName} ${userData.lName}`
+                  : "Loading..."}
+              </h4>
             </p>
           </div>
           {/* <div>
@@ -122,20 +121,22 @@ export default function DashBoardAbove() {
             <p className="dashboard_content">{formattedDateTime()}</p>
           </div>
           <div className="dashboard_content">
-            <IoNotificationsOutline className="notify_bell" onClick={showNotification} />
+            <IoNotificationsOutline
+              className="notify_bell"
+              onClick={showNotification}
+            />
           </div>
         </div>
         {showModal && (
-        <NotificationModal
-          notifications={notify}
-          closeModal={() => setShowModal(false)}
-        />
-      )}
+          <NotificationModal
+            notifications={notify}
+            closeModal={() => setShowModal(false)}
+          />
+        )}
       </div>
     </div>
   );
 }
-
 
 const NotificationModal = ({ notifications, closeModal }) => {
   return (
@@ -146,14 +147,15 @@ const NotificationModal = ({ notifications, closeModal }) => {
         </span>
         <h2>Notification</h2>
         <ul>
-        {notifications.map((notification, index) => (
+          {notifications.map((notification, index) => (
             <li key={index}>
-            <p>{`${index + 1}. ${notification.csp_name} at ${notification.station_id}, created at ${notification.created_at}`}</p>
-          </li>
+              <p>{`${index + 1}. ${notification.csp_name} at ${
+                notification.station_id
+              }, created at ${notification.created_at}`}</p>
+            </li>
           ))}
         </ul>
       </div>
     </div>
   );
 };
-

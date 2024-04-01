@@ -1,26 +1,21 @@
-import React from 'react'
+import React from "react";
 // import { useUser } from '../../UserContext'
 
-
 export default function DashBoardBelow() {
-
-    
-    // const {lines}=useUser()
-    // const {totalStations}=useUser()
-    // const {passVal}=useUser()
-    // const {failVal}=useUser()
-    // const {activeStations}=useUser()
-
+  // const {lines}=useUser()
+  // const {totalStations}=useUser()
+  // const {passVal}=useUser()
+  // const {failVal}=useUser()
+  // const {activeStations}=useUser()
 
   return (
     <div>
-      
       <div className="dashboard__container">
         <div className="dashboard_container_leftside">
           <div>
             <div>
               <p className="dashboard_content">
-                Total Lines: 
+                Total Lines:
                 {/* <h4>{lines}</h4> */}
               </p>
             </div>
@@ -30,7 +25,7 @@ export default function DashBoardBelow() {
           <div>
             <div>
               <p className="dashboard_content">
-                Total Stations: 
+                Total Stations:
                 {/* <h4>{totalStations} </h4> */}
               </p>
             </div>
@@ -41,7 +36,7 @@ export default function DashBoardBelow() {
             <div>
               <p className="dashboard_content">
                 Active Stations:
-                 {/* <h4>{activeStations} </h4> */}
+                {/* <h4>{activeStations} </h4> */}
               </p>
             </div>
             <div className="dashboard_content_leftline"></div>
@@ -61,21 +56,24 @@ export default function DashBoardBelow() {
             <p className="dashboard_content">
               <h4>
                 {/* {passVal} */}
-                 passed</h4>
+                passed
+              </h4>
             </p>
           </div>
           <div>
             <p className="dashboard_content">
               <h4>
                 {/* {failVal} */}
-                 failed</h4>
+                failed
+              </h4>
             </p>
           </div>
           <div>
             <p className="dashboard_content">
               <h4>
                 {/* {passVal+failVal}  */}
-                Done</h4>
+                Done
+              </h4>
             </p>
           </div>
         </div>
@@ -83,5 +81,5 @@ export default function DashBoardBelow() {
 
       <div className="dashboard_line"></div>
     </div>
-  )
+  );
 }

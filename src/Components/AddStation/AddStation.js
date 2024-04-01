@@ -8,10 +8,10 @@ import { useUser } from "../../UserContext";
 import { FiLogIn } from "react-icons/fi";
 import Login from "../Login/Login";
 
-const AddStationModal = ({ showModal, closeModal }) => {
+const AddStationModal = ({ showModal, closeModal, totalLines }) => {
   const [count, setCount] = useState(1);
   const [stationnum, setStationNum] = useState();
-const floor_no=JSON.parse(localStorage.getItem("floor_no"))
+  const floor_no = JSON.parse(localStorage.getItem("floor_no"));
 
   const [selectedMornEmployee, setSelectedMornEmployee] = useState("");
   const [selectedEveEmployee, setSelectedEveEmployee] = useState("");
@@ -20,9 +20,9 @@ const floor_no=JSON.parse(localStorage.getItem("floor_no"))
   const [eveValue, setEveValue] = useState("");
   const [skill, setSkill] = useState("");
 
-  const [mornName, setMornName]=useState("");
-  const [eveName, setEveName]=useState("")
-  const [empSkill, setEmpSkill]=useState("")
+  const [mornName, setMornName] = useState("");
+  const [eveName, setEveName] = useState("");
+  const [empSkill, setEmpSkill] = useState("");
   // const [idLen, setIdLen]=useState(stationLine)
   const [stationid, setStationid] = useState();
   const [arr, setArr] = useState([]);
@@ -31,7 +31,7 @@ const floor_no=JSON.parse(localStorage.getItem("floor_no"))
     // setStationNum(stationnum);
   };
 
-  const cancel=()=>{
+  const cancel = () => {
     setSelectedMornEmployee("");
     setSelectedEveEmployee("");
     setSelectedProcess("");
@@ -41,8 +41,7 @@ const floor_no=JSON.parse(localStorage.getItem("floor_no"))
     setMornName("");
     setEveName("");
     setEmpSkill("");
-  }
-
+  };
 
   const closeAndClearModal = () => {
     // Reset all state variables to their initial values
@@ -61,8 +60,6 @@ const floor_no=JSON.parse(localStorage.getItem("floor_no"))
     closeModal();
   };
 
-
-
   const subCount = () => {
     if (count == 1) return;
     setCount((prevCount) => prevCount - 1);
@@ -74,39 +71,41 @@ const floor_no=JSON.parse(localStorage.getItem("floor_no"))
   };
 
   const generateDivs = () => {
+    const divs = [];
 
-    const divs=[]
+    // const lineNum = parseInt(floor_no.split(" ")[1]);
 
-    // const lineNum = parseInt(floor_no.split(" ")[1]); 
+    // Extracting line number from floor_no
+    // Assuming you have the lineNum available from the backend
+    // const lineStartNum = 1; // Starting line number
+    // const lineEndNum = lineStartNum + lineCount - 1;
 
-      // Extracting line number from floor_no
- // Assuming you have the lineNum available from the backend
-  // const lineStartNum = 1; // Starting line number
-  // const lineEndNum = lineStartNum + lineCount - 1;
-
-
-  
-  const lineNumMatch = floor_no.match(/\d+/); // Extracts the numeric part of floor_no
-  const lineNum = lineNumMatch ? parseInt(lineNumMatch[0]) : 1;
+    // const lineNumMatch = floor_no.match(/\d+/); // Extracts the numeric part of floor_no
+    // const lineNum = lineNumMatch ? parseInt(lineNumMatch[0]) : 1;
+    const lineNum = parseInt(totalLines) + 1;
 
     for (let i = 0; i < count; i++) {
+      const stationNum = i + 1;
+      const stationCode =
+        stationNum < 10 ? `S0${stationNum}` : `S${stationNum}`;
+      const lineCode = lineNum < 10 ? `L0${lineNum}` : `L${lineNum}`;
+      // const lineCode = `L${lineStartNum + i}`.padStart(3, '0');
 
-      const stationNum=i+1
-      const stationCode = stationNum < 10 ? `S0${stationNum}` : `S${stationNum}`;
-    const lineCode = lineNum < 10 ? `L0${lineNum}` : `L${lineNum}`;
-    // const lineCode = `L${lineStartNum + i}`.padStart(3, '0');
-
-      const currentStationId = divs[i] ||  1;
+      const currentStationId = divs[i] || 1;
       divs.push(
         <div className="addStations" key={i}>
           <div className="addstation_component">
             {/* <p className="addStaionName"></p> */}
-            <p>Station Code:{floor_no} {lineCode} {stationCode} </p>
-            <p>Line Code:{floor_no} {lineCode}</p>
+            <p>
+              Station Code:{floor_no} {lineCode} {stationCode}{" "}
+            </p>
+            <p>
+              Line Code:{floor_no} {lineCode}
+            </p>
             <p>Floor No: {floor_no}</p>
-            <p>Building Code: {floor_no.split(" ")[0]}</p>            
-            </div>          
-          </div>      
+            <p>Building Code: {floor_no.split(" ")[0]}</p>
+          </div>
+        </div>
       );
     }
     return divs;
@@ -135,7 +134,7 @@ const floor_no=JSON.parse(localStorage.getItem("floor_no"))
           <div className={`count_var ${count > 0 ? "active" : ""}`}>
             {count}
           </div>
-         
+
           <div>
             <FaPlus className="subSign" onClick={() => addCount()} />
           </div>
@@ -149,7 +148,9 @@ const floor_no=JSON.parse(localStorage.getItem("floor_no"))
       </div>
 
       <div className="addStationsBtn">
-        <button className="addstationcancelbtn" onClick={cancel}>Cancel</button>
+        <button className="addstationcancelbtn" onClick={cancel}>
+          Cancel
+        </button>
         <div className="update__btn">
           <FaRegSave className="update_regsave" />
           <span>

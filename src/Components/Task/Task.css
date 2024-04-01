@@ -139,7 +139,6 @@ padding: 20px;
     border-radius: 10px;
     border: 2px solid #ECECEC;
     color:#4f4d4d;
-    /* margin: 2px; */
 }
 
 .task_dropdown{
@@ -149,3 +148,4 @@ padding: 20px;
 .task_stations_part{
     padding: 7px;
 }
+

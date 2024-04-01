@@ -17,19 +17,19 @@ import useTokenExpirationCheck from "../useTokenExpirationCheck";
 import { useNavigate } from "react-router-dom";
 
 export default function Update() {
-  const navigate=useNavigate()
+  const navigate = useNavigate();
 
   const [showModel, setShowModel] = useState(false);
   const [showLine, setShowLine] = useState(false);
   const [arr, setArr] = useState([]);
-  const [line, setLine] = useState(0)
+  const [line, setLine] = useState(0);
   const [localLineNum, setLocalLineNum] = useState();
   const [selectedPartId, setSelectedPartId] = useState(null);
-  const {totalLines}=useUser()
- 
+  // const {totalLines}=useUser()
+  const totalLines = localStorage.getItem("TotalLines");
+
   const token = JSON.parse(localStorage.getItem("Token"));
   const tokenExpired = useTokenExpirationCheck(token, navigate);
-
 
   const openModal = () => {
     setShowModel(true);
@@ -45,24 +45,18 @@ export default function Update() {
     console.log("Selected Part ID:", selectedOption);
   };
 
-  
   const addStation = () => {
     setShowModel(true);
     // fetch api of getting getlogin process
   };
 
-
   const addLine = () => {
     setShowLine(true);
   };
 
-
   const closeLine = () => {
     setShowLine(false);
   };
-
-  
-
 
   return (
     <>
@@ -79,23 +73,22 @@ export default function Update() {
             <div className="update_dropdown">
               <h3>Number Of Lines:{totalLines}</h3>
             </div>
-            
-          <div className="update__btn">            
-            <span>
-              <button onClick={openModal}>Add New Line</button>
-            </span>
-          </div>
-          </div>
-          
-          </div>
 
+            <div className="update__btn">
+              <span>
+                <button onClick={openModal}>Add New Line</button>
+              </span>
+            </div>
+          </div>
+        </div>
 
         {/* <AddLine showModal={showLine} closeModal={closeLine} /> */}
-        <AddStation showModal={showModel} closeModal={closeModel} />
+        <AddStation
+          showModal={showModel}
+          closeModal={closeModel}
+          totalLines={totalLines}
+        />
       </div>
-
     </>
   );
 }
-
-
