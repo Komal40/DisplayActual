@@ -76,11 +76,9 @@
     background-color: var(--color-grey);
     /* height: 35vh; */
     height: max-content;
-    width: 15vw;
+    width: max-content;
     border-radius:15px;
-    padding-left: 20px;
-    padding-top: 15px;
-    padding-bottom: 20px;
+    padding: 20px;
     margin: 1rem;
 }
 

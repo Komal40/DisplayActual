@@ -8,6 +8,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { io as socketIOClient } from "socket.io-client";
 import { useUser } from "../../UserContext";
+import useTokenExpirationCheck from "../useTokenExpirationCheck";
 
 export default function Dashboard() {
   const [stationData, setStationData] = useState({});
@@ -29,48 +30,51 @@ export default function Dashboard() {
   //   const expirationTimeInSeconds = decodedToken.exp;
   //   // const expirationDate = new Date(expirationTimeInSeconds * 1000);
   const expirationDate = new Date(decodedToken.exp * 1000);
-  console.log("object expiration", expirationDate);
-  console.log("object currentdate", currentDate);
-  console.log("Expiration date time:", expirationDate.getTime());
-  console.log("Current date time:", currentDate.getTime());
-  const [tokenExpired, setTokenExpired] = useState(false);
+  // console.log("object expiration", expirationDate);
+  // console.log("object currentdate", currentDate);
+  // console.log("Expiration date time:", expirationDate.getTime());
+  // console.log("Current date time:", currentDate.getTime());
+  // const [tokenExpired, setTokenExpired] = useState(false);
 
-  useEffect(() => {
-    if (token) {
-      const decodedToken = JSON.parse(atob(token.split(".")[1]));
-      const expirationTimeInSeconds = decodedToken.exp;
-      const expirationDate = new Date(expirationTimeInSeconds * 1000);
-      const currentDate = new Date();
+   // Call the custom hook
+   const tokenExpired = useTokenExpirationCheck(token, navigate);
 
-      // Check if the token is expired
-      if (currentDate > expirationDate) {
-        setTokenExpired(true);
-      } else {
-        // If the token is not expired, calculate the remaining time until expiration
-        const timeUntilExpiration =
-          expirationDate.getTime() - currentDate.getTime();
+  // useEffect(() => {
+  //   if (token) {
+  //     const decodedToken = JSON.parse(atob(token.split(".")[1]));
+  //     const expirationTimeInSeconds = decodedToken.exp;
+  //     const expirationDate = new Date(expirationTimeInSeconds * 1000);
+  //     const currentDate = new Date();
 
-        // Set a timeout to update the tokenExpired state when the token expires
-        const timeoutId = setTimeout(() => {
-          setTokenExpired(true);
-        }, timeUntilExpiration);
+  //     // Check if the token is expired
+  //     if (currentDate > expirationDate) {
+  //       setTokenExpired(true);
+  //     } else {
+  //       // If the token is not expired, calculate the remaining time until expiration
+  //       const timeUntilExpiration =
+  //         expirationDate.getTime() - currentDate.getTime();
 
-        // Clean up the timeout when the component unmounts or when the token changes
-        return () => clearTimeout(timeoutId);
-      }
-    }
-  }, [token]);
+  //       // Set a timeout to update the tokenExpired state when the token expires
+  //       const timeoutId = setTimeout(() => {
+  //         setTokenExpired(true);
+  //       }, timeUntilExpiration);
 
-  useEffect(() => {
-    // Redirect to login page if token is expired
-    if (tokenExpired) {
-      // toast.error("Your session has expired. Please log in again.");
-      alert("Your session has expired. Please log in again.");
-      localStorage.removeItem("Token");
-      localStorage.removeItem("Login");
-      navigate("/");
-    }
-  }, [tokenExpired, navigate]);
+  //       // Clean up the timeout when the component unmounts or when the token changes
+  //       return () => clearTimeout(timeoutId);
+  //     }
+  //   }
+  // }, [token]);
+
+  // useEffect(() => {
+  //   // Redirect to login page if token is expired
+  //   if (tokenExpired) {
+  //     // toast.error("Your session has expired. Please log in again.");
+  //     alert("Your session has expired. Please log in again.");
+  //     localStorage.removeItem("Token");
+  //     localStorage.removeItem("Login");
+  //     navigate("/");
+  //   }
+  // }, [tokenExpired, navigate]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -211,12 +215,27 @@ export default function Dashboard() {
 
       <div className="arrow_btn">
         <div className="dashboard_line_buttons">
-          {stationData.lines &&
+          {/* {stationData.lines &&
             stationData.lines.map((line, index) => (
               <button key={index} onClick={() => handleLineClick(line)}>
                 {`Line ${parseInt(line.split("L")[1])}`}
               </button>
-            ))}
+            ))} */}
+
+{stationData.lines &&
+  stationData.lines
+    .sort((a, b) => {
+      // Extract the line numbers from the line names
+      const lineA = parseInt(a.split("L")[1]);
+      const lineB = parseInt(b.split("L")[1]);
+      // Compare the line numbers
+      return lineA - lineB;
+    })
+    .map((line, index) => (
+      <button key={index} onClick={() => handleLineClick(line)}>
+        {`Line ${parseInt(line.split("L")[1])}`}
+      </button>
+    ))}
         </div>
       </div>
 

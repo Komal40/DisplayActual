@@ -1,9 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import bg from "../Images/bg.png";
 import './Register.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import useTokenExpirationCheck from '../useTokenExpirationCheck';
 
 function Register() {
+  const navigate=useNavigate()
+
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const popUpRef = useRef(null);
 
@@ -19,6 +22,8 @@ function Register() {
 
   const [passwordError, setPasswordError] = useState('');
   const [mobileError,setMobileError]=useState('')
+  const token = JSON.parse(localStorage.getItem("Token"));
+  const tokenExpired = useTokenExpirationCheck(token, navigate);
 
   const handleChange = (e) => {
     const password = passwordRef.current.value;

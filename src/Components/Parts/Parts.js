@@ -1,8 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import './Parts.css';
 import DashboardR from "../DashboardR/DashboardR";
+import useTokenExpirationCheck from "../useTokenExpirationCheck";
+import { useNavigate } from "react-router-dom";
 
 function Parts() {
+    const navigate=useNavigate()
+    
     const [showMsg, setShowMsg]=useState('');
     const [resMsg,setResMsg]=useState('')
     const [showErrPopup,setShowErrPopup]=useState(false)
@@ -17,6 +21,7 @@ function Parts() {
 const token = JSON.parse(localStorage.getItem("Token"));
 const login = JSON.parse(localStorage.getItem("Login"))
 
+const tokenExpired = useTokenExpirationCheck(token, navigate);
 
 
 // const handleClickOutside = (e) => {

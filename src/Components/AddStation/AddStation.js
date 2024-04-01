@@ -57,7 +57,6 @@ const floor_no=JSON.parse(localStorage.getItem("floor_no"))
     setMornName("");
     setEveName("");
     setEmpSkill("");
-
     // Close the modal
     closeModal();
   };
@@ -75,20 +74,37 @@ const floor_no=JSON.parse(localStorage.getItem("floor_no"))
   };
 
   const generateDivs = () => {
+
     const divs=[]
-    
+
+    // const lineNum = parseInt(floor_no.split(" ")[1]); 
+
+      // Extracting line number from floor_no
+ // Assuming you have the lineNum available from the backend
+  // const lineStartNum = 1; // Starting line number
+  // const lineEndNum = lineStartNum + lineCount - 1;
+
+
+  
+  const lineNumMatch = floor_no.match(/\d+/); // Extracts the numeric part of floor_no
+  const lineNum = lineNumMatch ? parseInt(lineNumMatch[0]) : 1;
+
     for (let i = 0; i < count; i++) {
+
+      const stationNum=i+1
+      const stationCode = stationNum < 10 ? `S0${stationNum}` : `S${stationNum}`;
+    const lineCode = lineNum < 10 ? `L0${lineNum}` : `L${lineNum}`;
+    // const lineCode = `L${lineStartNum + i}`.padStart(3, '0');
+
       const currentStationId = divs[i] ||  1;
       divs.push(
         <div className="addStations" key={i}>
           <div className="addstation_component">
             {/* <p className="addStaionName"></p> */}
-            <p>Station Code:</p>
-            <p>Line Code:</p>
+            <p>Station Code:{floor_no} {lineCode} {stationCode} </p>
+            <p>Line Code:{floor_no} {lineCode}</p>
             <p>Floor No: {floor_no}</p>
-            <p>Building Code: {floor_no.split(" ")[0]}</p>
-
-            
+            <p>Building Code: {floor_no.split(" ")[0]}</p>            
             </div>          
           </div>      
       );

@@ -13,8 +13,12 @@ import { TbReload } from "react-icons/tb";
 import { FiTrash } from "react-icons/fi";
 import { useEffect } from "react";
 import { useUser } from "../../UserContext";
+import useTokenExpirationCheck from "../useTokenExpirationCheck";
+import { useNavigate } from "react-router-dom";
 
 export default function Update() {
+  const navigate=useNavigate()
+
   const [showModel, setShowModel] = useState(false);
   const [showLine, setShowLine] = useState(false);
   const [arr, setArr] = useState([]);
@@ -23,6 +27,9 @@ export default function Update() {
   const [selectedPartId, setSelectedPartId] = useState(null);
   const {totalLines}=useUser()
  
+  const token = JSON.parse(localStorage.getItem("Token"));
+  const tokenExpired = useTokenExpirationCheck(token, navigate);
+
 
   const openModal = () => {
     setShowModel(true);
@@ -83,11 +90,12 @@ export default function Update() {
           </div>
 
 
-        <AddLine showModal={showLine} closeModal={closeLine} />
+        {/* <AddLine showModal={showLine} closeModal={closeLine} /> */}
         <AddStation showModal={showModel} closeModal={closeModel} />
       </div>
 
     </>
   );
 }
+
 

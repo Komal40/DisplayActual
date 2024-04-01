@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from "react";
 import "./Parameters.css";
 import DashboardR from "../DashboardR/DashboardR";
+import useTokenExpirationCheck from "../useTokenExpirationCheck";
+import { useNavigate } from "react-router-dom";
 
 function Parameters() {
+
+  const navigate=useNavigate()
+
   const [showParameterValue, setShowParameterValue] = useState(false);
   const [parts, setParts] = useState([]);
   const [processName, setProcessName] = useState([]);
@@ -19,8 +24,13 @@ function Parameters() {
   const [showErrPopup, setShowErrPopup] = useState(false);
 
   const [successMessage, setSuccessMessage] = useState("");
-  const token = JSON.parse(localStorage.getItem("Token"));
+ 
+
   const login = JSON.parse(localStorage.getItem("Login"));
+
+  const token = JSON.parse(localStorage.getItem("Token"));
+  const tokenExpired = useTokenExpirationCheck(token, navigate);
+
 
   const getParts = async (e) => {
     const link = process.env.REACT_APP_BASE_URL;
@@ -238,7 +248,7 @@ function Parameters() {
         </div>
 
         <div className="parts_details">
-          <p>
+          <p className="param_title">
             Enter Parameter Name:
             <input
               placeholder="Parameter Name"
