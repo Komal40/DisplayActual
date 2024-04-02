@@ -99,7 +99,7 @@ export default function DashBoardAbove() {
         <div className="dashboard_navbar">
           <div>
             <p className="dashboard_content">
-              Name:{" "}
+              Name :{" "}
               <h4>
                 {userData
                   ? `${userData.fName} ${userData.lName}`
@@ -114,7 +114,7 @@ export default function DashBoardAbove() {
           </div> */}
           <div>
             <p className="dashboard_content">
-              User Id:<h4></h4>
+              User Id :<h4>{userData?userData.employee_id:""}</h4>
             </p>
           </div>
           <div className="date_time">

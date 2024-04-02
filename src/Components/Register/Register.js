@@ -109,7 +109,7 @@ function Register() {
 
   return (
     <div className="login_section">
-      <div className="login_left_sidebar">
+      {/* <div className="login_left_sidebar">
         <div className="img_container">
           <img className="login_sidebar_img" src={bg} alt="Background" />
           <div className="overlay_text">INTERFACE</div>
@@ -117,7 +117,7 @@ function Register() {
             Developed By Cellus Tech India
           </div>
         </div>
-      </div>
+      </div> */}
 
       <form onSubmit={handleSubmit}>
         <div className="register_right_sidebar">
@@ -150,9 +150,8 @@ function Register() {
           <div className='register_note'>
             <p>NOTE:</p>
             <ol>
-              <li>jjss</li>
-              <li>lkkdnc</li>
-              <li>ckdc</li>
+              <li></li>
+            
             </ol>
           </div>
 

@@ -33,7 +33,6 @@ function Parts() {
   //       setShowMsg(false); // Close the pop-up
   //     }
   //   };
-
   //   useEffect(() => {
   //     if (showErrPopup || showMsg) {
   //       document.addEventListener("mousedown", handleClickOutside);

@@ -149,3 +149,43 @@ padding: 20px;
     padding: 7px;
 }
 
+
+.task_buttons {
+    overflow-x: auto;
+    white-space: nowrap;
+    display: flex;
+    margin: 1rem;
+    /* margin-right: 2rem; */
+  }
+
+  ::-webkit-scrollbar {
+    display: none;
+}
+
+.arrow_btn{
+    margin-top: 2rem;
+}
+
+.task_buttons button{
+    flex: 0 0 7rem;
+    height: 3rem;
+    background-color: var(--color-blue);
+    color: white;
+    margin-right: 1rem;
+    border: none;
+    border-radius: 8px;
+    display: inline-block;
+    cursor: pointer;
+    border: none;
+}
+
+.task_buttons button:active{
+    background-color: var(--color-skin);
+    border: none;
+}
+
+.task_buttons button.active {
+    background-color: var(--color-skin);
+    border: none;
+}
+
