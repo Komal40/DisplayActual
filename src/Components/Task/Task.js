@@ -14,6 +14,7 @@ function Task() {
   const floor_no = JSON.parse(localStorage.getItem("floor_no"));
   const [lineNo, setLineNo] = useState("");
   const totalLines = JSON.parse(localStorage.getItem("TotalLines"));
+  const [dataLoaded, setDataLoaded]=useState(false)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -37,6 +38,8 @@ function Task() {
           //   console.log("floorincharge/get_floor_data", responseData);
           setFloorData(responseData);
           console.log("floorincharge/get_floor_data", floorData);
+          setDataLoaded(true)
+          
         } else {
           const errorData = await response.text();
           console.error("API Error:", errorData);
@@ -79,54 +82,102 @@ function Task() {
     }
   };
 
-  const [selectedPart, setSelectedPart] = useState('');
-  const [indSelPart, setIndSelPart]=useState('')
-  const [indSelProcess, setIndSelProcess]=useState([])
-const [selectedProcesses, setSelectedProcesses] = useState([]);
+  const [selectedPart, setSelectedPart] = useState("");
+  const [indSelPart, setIndSelPart] = useState("");
+  const [indSelProcess, setIndSelProcess] = useState([]);
+  const [selectedProcesses, setSelectedProcesses] = useState([]);
 
-const handlePartChange = (partNo) => {
-  setSelectedPart(partNo);
-  // Filter the parts_data to get processes for the selected part
-  const selectedPartData = floorData.parts_data?.find((data) => data.part_no == partNo);
-  if (selectedPartData) {
-    setSelectedProcesses(selectedPartData.process_data);
-  } else {
-    setSelectedProcesses([]);
-  }
-
-  console.log("selectedPart", selectedPart)
-  console.log("selectedProcesses", selectedProcesses)
-};
-
-// const setIndividualPartNo = (partNo) => {
-    
-//     setIndSelPart(partNo);
-  
+//   const handlePartChange = (partNo) => {
+//     setSelectedPart(partNo);
 //     // Filter the parts_data to get processes for the selected part
-//     const partData = floorData.parts_data?.find((data) => data.part_no === partNo);
-//     if (partData) {
-//       setIndSelProcess(partData.process_data);
+//     const selectedPartData = floorData.parts_data?.find(
+//       (data) => data.part_no == partNo
+//     );
+//     if (selectedPartData) {
+//       setSelectedProcesses(selectedPartData.process_data);
 //     } else {
-//       setIndSelProcess([]);
+//       setSelectedProcesses([]);
 //     }
+
+//     console.log("selectedPart", selectedPart);
+//     console.log("selectedProcesses", selectedProcesses);
 //   };
 
-const setIndividualPartNo = (partNo, stationId) => {
+const handlePartChange = (partNo) => {
+    setSelectedPart(partNo);
+  
+    // Update the part number for all stations of the selected line
+    Object.entries(stationData).forEach(([stationId, tasks]) => {
+      const lineKey = stationId.substring(0, stationId.lastIndexOf("L")); // Extract line key from stationId
+      if (lineKey === lineNo) {
+        setIndividualPartNo(partNo, stationId);
+      }
+    });
+  };
+
+  // const setIndividualPartNo = (partNo) => {
+  //     setIndSelPart(partNo);
+  //     // Filter the parts_data to get processes for the selected part
+  //     const partData = floorData.parts_data?.find((data) => data.part_no === partNo);
+  //     if (partData) {
+  //       setIndSelProcess(partData.process_data);
+  //     } else {
+  //       setIndSelProcess([]);
+  //     }
+  //   };
+
+  // const setIndividualPartNo = (partNo, stationId) => {
+  //     setIndSelPart({ ...indSelPart, [stationId]: partNo });
+  //      // Filter the parts_data to get processes for the selected part
+  //   const partData = floorData.parts_data?.find((data) => data.part_no === partNo);
+  //   if (partData) {
+  //     setIndSelProcess({ ...indSelProcess, [stationId]: partData.process_data });
+  //   } else {
+  //     setIndSelProcess({ ...indSelProcess, [stationId]: [] });
+  //   }
+  //   // Update selected processes if there are tasks assigned to the station
+  //   const tasksForStation = stationData[stationId] || [];
+  //   if (tasksForStation.length > 0) {
+  //     const processNo = partData ? partData.process_data[0]?.process_no : tasksForStation[0]?.process_no;
+  //     setSelectedProcesses({ ...selectedProcesses, [stationId]: processNo });
+  //   }
+  //   else{
+  //     setSelectedProcesses({ ...selectedProcesses, [stationId]: '' })
+  //   }
+  //   };
+
+  const setIndividualPartNo = (partNo, stationId) => {
     setIndSelPart({ ...indSelPart, [stationId]: partNo });
-     // Filter the parts_data to get processes for the selected part
-  const partData = floorData.parts_data?.find((data) => data.part_no === partNo);
-  if (partData) {
-    setIndSelProcess({ ...indSelProcess, [stationId]: partData.process_data });
-  } else {
-    setIndSelProcess({ ...indSelProcess, [stationId]: [] });
-  }
+    // Filter the parts_data to get processes for the selected part
+    const partData = floorData.parts_data?.find(
+      (data) => data.part_no == partNo
+    );
+    if (partData) {
+      setIndSelProcess({
+        ...indSelProcess,
+        [stationId]: partData.process_data,
+      });
+      // Update selected process based on the newly selected part
+      const processNo =
+        partData.process_data.length > 0
+          ? partData.process_data[0].process_no
+          : "";
+      setSelectedProcesses({ ...selectedProcesses, [stationId]: processNo });
+      //   setIndSelProcess({...indSelProcess, [stationId]:[processNo]})
+    } else {
+      // If partData is not found, clear the selected process
+      setIndSelProcess({ ...indSelProcess, [stationId]: [] });
+      setSelectedProcesses({ ...selectedProcesses, [stationId]: [] });
+    }
   };
 
-  const setIndividualProcess = (processNo, stationId) => {
-    setSelectedProcesses({ ...selectedProcesses, [stationId]: processNo });
-  };
+    const setIndividualProcess = (processNo, stationId) => {
+      setSelectedProcesses({ ...selectedProcesses, [stationId]: [processNo] });
+    };
 
 
+
+    
   return (
     <>
       <div>
@@ -151,7 +202,7 @@ const setIndividualPartNo = (partNo, stationId) => {
           {Array.from({ length: totalLines }).map((_, index) => (
             <button
               key={index}
-              className={activeButton === index + 1 ? "active" : ""}
+              className={activeButton == index + 1 ? "active" : ""}
               onClick={() => handleButtonClick(index + 1)}
             >
               Line {index + 1}
@@ -171,7 +222,7 @@ const setIndividualPartNo = (partNo, stationId) => {
             <p>Select Part Name:</p>
             <div className="update_dropdown">
               <select onChange={(e) => handlePartChange(e.target.value)}>
-                <option >Select</option>
+                <option>Select</option>
                 {floorData.parts_data &&
                   floorData.parts_data.map((data, idx) => (
                     <option key={idx}>{data.part_no}</option>
@@ -204,27 +255,64 @@ const setIndividualPartNo = (partNo, stationId) => {
                   ))
                 )} */}
 
-<div className="task_stations_part">
-  {/* <p>Part: {tasks.length > 0 ? tasks[0].part_no :selectedPart}</p> */}
-  {/* <p>
+                <div className="task_stations_part">
+                  {/* <p>Part: {tasks.length > 0 ? tasks[0].part_no :selectedPart}</p> */}
+                  {/* <p>
           Part: {tasks.length > 0 && indSelPart === "" && stationId in floorData.station_data
             ? (tasks[0].part_no || selectedPart)
             : indSelPart}
         </p> */}
 
-<p>
-                Part:{" "}
-                {tasks.length > 0 &&
-                (!indSelPart.hasOwnProperty(stationId) ||
-                  indSelPart[stationId] == "")
-                  ? tasks[0].part_no || selectedPart
-                  : indSelPart[stationId]}
-              </p>
-</div>
-
+                  <p>
+                    Part:{" "}
+                    {tasks.length > 0 &&
+                    (!indSelPart.hasOwnProperty(stationId) ||
+                      indSelPart[stationId] == "")
+                      ? tasks[0].part_no || selectedPart
+                      : indSelPart[stationId]}
+                  </p>
+                </div>
+            
                 <div className="task_stations_part">
                   {/* <p>Process: {tasks.length > 0 ? tasks[0].process_no :''}</p> */}
-                  <p>Process: {selectedProcesses[stationId] || (tasks.length > 0 ? tasks[0].process_no : '')}</p>
+                  <p>
+                    Process:{" "}
+                    {/* {selectedProcesses[stationId] ||
+                      (tasks.length > 0 ? tasks[0].process_no : "")}                      */}
+                    {/* {selectedProcesses[stationId] !== undefined 
+                      ? selectedProcesses[stationId]
+                      : ""} */}
+
+{/* {selectedProcesses[stationId] !== undefined && selectedProcesses[stationId] !== ""
+    ? selectedProcesses[stationId]
+    : ""} */}
+
+{
+  (selectedProcesses[stationId] !== undefined && selectedProcesses[stationId] !== "") ||
+  (indSelProcess[stationId]?.[0]?.process_no !== undefined && indSelProcess[stationId]?.[0]?.process_no !== "") ||
+  ((tasks && tasks.length > 0) ? tasks[0].process_no !== "" : true)
+    ? selectedProcesses[stationId] || indSelProcess[stationId]?.[0]?.process_no || (tasks && tasks.length > 0 ? tasks[0].process_no : "")
+    : ""
+}
+
+
+{/* {dataLoaded && ((selectedProcesses[stationId] !== undefined && selectedProcesses[stationId] !== "") ||
+  (indSelProcess[stationId]?.[0]?.process_no !== undefined &&
+    indSelProcess[stationId]?.[0]?.process_no !== "") ||
+  (selectedProcesses[stationId] || tasks.length > 0 ? tasks[0].process_no !== "" : true))
+    ? selectedProcesses[stationId] || indSelProcess[stationId]?.[0]?.process_no
+    : ""} */}
+
+
+{/* {
+  (selectedProcesses[stationId] !== undefined && selectedProcesses[stationId] !== "") ||
+  (indSelProcess[stationId]?.[0]?.process_no !== undefined && indSelProcess[stationId]?.[0]?.process_no !== "") ||
+  (tasks.length > 0 ? tasks[0].process_no !== "" : true)
+    ? (tasks.length > 0 ? tasks[0].process_no : selectedProcesses[stationId] || indSelProcess[stationId]?.[0]?.process_no)
+    : ""
+} */}
+
+                  </p>
                 </div>
                 <div className="task_stations_part">
                   <p>
@@ -263,46 +351,51 @@ const setIndividualPartNo = (partNo, stationId) => {
               <div className="task_stations_right">
                 <input className="task_station_input" />
                 <div className="task_dropdown">
-                <select onChange={(e)=>setIndividualPartNo(e.target.value,stationId)}>
-                <option>Select</option>
-                {floorData.parts_data &&
-                  floorData.parts_data.map((data, idx) => (
-                    <option key={idx}>{data.part_no}</option>
-                  ))}
-              </select>
+                  <select
+                    onChange={(e) =>
+                      setIndividualPartNo(e.target.value, stationId)
+                    }
+                  >
+                    <option value="">Select</option>
+                    {floorData.parts_data &&
+                      floorData.parts_data.map((data, idx) => (
+                        <option key={idx}>{data.part_no}</option>
+                      ))}
+                  </select>
                 </div>
                 <div className="task_dropdown">
-                {/* <select>
+                  {/* <select>
                     <option>Select</option> */}
-                {/* {selectedPart !== "" &&
+                  {/* {selectedPart !== "" &&
     floorData.parts_data
       .find((data) => data.part_no == selectedPart)
       .process_data.map((process, idx) => (
         <option key={idx}>{process.process_no}</option>
       ))} */}
 
-                {/* </select> */}
+                  {/* </select> */}
                   {/* {selectedProcesses.map((process, idx) => (
     <option key={idx} value={process.process_no}>
       {process.process_name}
     </option>
   ))} */}
-  <select onChange={(e)=>setIndividualProcess(e.target.value, stationId)}>
-  <option>Select</option>
-  {indSelProcess[stationId]?.map((process, idx) => (
-    <option key={idx} value={process.process_no}>{process.process_no}</option>
-  ))}
-</select>
- 
+
+                  <select
+                  onChange={(e) =>
+                    setIndividualProcess(e.target.value, stationId)
+                  }
+                  >
+                    <option value="">Select</option>
+                    {indSelProcess[stationId]?.map((process, idx) => (
+                      <option key={idx} value={process.process_no}>
+                        {process.process_no}
+                      </option>
+                    ))}
+                  </select>
                 </div>{" "}
                 <div className="task_dropdown">
                   <select>
-                    <option>Change</option>
-                    {/* {
-                        indSelProcess.map((process, idx)=>(
-                            <option>{process.process_no}</option>
-                        ))
-                    } */}
+                    <option value="">Change</option>
                   </select>
                 </div>
               </div>
