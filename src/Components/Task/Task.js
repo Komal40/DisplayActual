@@ -68,7 +68,6 @@ function Task() {
       setActiveButton(buttonNumber);
     //   const lineKey = `${floor_no} L0${buttonNumber}`; // Assuming lineKey format
     const lineKey = `${floor_no} L${buttonNumber > 9 ? buttonNumber : '0' + buttonNumber}`;
-
       console.log("Selected Line Key:", lineKey);
       setLineNo(lineKey);
       // Extract station data for the selected line from the API response
@@ -87,6 +86,7 @@ function Task() {
       setStationData(stationsData);
     }
   };
+
 
   const [selectedPart, setSelectedPart] = useState("");
   const [indSelPart, setIndSelPart] = useState("");
@@ -109,44 +109,36 @@ function Task() {
     console.log("selectedProcesses", selectedProcesses);
   };
 
-  const setIndividualPartNo = (partNo, stationId) => {
-    setIndSelPart({ ...indSelPart, [stationId]: partNo });
+
+const setIndividualPartNo = (partNo, stationId) => {
+    setIndSelPart(prevState => ({ ...prevState, [stationId]: partNo }));
     // Filter the parts_data to get processes for the selected part
-    const partData = floorData.parts_data?.find(
-      (data) => data.part_no == partNo
-    );
+    const partData = floorData.parts_data?.find(data => data.part_no === partNo);
     if (partData) {
-      setIndSelProcess({
-        ...indSelProcess,
-        [stationId]: partData.process_data,
-      });
+      setIndSelProcess(prevState => ({
+        ...prevState,
+        [stationId]: partData.process_data || [],
+      }));
       // Update selected process based on the newly selected part
-      const processNo =
-        partData.process_data.length > 0
-          ? partData.process_data[0].process_no
-          : "";
-      setSelectedProcesses({ ...selectedProcesses, [stationId]: processNo });
-      //   setIndSelProcess({...indSelProcess, [stationId]:[processNo]})
+      const processNo = partData.process_data.length > 0
+        ? partData.process_data[0].process_no
+        : "";
+      setSelectedProcesses(prevState => ({ ...prevState, [stationId]: processNo }));
     } else {
       // If partData is not found, clear the selected process
-      setIndSelProcess({ ...indSelProcess, [stationId]: [] });
-      setSelectedProcesses({ ...selectedProcesses, [stationId]: [] });
+      setIndSelProcess(prevState => ({ ...prevState, [stationId]: [] }));
+      setSelectedProcesses(prevState => ({ ...prevState, [stationId]: "" }));
     }
+    console.log("indSelPart",indSelPart)
   };
-
+  
   const setIndividualProcess = (processNo, stationId) => {
-    setSelectedProcesses({ ...selectedProcesses, [stationId]: [processNo] });
+    setSelectedProcesses(prevState => ({ ...prevState, [stationId]: processNo }));
+    console.log("indSelProcess",indSelProcess)
+    
   };
 
-  // const setWholeQty = (e) => {
-  //     const { value } = e.target;
-  //     // Update the quantity for all stations
-  //     const updatedQuantities = {};
-  //     Object.keys(stationData).forEach((stationId) => {
-  //       updatedQuantities[stationId] = value;
-  //     });
-  //     setStationQuantities(updatedQuantities);
-  //   };
+  
 
   // Function to update quantity for all stations
   const setWholeQty = (e, lineNo) => {
@@ -174,37 +166,65 @@ function Task() {
     setStationQuantities({ ...stationQuantities, [stationId]: value });
   };
 
-
-  const assignTask = async (e) => {
+  const assignTask = async () => {
     const link = process.env.REACT_APP_BASE_URL;
     const endPoint = "/floorincharge/assign_task";
     const fullLink = link + endPoint;
-
-    try {
-      const tasksArray = []; // Initialize an empty array to store task objects
-
-      // Loop through stations or any other source to gather task data
-      Object.keys(stationData).forEach((stationId) => {
-        const tasks = stationData[stationId];
-        tasks.forEach((task) => {
+    const tasksArray = []; // Initialize an empty array to store task objects
+  
+    // Loop through each station and its tasks
+    Object.keys(stationData).forEach((stationId) => {
+      const tasks = stationData[stationId];
+  
+      // For each task in the station, create a new task object
+      tasks.forEach((task) => {
+        // Check if station has tasks or if it's empty
+        if (tasks.length === 0) {
+          // If station has no tasks, assign task with selected part number and process number
           const newTask = {
             station_id: stationId,
-            employee_id: task.employee_id || "",
-            part_no: indSelPart[stationId] || task.part_no || "",
-            process_no: selectedProcesses[stationId] || task.process_no || "",
-            start_shift_time: startShiftTime,
-            end_shift_time: endShiftTime,
+            employee_id: "", // Set employee_id to empty string as it's not available
+            part_no: indSelPart[stationId] || "", // Get the part number selected for this station
+            process_no: selectedProcesses[stationId] || "", // Get the process number selected for this station
+            start_shift_time: startShiftTime, // Assuming start shift time is available elsewhere in the code
+            end_shift_time: endShiftTime, // Assuming end shift time is available elsewhere in the code
             shift: "A", // Assuming shift is hardcoded to "A" for now
             assigned_by_owner: login.employee_id, // Assuming assigned_by_owner is hardcoded for now
-            total_assigned_task: task.total_assigned_task || 300,
+            total_assigned_task: task.total_assigned_task || 3, // If total_assigned_task is not available, default it to 3
           };
-          tasksArray.push(newTask); // Push each task object to the tasksArray
-        });
+          tasksArray.push(newTask); // Add the new task object to the tasksArray
+        } else {
+          // If station has tasks, check if quantity or part/process selection has changed
+          const quantityChanged = stationQuantities[stationId] !== task.quantity;
+          const partChanged = indSelPart[stationId] !== task.part_no;
+          const processChanged = selectedProcesses[stationId] !== task.process_no;
+  
+          // If any change is detected, add the task to the tasksArray
+          if (quantityChanged || partChanged || processChanged) {
+            const newTask = {
+              station_id: stationId,
+              employee_id: task.employee_id || "", // If employee_id is not available, set it to an empty string
+              part_no: indSelPart[stationId] || task.part_no || "", // Get the part number selected for this station
+              process_no: selectedProcesses[stationId] || task.process_no || "", // Get the process number selected for this station
+              start_shift_time: startShiftTime, // Assuming start shift time is available elsewhere in the code
+              end_shift_time: endShiftTime, // Assuming end shift time is available elsewhere in the code
+              shift: "A", // Assuming shift is hardcoded to "A" for now
+              assigned_by_owner: login.employee_id, // Assuming assigned_by_owner is hardcoded for now
+              total_assigned_task: task.total_assigned_task || 3, // If total_assigned_task is not available, default it to 3
+            };
+            tasksArray.push(newTask); // Add the new task object to the tasksArray
+          }
+        }
       });
-
-      const params = new URLSearchParams();
-      params.append("tasks", JSON.stringify(tasksArray));
-
+      console.log("tasksArray",tasksArray)
+    });
+  
+    // Prepare the request body
+    const params = new URLSearchParams();
+    params.append("tasks", JSON.stringify(tasksArray));
+  
+    try {
+      // Send a POST request to the server with the tasks data
       const response = await fetch(fullLink, {
         method: "POST",
         body: params,
@@ -213,17 +233,19 @@ function Task() {
           Authorization: `Bearer ${token}`,
         },
       });
-
+  
       if (response.ok) {
         const data = await response.json();
+        console.log('Task Assigned Successfully', data);
       } else {
-        console.error("Failed to fetch parts", response.error);
+        console.error("Failed to assign tasks", response.error);
       }
     } catch (error) {
       console.error("Error:", error);
     }
   };
-
+  
+  
   function generateTimeOptions() {
     const options = [];
     for (let hour = 0; hour < 24; hour++) {
@@ -243,12 +265,14 @@ function Task() {
   // Function to handle change in start shift time
   const handleStartShiftChange = (e) => {
     setStartShiftTime(e.target.value);
+
   };
 
   // Function to handle change in end shift time
   const handleEndShiftChange = (e) => {
     setEndShiftTime(e.target.value);
   };
+
 
   return (
     <>
@@ -265,7 +289,7 @@ function Task() {
 
           <div className="task_right_head">
             <p className="task_right_view">Add Previous Task to Logs</p>
-            <button className="task_right_btn">Add</button>
+            <button className="task_right_btn" onClick={assignTask}>Add</button>
           </div>
         </div>
         <hr />
@@ -280,7 +304,6 @@ function Task() {
               Line {index + 1}
             </button>
           ))}
-    
         </div>
 
         <div className="task_qty_section">
@@ -327,33 +350,8 @@ function Task() {
           {Object.entries(stationData).map(([stationId, tasks]) => (
             <div key={stationId} className="task_stations">
               <div className="task_stations_left">
-                <h4>{stationId}</h4>
-                {/* {tasks.length === 0 ? (
-                  <p>No tasks assigned</p>
-                ) : (
-                  tasks.map((task, idx) => (
-                    <React.Fragment key={idx}>
-                      <div className="task_stations_part">
-                        <p>Part: {task.part_no}</p>
-                      </div>
-                      <div className="task_stations_part">
-                        <p>Process: {task.process_no}</p>
-                      </div>
-                      <div className="task_stations_part">
-                        <p>Employee: {task.employee_name}</p>
-                      </div>
-                    </React.Fragment>
-                  ))
-                )} */}
-
+                <h4>{stationId}</h4>              
                 <div className="task_stations_part">
-                  {/* <p>Part: {tasks.length > 0 ? tasks[0].part_no :selectedPart}</p> */}
-                  {/* <p>
-          Part: {tasks.length > 0 && indSelPart === "" && stationId in floorData.station_data
-            ? (tasks[0].part_no || selectedPart)
-            : indSelPart}
-        </p> */}
-
                   <p>
                     Part:{" "}
                     {tasks.length > 0 &&
@@ -363,19 +361,9 @@ function Task() {
                       : indSelPart[stationId]}
                   </p>
                 </div>
-
                 <div className="task_stations_part">
-                  {/* <p>Process: {tasks.length > 0 ? tasks[0].process_no :''}</p> */}
                   <p>
                     Process:{" "}
-                    {/* {selectedProcesses[stationId] ||
-                      (tasks.length > 0 ? tasks[0].process_no : "")}                      */}
-                    {/* {selectedProcesses[stationId] !== undefined 
-                      ? selectedProcesses[stationId]
-                      : ""} */}
-                    {/* {selectedProcesses[stationId] !== undefined && selectedProcesses[stationId] !== ""
-    ? selectedProcesses[stationId]
-    : ""} */}
                     {(selectedProcesses[stationId] !== undefined &&
                       selectedProcesses[stationId] !== "") ||
                     (indSelProcess[stationId]?.[0]?.process_no !== undefined &&
@@ -387,19 +375,6 @@ function Task() {
                         indSelProcess[stationId]?.[0]?.process_no ||
                         (tasks && tasks.length > 0 ? tasks[0].process_no : "")
                       : ""}
-                    {/* {dataLoaded && ((selectedProcesses[stationId] !== undefined && selectedProcesses[stationId] !== "") ||
-  (indSelProcess[stationId]?.[0]?.process_no !== undefined &&
-    indSelProcess[stationId]?.[0]?.process_no !== "") ||
-  (selectedProcesses[stationId] || tasks.length > 0 ? tasks[0].process_no !== "" : true))
-    ? selectedProcesses[stationId] || indSelProcess[stationId]?.[0]?.process_no
-    : ""} */}
-                    {/* {
-  (selectedProcesses[stationId] !== undefined && selectedProcesses[stationId] !== "") ||
-  (indSelProcess[stationId]?.[0]?.process_no !== undefined && indSelProcess[stationId]?.[0]?.process_no !== "") ||
-  (tasks.length > 0 ? tasks[0].process_no !== "" : true)
-    ? (tasks.length > 0 ? tasks[0].process_no : selectedProcesses[stationId] || indSelProcess[stationId]?.[0]?.process_no)
-    : ""
-} */}
                   </p>
                 </div>
                 <div className="task_stations_part">
@@ -409,33 +384,7 @@ function Task() {
                 </div>
               </div>
 
-              {/* <div className="task_stations_right">
-                {tasks.length === 0 ? (
-                  <p>No tasks assigned</p>
-                ) : (
-                  tasks.map((task, idx) => (
-                    <React.Fragment key={idx}>
-                      <input className="task_station_input" />
-                      <div className="task_dropdown">
-                        <select>
-                          <option>Change</option>
-                        </select>
-                      </div>
-                      <div className="task_dropdown">
-                        <select>
-                          <option>Change</option>
-                        </select>
-                      </div>
-                      <div className="task_dropdown">
-                        <select>
-                          <option>Change</option>
-                        </select>
-                      </div>
-                    </React.Fragment>
-                  ))
-                )}
-              </div> */}
-
+           
               <div className="task_stations_right">
                 <input
                   className="task_station_input"
@@ -456,22 +405,6 @@ function Task() {
                   </select>
                 </div>
                 <div className="task_dropdown">
-                  {/* <select>
-                    <option>Select</option> */}
-                  {/* {selectedPart !== "" &&
-    floorData.parts_data
-      .find((data) => data.part_no == selectedPart)
-      .process_data.map((process, idx) => (
-        <option key={idx}>{process.process_no}</option>
-      ))} */}
-
-                  {/* </select> */}
-                  {/* {selectedProcesses.map((process, idx) => (
-    <option key={idx} value={process.process_no}>
-      {process.process_name}
-    </option>
-  ))} */}
-
                   <select
                     onChange={(e) =>
                       setIndividualProcess(e.target.value, stationId)
@@ -500,3 +433,5 @@ function Task() {
 }
 
 export default Task;
+
+
