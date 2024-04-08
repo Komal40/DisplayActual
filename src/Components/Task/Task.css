@@ -74,6 +74,10 @@
     justify-content: space-around;
 }
 
+.task_dropdown select{
+    width: 5rem;
+}
+
 .update_dropdown{
     margin-left: 10px;
 }
@@ -189,3 +193,7 @@ padding: 20px;
     border: none;
 }
 
+.employee-name {
+    /* width: 6rem;  */
+    word-wrap: break-word; /* Allow the text to wrap */
+  }
