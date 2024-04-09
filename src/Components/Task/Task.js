@@ -164,8 +164,6 @@ function Task() {
   // setQty(value);
   // };
 
-
-
   // Function to update quantity for a particular station
   const setIndividualStationQty = (e, stationId) => {
     const { value } = e.target;
@@ -179,8 +177,6 @@ function Task() {
     setStationQuantities({ ...stationQuantities, [stationId]: newValue });
   };
 
-
-  
   const assignTask = async () => {
     const link = process.env.REACT_APP_BASE_URL;
     const endPoint = "/floorincharge/assign_task";
@@ -204,7 +200,9 @@ function Task() {
         // Create a new task object for the station
         const newTask = {
           station_id: stationId,
-          employee_id:selectedEmployees[stationId]?.employee_id|| (tasks.length > 0 ? tasks[0].employee_id : ""),
+          employee_id:
+            selectedEmployees[stationId]?.employee_id ||
+            (tasks.length > 0 ? tasks[0].employee_id : ""),
           part_no:
             indSelPart[stationId] || (tasks.length > 0 ? tasks[0].part_no : ""),
           process_no:
@@ -215,9 +213,15 @@ function Task() {
           end_shift_time: endShiftTime,
           assigned_by_owner: login.employee_id,
           total_assigned_task:
-            stationQuantities[stationId] ||
-            (tasks.length > 0 ? tasks[0].total_assigned_task : ""),
-        };
+          // Check if the user has entered a value for the station, if not, use the value from the API or default to an empty string
+          userEnteredValue[stationId] !== undefined
+            ? userEnteredValue[stationId]
+            : stationQuantities[stationId] !== undefined
+            ? stationQuantities[stationId]
+            : tasks.length > 0
+            ? tasks[0].total_assigned_task
+            : "",
+      };
         tasksArray.push(newTask);
         console.log("Task for station", stationId, ":", newTask);
       }
@@ -228,16 +232,16 @@ function Task() {
     console.log("Task Assigned Successfully");
 
     // Prepare the request body
-    const params = new URLSearchParams();
-    params.append("tasks",JSON.stringify(tasksArray));
+    // const params = new URLSearchParams();
+    // params.append("tasks", JSON.stringify(tasksArray));
 
     try {
       // Send a POST request to the server with the tasks data
       const response = await fetch(fullLink, {
         method: "POST",
-        body: params,
+        body: JSON.stringify(tasksArray),
         headers: {
-          "Content-type": "application/x-www-form-urlencoded",
+          "Content-type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       });
@@ -257,6 +261,41 @@ function Task() {
     console.log("indSelPart updated:", indSelPart);
   }, [indSelPart]);
 
+  
+  const freeStation = async ( lineNo) => {
+  
+    const link = process.env.REACT_APP_BASE_URL;
+    console.log("Base URL:", link);
+    const endPoint = "/floorincharge/free_station";
+    const fullLink = link + endPoint;
+  
+    // Filter stationData to include only stations belonging to the specified line
+    const lineStationsData = Object.keys(stationData)
+      .filter((stationId) => stationId.startsWith(lineNo))
+      .map((stationId) => ({ station_id: stationId }));
+  
+    try {
+      const response = await fetch(fullLink, {
+        method: "POST",
+        body: JSON.stringify({ station_ids: lineStationsData }),
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      if (response.ok) {
+        // Handle success response here
+        console.log("Stations on line", lineNo, "freed successfully");
+      } else {
+        // Handle error response here
+        console.error("Failed to free stations on line", lineNo);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+  
   function generateTimeOptions() {
     const options = [];
     for (let hour = 0; hour < 24; hour++) {
@@ -294,7 +333,7 @@ function Task() {
       if (selectedEmployee) {
         setSelectedEmployees((prevState) => ({
           ...prevState,
-          [stationId]:  {
+          [stationId]: {
             employee_id: selectedEmployee.employee_id,
             employee_name: selectedEmployee.employee_name,
           },
@@ -302,6 +341,19 @@ function Task() {
       }
     }
   };
+
+  const [userEnteredValue, setUserEnteredValue] = useState({});
+
+  // Modify handleInputChange to update the entered value for the corresponding station
+  const handleInputChange = (e, stationId) => {
+    const { value } = e.target;
+    // Update the state with the entered value for the station
+    setUserEnteredValue((prevState) => ({
+      ...prevState,
+      [stationId]: value,
+    }));
+  };
+
 
 
 
@@ -320,7 +372,7 @@ function Task() {
 
           <div className="task_right_head">
             <p className="task_right_view">Add Previous Task to Logs</p>
-            <button className="task_right_btn" onClick={assignTask}>
+            <button className="task_right_btn" onClick={()=>freeStation(lineNo)}>
               Add
             </button>
           </div>
@@ -416,24 +468,29 @@ function Task() {
                       Employee:{" "}
                       {/* {selectedEmployees[stationId] ||
                         (tasks.length > 0 ? tasks[0].employee_name : "")} */}
-                         {
-                         selectedEmployees[stationId] && selectedEmployees[stationId].employee_name ||
-                         (tasks.length > 0 ? tasks[0].employee_name : "")
-                         }
+                      {(selectedEmployees[stationId] &&
+                        selectedEmployees[stationId].employee_name) ||
+                        (tasks.length > 0 ? tasks[0].employee_name : "")}
                     </p>
                   </div>
                 </div>
 
                 <div className="task_stations_right">
-                  <input
-                    className="task_station_input"
-                    value={
-                      stationQuantities[stationId] || tasks.length > 0
-                        ? tasks[0].total_assigned_task
-                        : stationQuantities[stationId]
-                    }
-                    onChange={(e) => setIndividualStationQty(e, stationId)}
-                  />
+                <input
+  className="task_station_input"
+  value={
+    // If the user has entered a value for the station, show it; otherwise, show the value from the API or default to 0
+    userEnteredValue[stationId] !== undefined
+      ? userEnteredValue[stationId]
+      : stationQuantities[stationId] !== undefined
+      ? stationQuantities[stationId]
+      : tasks.length > 0
+      ? tasks[0].total_assigned_task
+      : ""
+  }
+  onChange={(e) => handleInputChange(e, stationId)}
+/>
+
                   <div className="task_dropdown">
                     <select
                       onChange={(e) =>
