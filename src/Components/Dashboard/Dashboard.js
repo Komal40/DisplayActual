@@ -156,7 +156,7 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    const link = "ws://192.168.1.6:5000";
+    const link = "ws://192.168.1.12:5000";
 
     // Get the current date
     const currentDate = new Date();
@@ -206,6 +206,66 @@ export default function Dashboard() {
   console.log("processData", processData);
   console.log("object stationData", stationData);
 
+  const [employeeData, setEmployeeData] = useState([]);
+  const [unassignedStations, setUnassignedStations] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const link = process.env.REACT_APP_BASE_URL;
+      const endPoint = "/floorincharge/refresh_data";
+      const fullLink = link + endPoint;
+
+      try {
+        const params = new URLSearchParams();
+        params.append("floor_no", floor_no);
+
+        const response = await fetch(fullLink, {
+          method: "POST",
+          body: params,
+          headers: {
+            "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const responseData = await response.json();
+          console.log("responseData employee data", responseData);
+
+          // Parse employee data and unassigned stations
+          // const employeeDatas = JSON.parse(responseData.employee_data);
+          // const unassignedStations = responseData["station_ids where no task assigend"];
+          // setEmployeeData(employeeDatas);
+          // setUnassignedStations(unassignedStations);
+
+          // Parse employee data
+          const employeeDataString = responseData.employee_data.replace(
+            /'/g,
+            '"'
+          ); // Replace single quotes with double quotes
+          const employeeData = JSON.parse(employeeDataString);
+
+          // Set the state variables
+          setEmployeeData(employeeData);
+          setUnassignedStations(
+            responseData["station_ids where no task assigend"]
+          );
+        } else {
+          const errorData = await response.text();
+          console.error("API Error:", errorData);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    };
+
+    fetchData();
+  }, []); // Add dependencies if needed
+
+  useEffect(() => {
+    console.log("employeeData", employeeData);
+  }, [employeeData]);
+
   return (
     <>
       {/* <ToastContainer /> */}
@@ -250,7 +310,7 @@ export default function Dashboard() {
                       : "none",
                 }}
               >
-                <Line no={parseInt(line.split("L")[1])} />
+                <Line no={parseInt(line.split("L")[1])}  processData={processData.filter((data) => stations.includes(data.station_id))}/>
                 <div className="dashboard_stations">
                   {stations.map((station, index) => {
                     const stationProcessData = processData.filter(
@@ -265,7 +325,7 @@ export default function Dashboard() {
                     const shift =
                       stationProcessData.length > 0
                         ? stationProcessData[0].shift
-                        : "Unknown";
+                        : "";
                     const passed =
                       stationProcessData.length > 0
                         ? stationProcessData[0].passed
@@ -283,19 +343,40 @@ export default function Dashboard() {
                         ? stationProcessData[0].end_shift_time
                         : "";
 
+                    // Find employee associated with this station
+                    const employee = employeeData.find((employee) =>
+                      employee.stations.includes(station)
+                    );
+
+                    // Initialize variables for employee information
+                    let operatorName = "";
+                    let operatorSkill = "";
+
+                    // If employee is found, assign operator's name and skill
+                    if (employee) {
+                      operatorName = `${employee.fName} ${employee.lName}`;
+                      operatorSkill = employee.skill_level;
+                    }
+
                     return (
                       <div className="operator_line" key={index}>
-                        <div className="operator_container1">
+                        <div
+                          className="operator_container1"
+                          style={{
+                            backgroundColor: passed + failed == 0 ? "#aaa" : "",
+                          }}
+                        >
                           <div>
                             <h4>Shift Timings</h4>
                             {startTime && endTime && (
                               <h5>{`(${startTime} - ${endTime})`}</h5>
                             )}
                             <p className="operator_content">
-                              Operator&nbsp;:&nbsp; <h4>jhvfhvfdnvnfdf</h4>
+                              Operator&nbsp;:&nbsp; <h4>{operatorName}</h4>
                             </p>
                             <p className="operator_content">
-                              Operator Skill:&nbsp;&nbsp;<h4></h4>
+                              Operator Skill:&nbsp;&nbsp;
+                              <h4>{operatorSkill}</h4>
                             </p>
                             <p className="operator_content">
                               Station :&nbsp;&nbsp; <h4>{station}</h4>
@@ -308,9 +389,9 @@ export default function Dashboard() {
                             </p>
                           </div>
                           <div className="operator_below_content">
-                            Done:{passed + failed} &nbsp;Pass:{" "}
-                            <span>{passed || 0}</span> Fail:{" "}
-                            <span>{failed || 0}</span>
+                            {passed + failed} Done&nbsp;&nbsp;
+                            <span>{passed || 0} Pass&nbsp;</span>
+                            <span>{failed || 0} Fail&nbsp;</span>
                           </div>
                         </div>
                       </div>

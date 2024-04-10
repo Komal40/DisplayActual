@@ -227,10 +227,6 @@ function Task() {
       }
     });
 
-    console.log("Simulating task assignment:");
-    console.log("Tasks Array:", tasksArray);
-    console.log("Task Assigned Successfully");
-
     // Prepare the request body
     // const params = new URLSearchParams();
     // params.append("tasks", JSON.stringify(tasksArray));
@@ -249,6 +245,11 @@ function Task() {
       if (response.ok) {
         const data = await response.json();
         console.log("Task Assigned Successfully", data);
+        // Reset input fields for part and process after successful task assignment
+      setSelectedPart(""); // Reset selectedPart state
+      setSelectedProcesses({}); // Reset selectedProcesses state
+      setIndSelPart({}); // Reset indSelPart state
+      setIndSelProcess({}); // Reset indSelProcess state
       } else {
         console.error("Failed to assign tasks", response.error);
       }
@@ -261,9 +262,8 @@ function Task() {
     console.log("indSelPart updated:", indSelPart);
   }, [indSelPart]);
 
-  
-  const freeStation = async ( lineNo) => {
-  
+
+  const freeStation = async (lineNo) => {
     const link = process.env.REACT_APP_BASE_URL;
     console.log("Base URL:", link);
     const endPoint = "/floorincharge/free_station";
@@ -271,13 +271,15 @@ function Task() {
   
     // Filter stationData to include only stations belonging to the specified line
     const lineStationsData = Object.keys(stationData)
-      .filter((stationId) => stationId.startsWith(lineNo))
-      .map((stationId) => ({ station_id: stationId }));
+      .filter((stationId) => stationId.startsWith(lineNo));
+  
+    // Extract only the station IDs
+    const stationIds = lineStationsData.map((stationId) => stationId);
   
     try {
       const response = await fetch(fullLink, {
         method: "POST",
-        body: JSON.stringify({ station_ids: lineStationsData }),
+        body: JSON.stringify({ station_ids: stationIds }), // Send all station IDs in a single request
         headers: {
           "Content-type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -295,6 +297,41 @@ function Task() {
       console.error("Error:", error);
     }
   };
+  
+  
+//  const freeStation = async (lineNo) => {
+//   const link = process.env.REACT_APP_BASE_URL;
+//   console.log("Base URL:", link);
+//   const endPoint = "/floorincharge/free_station";
+//   const fullLink = link + endPoint;
+
+//   // Filter stationData to include only stations belonging to the specified line
+//   const lineStationsData = Object.keys(stationData)
+//     .filter((stationId) => stationId.startsWith(lineNo))
+//     .map((stationId) => stationId); // Directly return the stationId
+
+
+//   try {
+//     const response = await fetch(fullLink, {
+//       method: "POST",
+//       body: JSON.stringify(lineStationsData),
+//       headers: {
+//         "Content-type": "application/json",
+//         Authorization: `Bearer ${token}`,
+//       },
+//     });
+//     if (response.ok) {
+//       // Handle success response here
+//       console.log("Stations on line", lineNo, "freed successfully");
+//     } else {
+//       // Handle error response here
+//       console.error("Failed to free stations on line", lineNo);
+//     }
+//   } catch (error) {
+//     console.error("Error:", error);
+//   }
+// };
+
   
   function generateTimeOptions() {
     const options = [];
@@ -367,7 +404,7 @@ function Task() {
         <div className="task__head">
           <div className="task_left_head">
             <p className="task_left_view">View Running Task</p>
-            <button className="task_left_btn">View</button>
+            <button className="task_left_btn" onClick={assignTask}> View</button>
           </div>
 
           <div className="task_right_head">

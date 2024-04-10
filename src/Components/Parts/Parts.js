@@ -44,6 +44,7 @@ function Parts() {
   //     };
   //   }, [showErrPopup, showMsg]);
 
+
   const Add_part = async (e) => {
     if (!partId || !partName) {
       setErrorMessage("Please fill all the fields.");
@@ -111,6 +112,7 @@ function Parts() {
     };
   }, [showErrPopup, showPopup]);
 
+  
   return (
     <div>
       <div>

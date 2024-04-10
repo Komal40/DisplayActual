@@ -2,7 +2,14 @@ import React, { useEffect, useState } from "react";
 import "./Line.css";
 // import { useUser } from "../../UserContext";
 
-function Line({ no }) {
+function Line({ no,processData }) {
+
+ const stationProcessData = processData.filter(data => data.station_id.includes(`L${no}`));
+
+ // Calculate the total number of passes and fails based on the filtered stationProcessData
+ const passes = stationProcessData.reduce((total, data) => total + (data.passed || 0), 0);
+ const fails = stationProcessData.reduce((total, data) => total + (data.failed || 0), 0);
+
   return (
     <div>
       <div className="dashboard__below_container">
@@ -66,17 +73,17 @@ function Line({ no }) {
           </div> */}
           <div>
             <p className="dashboard_content">
-              <h4> passed</h4>
+              <h4>{passes} passed</h4>
             </p>
           </div>
           <div>
             <p className="dashboard_content">
-              <h4>failed</h4>
+              <h4>{fails}failed</h4>
             </p>
           </div>
           <div>
             <p className="dashboard_content">
-              <h4>Done</h4>
+              <h4>{passes+fails}Done</h4>
             </p>
           </div>
         </div>
