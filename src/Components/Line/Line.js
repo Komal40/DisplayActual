@@ -1,14 +1,33 @@
 import React, { useEffect, useState } from "react";
 import "./Line.css";
-// import { useUser } from "../../UserContext";
 
-function Line({ no,processData }) {
+
+function Line({ no,processData,length,partData }) {
 
  const stationProcessData = processData.filter(data => data.station_id.includes(`L${no}`));
 
  // Calculate the total number of passes and fails based on the filtered stationProcessData
- const passes = stationProcessData.reduce((total, data) => total + (data.passed || 0), 0);
- const fails = stationProcessData.reduce((total, data) => total + (data.failed || 0), 0);
+//  const passes = stationProcessData.reduce((total, data) => total + (data.passed || 0), 0);
+//  const fails = stationProcessData.reduce((total, data) => total + (data.failed || 0), 0);
+
+// Initialize variables to store total failed tasks and minimum passes
+let totalFailed = 0;
+let minPasses = processData.length === 0? 0 : Number.MAX_SAFE_INTEGER;
+let stations=0;
+
+// Iterate over the processData array
+processData.forEach(station => {
+    // Add the failed tasks of the current station to the total
+    totalFailed += station.failed || 0;
+    // Update the minimum passes if the passes of the current station is less than the current minimum
+    minPasses = Math.min(minPasses, station.passed || 0);
+    stations++
+});
+
+// Log the total failed tasks and minimum passes
+console.log("Total failed tasks:", totalFailed);
+console.log("Minimum passes:", minPasses);
+
 
   return (
     <div>
@@ -27,7 +46,7 @@ function Line({ no,processData }) {
             <div>
               <p className="dashboard_content">
                 <h4 style={{ display: "flex" }}>
-                  Stations:{" "}
+                  Stations:&nbsp;{length}
                   {/* {lineData.stations_count &&
                     lineData.stations_count
                       .filter((item) => item.line_number == `${no}`)
@@ -46,7 +65,7 @@ function Line({ no,processData }) {
             <div>
               <p className="dashboard_content">
                 <h4 style={{ display: "flex" }}>
-                  {"Part Name: "}
+                  {"Part Name: "}{partData}
                   {/* {lineData.part_data &&
                     lineData.part_data
                       .filter((part) => part.line_id === `${no}`)
@@ -73,17 +92,17 @@ function Line({ no,processData }) {
           </div> */}
           <div>
             <p className="dashboard_content">
-              <h4>{passes} passed</h4>
+              <h4>{minPasses} &nbsp;passed</h4>
             </p>
           </div>
           <div>
             <p className="dashboard_content">
-              <h4>{fails}failed</h4>
+              <h4>{totalFailed}&nbsp;failed</h4>
             </p>
           </div>
           <div>
             <p className="dashboard_content">
-              <h4>{passes+fails}Done</h4>
+              <h4>{minPasses+totalFailed}&nbsp;Done</h4>
             </p>
           </div>
         </div>

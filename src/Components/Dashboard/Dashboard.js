@@ -263,8 +263,9 @@ export default function Dashboard() {
   }, []); // Add dependencies if needed
 
   useEffect(() => {
-    console.log("employeeData", employeeData);
+    console.log("employeeDatahgbhvhv hghghghb bhhjbjhb ", employeeData);
   }, [employeeData]);
+
 
   return (
     <>
@@ -297,7 +298,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="stations-container">
+      <div className="stations-container">        
         {stationData.stations &&
           Object.entries(stationData.stations).map(
             ([line, stations], index) => (
@@ -310,8 +311,20 @@ export default function Dashboard() {
                       : "none",
                 }}
               >
-                <Line no={parseInt(line.split("L")[1])}  processData={processData.filter((data) => stations.includes(data.station_id))}/>
+    
+                <Line
+                no={parseInt(line.split("L")[1])} 
+                length={stations.length}
+                partData={
+                  employeeData.length > 0
+                    ? employeeData[0].part_data // Assuming employeeData is an array
+                    : [] // Default empty array if employeeData is empty
+                }
+                 processData={processData.filter((data) => stations.includes(data.station_id))}
+                />
+                
                 <div className="dashboard_stations">
+
                   {stations.map((station, index) => {
                     const stationProcessData = processData.filter(
                       (data) => data.station_id == station
@@ -351,11 +364,13 @@ export default function Dashboard() {
                     // Initialize variables for employee information
                     let operatorName = "";
                     let operatorSkill = "";
+                    let process_data=""
 
                     // If employee is found, assign operator's name and skill
                     if (employee) {
                       operatorName = `${employee.fName} ${employee.lName}`;
                       operatorSkill = employee.skill_level;
+                      process_data=employee.process_data
                     }
 
                     return (
@@ -382,7 +397,7 @@ export default function Dashboard() {
                               Station :&nbsp;&nbsp; <h4>{station}</h4>
                             </p>
                             <p className="operator_content">
-                              Process :&nbsp;&nbsp;<h4></h4>
+                              Process :&nbsp;&nbsp;<h4>{process_data}</h4>
                             </p>
                             <p className="operator_content">
                               Shift :&nbsp;&nbsp;<h4>{shift}</h4>
