@@ -156,7 +156,7 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    const link = "ws://192.168.1.12:5000";
+    const link = "ws://192.168.1.15:5000";
 
     // Get the current date
     const currentDate = new Date();
@@ -322,7 +322,7 @@ export default function Dashboard() {
                 }
                  processData={processData.filter((data) => stations.includes(data.station_id))}
                 />
-                
+
                 <div className="dashboard_stations">
 
                   {stations.map((station, index) => {

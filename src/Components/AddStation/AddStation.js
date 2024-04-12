@@ -12,6 +12,8 @@ const AddStationModal = ({ showModal, closeModal, totalLines }) => {
   const [count, setCount] = useState(1);
   const [stationnum, setStationNum] = useState();
   const floor_no = JSON.parse(localStorage.getItem("floor_no"));
+  const token = JSON.parse(localStorage.getItem("Token"));
+  const login = JSON.parse(localStorage.getItem("Login"));
 
   const [selectedMornEmployee, setSelectedMornEmployee] = useState("");
   const [selectedEveEmployee, setSelectedEveEmployee] = useState("");
@@ -26,6 +28,10 @@ const AddStationModal = ({ showModal, closeModal, totalLines }) => {
   // const [idLen, setIdLen]=useState(stationLine)
   const [stationid, setStationid] = useState();
   const [arr, setArr] = useState([]);
+
+  const [stationData, setStationData] = useState([]);
+  const [line, setLine]=useState(0)
+
 
   const getData = (e) => {
     // setStationNum(stationnum);
@@ -71,18 +77,11 @@ const AddStationModal = ({ showModal, closeModal, totalLines }) => {
   };
 
   const generateDivs = () => {
-    const divs = [];
 
-    // const lineNum = parseInt(floor_no.split(" ")[1]);
+     const divs = [];
 
-    // Extracting line number from floor_no
-    // Assuming you have the lineNum available from the backend
-    // const lineStartNum = 1; // Starting line number
-    // const lineEndNum = lineStartNum + lineCount - 1;
-
-    // const lineNumMatch = floor_no.match(/\d+/); // Extracts the numeric part of floor_no
-    // const lineNum = lineNumMatch ? parseInt(lineNumMatch[0]) : 1;
     const lineNum = parseInt(totalLines) + 1;
+  
 
     for (let i = 0; i < count; i++) {
       const stationNum = i + 1;
@@ -107,9 +106,58 @@ const AddStationModal = ({ showModal, closeModal, totalLines }) => {
           </div>
         </div>
       );
-    }
+      }
     return divs;
   };
+
+ 
+
+  const addStation = async () => {
+    const link = process.env.REACT_APP_BASE_URL;
+    const endPoint = "/floorincharge/add_station";
+    const fullLink = link + endPoint;
+
+    const newStations = [];
+    const lineNum = parseInt(totalLines) + 1;
+    for (let i = 0; i < count; i++) {
+      const stationNum = i + 1;
+      const stationCode =
+        stationNum < 10 ? `S0${stationNum}` : `S${stationNum}`;
+      const lineCode = lineNum < 10 ? `L0${lineNum}` : `L${lineNum}`;
+
+      const newStation = {
+        station_id: `${floor_no} ${lineCode} ${stationCode}`,
+        line_no: lineCode,
+        floor_no: floor_no,
+        building_no: floor_no.split(" ")[0],
+        location: "gurugram",
+        added_by_owner: login.employee_id,
+      };
+      newStations.push(newStation);
+    }
+
+    try {
+      // Send a POST request to the server with the tasks data
+      const response = await fetch(fullLink, {
+        method: "POST",
+        body: JSON.stringify(newStations),
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Stations Added Successfully", data);
+      } else {
+        console.error("Failed to add stations", response.error);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+   
 
   return (
     <div className={`modal ${showModal ? "show" : ""}`}>
@@ -154,7 +202,7 @@ const AddStationModal = ({ showModal, closeModal, totalLines }) => {
         <div className="update__btn">
           <FaRegSave className="update_regsave" />
           <span>
-            <button>Update</button>
+            <button onClick={addStation}>Update</button>
           </span>
         </div>
       </div>

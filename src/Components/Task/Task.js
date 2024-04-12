@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import useTokenExpirationCheck from "../useTokenExpirationCheck";
 import Line from "../Line/Line";
 
+
 function Task() {
   const navigate = useNavigate();
 
@@ -18,6 +19,7 @@ function Task() {
   const [dataLoaded, setDataLoaded] = useState(false);
   const [qty, setQty] = useState("");
   const [stationQuantities, setStationQuantities] = useState({});
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -25,6 +27,7 @@ function Task() {
       const endPoint = "/floorincharge/get_floor_data";
       const fullLink = link + endPoint;
 
+      setLoading(true);
       try {
         const params = new URLSearchParams();
         params.append("floor_no", floor_no);
@@ -38,6 +41,7 @@ function Task() {
         });
         if (response.ok) {
           const responseData = await response.json();
+          setLoading(false);
           //   console.log("floorincharge/get_floor_data", responseData);
           setFloorData(responseData);
           console.log("floorincharge/get_floor_data", floorData);
@@ -243,9 +247,9 @@ function Task() {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        console.log("Task Assigned Successfully", data);
-        // Reset input fields for part and process after successful task assignment
+      const data = await response.json();
+      console.log("Task Assigned Successfully", data);
+      // Reset input fields for part and process after successful task assignment
       setSelectedPart(""); // Reset selectedPart state
       setSelectedProcesses({}); // Reset selectedProcesses state
       setIndSelPart({}); // Reset indSelPart state
@@ -392,6 +396,9 @@ function Task() {
   };
 
 
+  if (loading) {
+    return <div className="task_loading"><h3>Loading...</h3></div>;
+  }
 
 
   return (

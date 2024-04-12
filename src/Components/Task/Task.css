@@ -197,3 +197,8 @@ padding: 20px;
     /* width: 6rem;  */
     word-wrap: break-word; /* Allow the text to wrap */
   }
+
+.task_loading{
+    margin-top: 8rem;
+    margin-left: 20rem;
+}

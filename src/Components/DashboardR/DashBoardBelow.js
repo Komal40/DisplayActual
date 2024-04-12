@@ -2,11 +2,10 @@ import React from "react";
 // import { useUser } from '../../UserContext'
 
 export default function DashBoardBelow() {
-  // const {lines}=useUser()
-  // const {totalStations}=useUser()
-  // const {passVal}=useUser()
-  // const {failVal}=useUser()
-  // const {activeStations}=useUser()
+
+  const userDataString = localStorage.getItem("Login");
+  const userData = userDataString ? JSON.parse(userDataString) : null;
+
 
   return (
     <div>
@@ -15,7 +14,7 @@ export default function DashBoardBelow() {
           <div>
             <div>
               <p className="dashboard_content">
-                Total Lines:
+                Total Lines:{userData?.total_lines}
                 {/* <h4>{lines}</h4> */}
               </p>
             </div>
@@ -25,7 +24,7 @@ export default function DashBoardBelow() {
           <div>
             <div>
               <p className="dashboard_content">
-                Total Stations:
+                Total Stations:{userData?.total_stations}
                 {/* <h4>{totalStations} </h4> */}
               </p>
             </div>
