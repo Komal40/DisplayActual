@@ -7,6 +7,14 @@ import { FaRegSave } from "react-icons/fa";
 import { useUser } from "../../UserContext";
 import { FiLogIn } from "react-icons/fi";
 import Login from "../Login/Login";
+import { toast } from "react-toastify";
+ 
+// Import toastify css file
+import "react-toastify/dist/ReactToastify.css";
+ 
+// toast-configuration method,
+// it is compulsory method.
+// toast.configure();
 
 const AddStationModal = ({ showModal, closeModal, totalLines }) => {
   const [count, setCount] = useState(1);
@@ -149,6 +157,7 @@ const AddStationModal = ({ showModal, closeModal, totalLines }) => {
 
       if (response.ok) {
         const data = await response.json();
+        toast("Stations Added Successfully")
         console.log("Stations Added Successfully", data);
       } else {
         console.error("Failed to add stations", response.error);

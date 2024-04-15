@@ -156,7 +156,7 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    const link = "ws://192.168.1.15:5000";
+    const link = "ws://192.168.1.11:5000";
 
     // Get the current date
     const currentDate = new Date();
@@ -192,10 +192,140 @@ export default function Dashboard() {
     };
   }, []);
 
-  const handleLineClick = (line) => {
+  const handleLineClick = async (line) => {
+    // line=G01 F02 L01
     const data = parseInt(line.split("L")[1]);
     setSelectedLine(data);
+
+    // Extract the line number from the line name
+    const lineNumber = parseInt(line.split("L")[1]);
+
+    const link = process.env.REACT_APP_BASE_URL;
+    const endPoint = "/floorincharge/refresh_data";
+    const fullLink = link + endPoint;
+    // Filter station data to include only stations belonging to the selected line
+    const lineStationsIds = Object.entries(stationData.stations)
+      .filter(([key]) => parseInt(key.split("L")[1]) === lineNumber)
+      .map(([, stations]) => stations)
+      .flat();
+
+    // Prepare the payload
+    const payload = {
+      stations_ids: lineStationsIds,
+    };
+
+    try {
+      const response = await fetch(fullLink, {
+        method: "POST",
+        body: JSON.stringify(payload),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        // Handle successful response
+        const responseData = await response.json();
+        console.log("API response: of sending operator data", responseData);
+        setEmployeeData(responseData.Datas);
+      } else {
+        // Handle error response
+        console.error("API error:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
+
+  // Initially fetch data for line L01
+  useEffect(() => {
+    // if (stationData && Object.keys(stationData).length > 0) {
+    //   const lineL01 = stationData.lines.find((line) => line.includes("L01"));
+    // console.log(lineL01)
+    //   if (lineL01) {
+    //     handleLineClick(lineL01);
+    //   }
+    // }
+
+
+    if (stationData && stationData.lines && stationData.lines.length > 0) {
+      const firstLine = stationData.lines[0];
+      const lineCode = firstLine.split(" ")[2];
+      console.log(lineCode); // Output: L01
+      handleLineClick(firstLine);
+  }
+  }, [stationData]);
+
+  // const handleLineClick = (line) => {
+  //   const data = parseInt(line.split("L")[1]);
+  //   setSelectedLine(data);
+
+  //   const refreshData=async() =>{
+  //     const link = process.env.REACT_APP_BASE_URL;
+  //     const endPoint = "/floorincharge/refresh_data";
+  //     const fullLink = link + endPoint;
+
+  //     // try {
+  //       // const params = new URLSearchParams();
+  //       // params.append("floor_no", floor_no);
+
+  //       // const response = await fetch(fullLink, {
+  //       //   method: "POST",
+  //       //   body: params,
+
+  // try {
+  //   // Filter station data to include only stations belonging to the specified line
+  //   const lineStationsData = Object.entries(stationData.stations)
+  //   .filter(([line]) => parseInt(line.split("L")[1]) === selectedLine)
+  //   .map(([, stations]) => stations)
+  //   .flat();
+
+  // // Extract only the station IDs
+  // const stationIds = lineStationsData.map((station) => station.station_id);
+
+  //   const response = await fetch(fullLink, {
+  //     method: "POST",
+  //     body: JSON.stringify({ station_ids: stationIds }),
+  //         headers: {
+  //           "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       });
+
+  //       if (response.ok) {
+  //         const responseData = await response.json();
+  //         console.log("responseData employee data", responseData);
+
+  //         // Parse employee data and unassigned stations
+  //         // const employeeDatas = JSON.parse(responseData.employee_data);
+  //         // const unassignedStations = responseData["station_ids where no task assigend"];
+  //         // setEmployeeData(employeeDatas);
+  //         // setUnassignedStations(unassignedStations);
+
+  //         // Parse employee data
+  //         const employeeDataString = responseData.employee_data.replace(
+  //           /'/g,
+  //           '"'
+  //         ); // Replace single quotes with double quotes
+  //         const employeeData = JSON.parse(employeeDataString);
+
+  //         // Set the state variables
+  //         setEmployeeData(employeeData);
+  //         setUnassignedStations(
+  //           responseData["station_ids where no task assigend"]
+  //         );
+  //       } else {
+  //         const errorData = await response.text();
+  //         console.error("API Error:", errorData);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error:", error);
+  //     }
+  //   };
+
+  //   refreshData()
+  // };
 
   const getLineNumber = (line) => {
     // Extract the last part of the line string and convert it to a number
@@ -206,66 +336,75 @@ export default function Dashboard() {
   console.log("processData", processData);
   console.log("object stationData", stationData);
 
-  const [employeeData, setEmployeeData] = useState([]);
+  const [employeeData, setEmployeeData] = useState({});
   const [unassignedStations, setUnassignedStations] = useState([]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const link = process.env.REACT_APP_BASE_URL;
-      const endPoint = "/floorincharge/refresh_data";
-      const fullLink = link + endPoint;
+  // const refreshData=async() =>{
+  //     const link = process.env.REACT_APP_BASE_URL;
+  //     const endPoint = "/floorincharge/refresh_data";
+  //     const fullLink = link + endPoint;
 
-      try {
-        const params = new URLSearchParams();
-        params.append("floor_no", floor_no);
+  //     // try {
+  //       // const params = new URLSearchParams();
+  //       // params.append("floor_no", floor_no);
 
-        const response = await fetch(fullLink, {
-          method: "POST",
-          body: params,
-          headers: {
-            "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-            Authorization: `Bearer ${token}`,
-          },
-        });
+  //       // const response = await fetch(fullLink, {
+  //       //   method: "POST",
+  //       //   body: params,
 
-        if (response.ok) {
-          const responseData = await response.json();
-          console.log("responseData employee data", responseData);
+  // try {
+  //   // Filter station data to include only stations belonging to the specified line
+  //   const lineStationsData = Object.entries(stationData.stations)
+  //   .filter(([line]) => parseInt(line.split("L")[1]) === selectedLine)
+  //   .map(([, stations]) => stations)
+  //   .flat();
 
-          // Parse employee data and unassigned stations
-          // const employeeDatas = JSON.parse(responseData.employee_data);
-          // const unassignedStations = responseData["station_ids where no task assigend"];
-          // setEmployeeData(employeeDatas);
-          // setUnassignedStations(unassignedStations);
+  // // Extract only the station IDs
+  // const stationIds = lineStationsData.map((station) => station.station_id);
 
-          // Parse employee data
-          const employeeDataString = responseData.employee_data.replace(
-            /'/g,
-            '"'
-          ); // Replace single quotes with double quotes
-          const employeeData = JSON.parse(employeeDataString);
+  //   const response = await fetch(fullLink, {
+  //     method: "POST",
+  //     body: JSON.stringify({ station_ids: stationIds }),
+  //         headers: {
+  //           "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       });
 
-          // Set the state variables
-          setEmployeeData(employeeData);
-          setUnassignedStations(
-            responseData["station_ids where no task assigend"]
-          );
-        } else {
-          const errorData = await response.text();
-          console.error("API Error:", errorData);
-        }
-      } catch (error) {
-        console.error("Error:", error);
-      }
-    };
+  //       if (response.ok) {
+  //         const responseData = await response.json();
+  //         console.log("responseData employee data", responseData);
 
-    fetchData();
-  }, []); // Add dependencies if needed
+  //         // Parse employee data and unassigned stations
+  //         // const employeeDatas = JSON.parse(responseData.employee_data);
+  //         // const unassignedStations = responseData["station_ids where no task assigend"];
+  //         // setEmployeeData(employeeDatas);
+  //         // setUnassignedStations(unassignedStations);
+
+  //         // Parse employee data
+  //         const employeeDataString = responseData.employee_data.replace(
+  //           /'/g,
+  //           '"'
+  //         ); // Replace single quotes with double quotes
+  //         const employeeData = JSON.parse(employeeDataString);
+
+  //         // Set the state variables
+  //         setEmployeeData(employeeData);
+  //         setUnassignedStations(
+  //           responseData["station_ids where no task assigend"]
+  //         );
+  //       } else {
+  //         const errorData = await response.text();
+  //         console.error("API Error:", errorData);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error:", error);
+  //     }
+  //   };
 
   useEffect(() => {
     console.log("employeeDatahgbhvhv hghghghb bhhjbjhb ", employeeData);
   }, [employeeData]);
-
 
   return (
     <>
@@ -298,7 +437,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="stations-container">        
+      <div className="stations-container">
         {stationData.stations &&
           Object.entries(stationData.stations).map(
             ([line, stations], index) => (
@@ -311,20 +450,20 @@ export default function Dashboard() {
                       : "none",
                 }}
               >
-    
                 <Line
-                no={parseInt(line.split("L")[1])} 
-                length={stations.length}
-                partData={
-                  employeeData.length > 0
-                    ? employeeData[0].part_data // Assuming employeeData is an array
-                    : [] // Default empty array if employeeData is empty
-                }
-                 processData={processData.filter((data) => stations.includes(data.station_id))}
+                  no={parseInt(line.split("L")[1])}
+                  length={stations.length}
+                  partData={
+                    employeeData.length > 0
+                      ? employeeData[0].part_data // Assuming employeeData is an array
+                      : [] // Default empty array if employeeData is empty
+                  }
+                  processData={processData.filter((data) =>
+                    stations.includes(data.station_id)
+                  )}
                 />
 
                 <div className="dashboard_stations">
-
                   {stations.map((station, index) => {
                     const stationProcessData = processData.filter(
                       (data) => data.station_id == station
@@ -357,21 +496,24 @@ export default function Dashboard() {
                         : "";
 
                     // Find employee associated with this station
-                    const employee = employeeData.find((employee) =>
-                      employee.stations.includes(station)
-                    );
+                    // const employee = employeeData.find((employee) =>
+                    //   employee.stations.includes(station)
+                    // );
 
-                    // Initialize variables for employee information
-                    let operatorName = "";
-                    let operatorSkill = "";
-                    let process_data=""
+                    // // Initialize variables for employee information
+                    // let operatorName = "";
+                    // let operatorSkill = "";
+                    // let process_data=""
 
-                    // If employee is found, assign operator's name and skill
-                    if (employee) {
-                      operatorName = `${employee.fName} ${employee.lName}`;
-                      operatorSkill = employee.skill_level;
-                      process_data=employee.process_data
-                    }
+                    // // If employee is found, assign operator's name and skill
+                    // if (employee) {
+                    //   operatorName = `${employee.fName} ${employee.lName}`;
+                    //   operatorSkill = employee.skill_level;
+                    //   process_data=employee.process_data
+                    // }
+
+                    // Find employee data for this station
+                    const employeeDataForStation = employeeData[station];
 
                     return (
                       <div className="operator_line" key={index}>
@@ -381,27 +523,93 @@ export default function Dashboard() {
                             backgroundColor: passed + failed == 0 ? "#aaa" : "",
                           }}
                         >
-                          <div>
+                          {/* <div>
                             <h4>Shift Timings</h4>
                             {startTime && endTime && (
                               <h5>{`(${startTime} - ${endTime})`}</h5>
                             )}
                             <p className="operator_content">
-                              Operator&nbsp;:&nbsp; <h4>{operatorName}</h4>
+                              Operator&nbsp;:&nbsp; <h4>{}</h4>
                             </p>
                             <p className="operator_content">
                               Operator Skill:&nbsp;&nbsp;
-                              <h4>{operatorSkill}</h4>
+                              <h4>{}</h4>
                             </p>
                             <p className="operator_content">
                               Station :&nbsp;&nbsp; <h4>{station}</h4>
                             </p>
                             <p className="operator_content">
-                              Process :&nbsp;&nbsp;<h4>{process_data}</h4>
+                              Part :&nbsp;&nbsp;<h4>{}</h4>                              
                             </p>
+                            <p className="operator_content">
+                              Process :&nbsp;&nbsp;<h4>{}</h4>
+                            </p>
+                           
                             <p className="operator_content">
                               Shift :&nbsp;&nbsp;<h4>{shift}</h4>
                             </p>
+                          </div> */}
+
+                          <div>
+                            <h4>Shift Timings</h4>
+                            {startTime && endTime && (
+                              <h5>{`(${startTime} - ${endTime})`}</h5>
+                            )}
+                            <p>
+                              Station Id:&nbsp;&nbsp;
+                              <strong>{station}</strong>
+                            </p>
+                            {employeeDataForStation ? (
+                              employeeDataForStation.map(
+                                (employee, empIndex) => (
+                                  <div key={empIndex}>
+                                    <p>
+                                      Operator:&nbsp;&nbsp;
+                                      <strong>
+                                        {employee.fName || ""}{" "}
+                                        {employee.lName || ""}
+                                      </strong>
+                                    </p>
+                                    <p>
+                                      Operator Skill:&nbsp;&nbsp;
+                                      <strong>
+                                        {employee.skill_level || ""}
+                                      </strong>
+                                    </p>
+
+                                    <p>
+                                      Part:&nbsp;&nbsp;
+                                      <strong>{employee.parts_no || ""}</strong>
+                                    </p>
+                                    <p>
+                                      Process:&nbsp;&nbsp;
+                                      <strong>
+                                        {employee.process_no || ""}
+                                      </strong>
+                                    </p>
+                                  </div>
+                                )
+                              )
+                            ) : (
+                              <div>
+                                <p>
+                                  Operator:&nbsp;&nbsp;
+                                  <strong>{""}</strong>
+                                </p>
+                                <p>
+                                  Operator Skill:&nbsp;&nbsp;
+                                  <strong>{""}</strong>
+                                </p>
+                                <p>
+                                  Part:&nbsp;&nbsp;
+                                  <strong>{""}</strong>
+                                </p>
+                                <p>
+                                  Process:&nbsp;&nbsp;
+                                  <strong>{""}</strong>
+                                </p>
+                              </div>
+                            )}
                           </div>
                           <div className="operator_below_content">
                             {passed + failed} Done&nbsp;&nbsp;

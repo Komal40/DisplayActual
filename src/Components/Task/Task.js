@@ -4,6 +4,13 @@ import DashBoardAbove from "../DashboardR/DashBoardAbove";
 import { useNavigate } from "react-router-dom";
 import useTokenExpirationCheck from "../useTokenExpirationCheck";
 import Line from "../Line/Line";
+// Importing toastify module
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+ 
+// toast-configuration method,
+// it is compulsory method.
+toast.configure();
 
 
 function Task() {
@@ -198,8 +205,8 @@ function Task() {
 
       // Check if part number and process number are selected for the station
       if (
-        (indSelPart[stationId] && selectedProcesses[stationId]) ||
-        (tasks.length > 0 && tasks[0].part_no && tasks[0].process_no)
+        (indSelPart[stationId] && selectedProcesses[stationId] && selectedEmployees[stationId]) ||
+        (tasks.length > 0 && tasks[0].part_no && tasks[0].process_no && tasks[0].employee_id)
       ) {
         // Create a new task object for the station
         const newTask = {
@@ -248,19 +255,27 @@ function Task() {
 
       if (response.ok) {
       const data = await response.json();
-      console.log("Task Assigned Successfully", data);
-      // Reset input fields for part and process after successful task assignment
-      setSelectedPart(""); // Reset selectedPart state
-      setSelectedProcesses({}); // Reset selectedProcesses state
-      setIndSelPart({}); // Reset indSelPart state
-      setIndSelProcess({}); // Reset indSelProcess state
+      
+      if (data.Message === 'Please reset the all task first') {
+        // Show toast message if the API response contains the specified message
+        // toast.warning("Please free all the tasks", { autoClose: 10000 });
+        console.log(" reset  all task first",data.Message)
       } else {
-        console.error("Failed to assign tasks", response.error);
+        console.log("Task Assigned Successfully", data);
+        // Reset input fields for part and process after successful task assignment
+        setSelectedPart(""); // Reset selectedPart state
+        setSelectedProcesses({}); // Reset selectedProcesses state
+        setIndSelPart({}); // Reset indSelPart state
+        setIndSelProcess({}); // Reset indSelProcess state
       }
-    } catch (error) {
+    } else {
+      console.error("Failed to assign tasks", response.error);
+    }
+  }catch (error) {
       console.error("Error:", error);
     }
   };
+
 
   useEffect(() => {
     console.log("indSelPart updated:", indSelPart);
@@ -283,7 +298,7 @@ function Task() {
     try {
       const response = await fetch(fullLink, {
         method: "POST",
-        body: JSON.stringify({ station_ids: stationIds }), // Send all station IDs in a single request
+        body: JSON.stringify({ stations_ids: stationIds }), // Send all station IDs in a single request
         headers: {
           "Content-type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -403,6 +418,7 @@ function Task() {
 
   return (
     <>
+    <ToastContainer />
       <div>
         <DashBoardAbove />
       </div>
