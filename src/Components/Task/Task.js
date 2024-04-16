@@ -10,7 +10,7 @@ import 'react-toastify/dist/ReactToastify.css';
  
 // toast-configuration method,
 // it is compulsory method.
-toast.configure();
+// toast.configure();
 
 
 function Task() {
@@ -194,6 +194,12 @@ function Task() {
     const fullLink = link + endPoint;
     const tasksArray = []; // Initialize an empty array to store task objects
 
+    // Check if shift timings are selected
+  if (!startShiftTime || !endShiftTime) {
+    toast.warning("Please select shift timings", { autoClose: 5000 });
+    return; // Exit the function early
+  }
+
     // Loop through each station and its tasks
     Object.keys(stationData).forEach((stationId) => {
       const tasks = stationData[stationId];
@@ -236,6 +242,10 @@ function Task() {
         tasksArray.push(newTask);
         console.log("Task for station", stationId, ":", newTask);
       }
+      else{
+        toast.warning("Please select part, process, and employee for all stations", { autoClose: 5000 });
+      
+      }
     });
 
     // Prepare the request body
@@ -256,10 +266,9 @@ function Task() {
       if (response.ok) {
       const data = await response.json();
       
-      if (data.Message === 'Please reset the all task first') {
+      if (data.Message.trim() == 'Please reset the all task first') {
         // Show toast message if the API response contains the specified message
-        // toast.warning("Please free all the tasks", { autoClose: 10000 });
-        console.log(" reset  all task first",data.Message)
+        toast.info("Please free all the tasks First", { autoClose: 10000 });      
       } else {
         console.log("Task Assigned Successfully", data);
         // Reset input fields for part and process after successful task assignment
@@ -267,8 +276,10 @@ function Task() {
         setSelectedProcesses({}); // Reset selectedProcesses state
         setIndSelPart({}); // Reset indSelPart state
         setIndSelProcess({}); // Reset indSelProcess state
+        toast.success("Task Assigned Successfully")
       }
-    } else {
+    } 
+    else {
       console.error("Failed to assign tasks", response.error);
     }
   }catch (error) {
@@ -308,6 +319,7 @@ function Task() {
       if (response.ok) {
         // Handle success response here
         console.log("Stations on line", lineNo, "freed successfully");
+        toast("Stations on line", lineNo, "freed successfully")
       } else {
         // Handle error response here
         console.error("Failed to free stations on line", lineNo);
@@ -358,7 +370,7 @@ function Task() {
       for (let minute = 0; minute < 60; minute += 30) {
         const time = `${hour < 10 ? "0" + hour : hour}:${
           minute === 0 ? "00" : minute
-        }`;
+        }:00`;
         options.push(<option key={time}>{time}</option>);
       }
     }
@@ -477,6 +489,7 @@ function Task() {
             />
             <p>Or</p> */}
             <button className="task_qty_btn">Fetch From Quantity</button>
+            <div ><button className="task_assign_btn">Assign Task</button></div>
           </div>
 
           <div className="task_dropdown">
@@ -596,6 +609,9 @@ function Task() {
               </div>
             ))}
         </div>
+
+
+       
       </div>
     </>
   );

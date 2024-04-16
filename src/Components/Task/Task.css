@@ -117,6 +117,24 @@
     cursor: pointer;
 }
 
+.task_assign_btn{
+    background-color: var(--color-orange);
+    color: white;
+    width: max-content;
+    padding: 20px;
+    height: 2.3rem;
+    margin-left: 2rem;
+    font-size: 15px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: none;
+    cursor: pointer;
+}
+
+
 .task_stations{
 background-color: var(--color-grey);
 border-radius: 10px;

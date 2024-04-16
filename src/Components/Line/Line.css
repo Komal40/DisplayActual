@@ -119,7 +119,7 @@
     flex-direction: row;
     justify-content: space-around;
     align-items: center;
-    width: 50vw;
+    width: 60vw;
     height: 3.5rem;
     color:white;
     background-color: #2B3499;
@@ -143,9 +143,9 @@
     margin-left: 14rem;
     padding-left: 4rem;
     padding-right: 3rem;
-    justify-content: space-between;
+    justify-content: space-around;
     align-items: center;
-    width: 50vw;
+    width: 40vw;
     background-color: #FFD099;
     height: 3.5rem;
 }
