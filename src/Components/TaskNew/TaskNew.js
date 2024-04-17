@@ -233,7 +233,6 @@ function TaskNew() {
     const fullLink = link + endPoint;
 
     try {
-
         const params = new URLSearchParams();
         params.append("floor_no", floor_no);
         params.append("date", formattedDate);
@@ -255,6 +254,12 @@ function TaskNew() {
         if (Object.keys(data.Datas).length === 0 && data.constructor === Object) {
             // Data is an empty object
             toast.info("Nothing assigned on that day and time");
+        //     const selectedLineStations = stationData.lines;
+        // const blankData = {};
+        // selectedLineStations.forEach((station) => {
+        //   blankData[station] = [];
+        // });
+        setPreviousData({});      
           } else {
             setPreviousData(data.Datas);
           }
@@ -289,40 +294,33 @@ function TaskNew() {
   
     // Initialize an empty array to store task objects
     const tasksArray = [];
-    // Flag to track if any station has missing selections
-    let missingSelections = false;
   
-    console.log("stationdata", stationData);
-    // Loop through each station and its tasks
-    Object.entries(stationData.stations).map(([line, stations], index) => {
-      // Inside this map function, you have access to both the line and its associated stations
-      stations.forEach((station) => {
-        const stationId = station;
-        // Get the selected part, process, and employee for the station
-        const selectedPart = selectedParts[stationId];
-        const selectedProcess = selectedProcesses[stationId];
-        const selectedEmployee = selectedEmployees[stationId];
+    // Get the selected line
+    const selectedLineStations = stationData.stations[`G01 F02 L0${selectedLine}`];
   
-        // If all selections are made for the station
-       
-          // Create a new task object for the station
-          const newTask = {
-            station_id: stationId,
-            employee_id: "",
-            part_no: selectedPart,
-            process_no: selectedProcess,
-            shift: "A",
-            start_shift_time: startShiftTime,
-            end_shift_time: endShiftTime,
-            assigned_by_owner: login.employee_id,
-            total_assigned_task:4
-          };
-          // Push the new task object to the tasksArray
-          tasksArray.push(newTask);
-        
-      });
+    // Loop through each station on the selected line
+    selectedLineStations.forEach((station) => {
+      // Get the selected part, process, and employee for the station
+      const selectedPart = selectedParts[station] || "";
+      const selectedProcess = selectedProcesses[station] || "";
+      const selectedEmployee = selectedEmployees[station] || "";
+  
+      // Create a new task object for the station
+      const newTask = {
+        station_id: station,
+        employee_id: selectedEmployee,
+        part_no: selectedPart,
+        process_no: selectedProcess,
+        shift: "A",
+        start_shift_time: startShiftTime,
+        end_shift_time: endShiftTime,
+        assigned_by_owner: login.employee_id,
+        total_assigned_task: 4
+      };
+  
+      // Push the new task object to the tasksArray
+      tasksArray.push(newTask);
     });
-   
   
     try {
       // Send a POST request to the server with the tasks data
@@ -337,7 +335,6 @@ function TaskNew() {
   
       if (response.ok) {
         const data = await response.json();
-  
         // Check if the API response contains a specific message
         if (data.Message.trim() === 'Please reset the all task first') {
           // Show toast message if the API response contains the specified message
@@ -360,6 +357,16 @@ function TaskNew() {
     }
   };
   
+  const [userEnteredValue, setUserEnteredValue] = useState({});
+ // Modify handleInputChange to update the entered value for the corresponding station
+  const handleInputChange = (e, stationId) => {
+    const { value } = e.target;
+    // Update the state with the entered value for the station
+    setUserEnteredValue((prevState) => ({
+      ...prevState,
+      [stationId]: value,
+    }));
+  };
 
 
 
@@ -410,7 +417,6 @@ function TaskNew() {
        onClick={getPartAndProcessInfo}>See Previous Logs</button>
    
 </div>
-
 <hr/>
 
         <div className="task_buttons">
@@ -469,8 +475,7 @@ function TaskNew() {
                   }}
                 >
                   <div className="task_stations_container">
-                    {stations.map((station, indx) => {
-                        
+                    {stations.map((station, index) => {                        
                         const partInfo = previousData[station] ? previousData[station][3] : '';
                         const operatorfname = previousData[station] ? previousData[station][0] : '';
                         const operatorlname = previousData[station] ? previousData[station][1] : '';
@@ -491,7 +496,12 @@ function TaskNew() {
                           </div>
 
                           <div className="task_stations_right">
-                            <input className="task_station_input" />
+                            <input className="task_station_input" 
+                             value={
+                                // If the user has entered a value for the station, show it; otherwise, show the value from the API or default to 0
+                                userEnteredValue[station]
+                              }
+                              onChange={(e) => handleInputChange(e, station)}/>
                             <div className="task_dropdown">
                               <select                             
                                 onChange={(e) => handlePartChange(e, station)}
@@ -517,7 +527,7 @@ function TaskNew() {
                                     </option>
                                   ))}
                               </select>
-                            </div>{" "}
+                            </div>
                             <div className="task_dropdown">
                               <select>
                                 <option value="">Select</option>

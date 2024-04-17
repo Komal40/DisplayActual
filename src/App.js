@@ -28,6 +28,7 @@ function App() {
       <Route path='/process' element={<ProtectedRoute Component={Process}/>}/>
       <Route path='/para' element={<ProtectedRoute Component={Parameters}/>}/>
       <Route path='/task' element={<ProtectedRoute Component={TaskNew}/>}/>
+      
     </Routes>
     </BrowserRouter>
     </>
