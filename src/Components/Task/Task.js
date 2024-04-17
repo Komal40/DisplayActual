@@ -563,7 +563,6 @@ function Task() {
   }
   onChange={(e) => handleInputChange(e, stationId)}
 />
-
                   <div className="task_dropdown">
                     <select
                       onChange={(e) =>

@@ -1,20 +1,28 @@
 import React, { startTransition, useEffect, useState } from "react";
 import DashBoardAbove from "../DashboardR/DashBoardAbove";
-import { useNavigate } from "react-router-dom";
+import { json, useNavigate } from "react-router-dom";
 import useTokenExpirationCheck from "../useTokenExpirationCheck";
 import Line from "../Line/Line";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function TaskNew() {
+
+   
+
   const [stationData, setStationData] = useState({});
   const navigate = useNavigate();
   const token = JSON.parse(localStorage.getItem("Token"));
   const floor_no = JSON.parse(localStorage.getItem("floor_no"));
+  const login=JSON.parse(localStorage.getItem("Login"))
   const [selectedLine, setSelectedLine] = useState(1);
   const [parts, setParts] = useState([]);
   const [processes, setProcesses] = useState({});
   const [processName, setProcessName] = useState([]);
+  const [previousData, setPreviousData]=useState({})
 
   const [selectedParts, setSelectedParts] = useState({});
   const [selectedProcesses, setSelectedProcesses] = useState({});
@@ -24,6 +32,27 @@ function TaskNew() {
 
   const [startShiftTime, setStartShiftTime] = useState("");
   const [endShiftTime, setEndShiftTime] = useState("");
+
+
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedTime, setSelectedTime] = useState("00:00");
+
+  const handleDateChange = (date) => {
+    setSelectedDate(date);
+  };
+
+  const handleTimeChange = (e) => {
+    setSelectedTime(e.target.value);
+  };
+
+  const formattedDate = `${selectedDate.getFullYear()}-${
+    selectedDate.getMonth() + 1 < 10
+      ? "0" + (selectedDate.getMonth() + 1)
+      : selectedDate.getMonth() + 1
+  }-${selectedDate.getDate()}`;
+
+  const formattedTime = `${selectedTime}:00`;
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -116,11 +145,6 @@ function TaskNew() {
     setSelectedProcesses({ ...selectedProcesses, [stationId]: selectedProcessNo });
   };
 
-//   const handleProcessChange = (e, stationId) => {
-//     const selectedProcessNo = e.target.value;
-//     setSelectedProcessNo(selectedProcessNo);
-//   };
-
   const getProcesses = async (partNo, stationId) => {
     // e.preventDefault();
     const link = process.env.REACT_APP_BASE_URL;
@@ -165,6 +189,7 @@ function TaskNew() {
     setSelectedLine(data);
   };
 
+
   function generateTimeOptions() {
     const options = [];
     for (let hour = 0; hour < 24; hour++) {
@@ -188,6 +213,156 @@ function TaskNew() {
     setEndShiftTime(e.target.value);
   };
 
+//   get previous data on selected date and time
+  const getPartAndProcessInfo = async () => {
+    // Check if the selected time is empty
+    if (selectedTime.trim() === "00:00") {
+        toast.error("Please select Time");
+        return;
+    }
+    const formattedDate = `${selectedDate.getFullYear()}-${
+      selectedDate.getMonth() + 1 < 10
+        ? "0" + (selectedDate.getMonth() + 1)
+        : selectedDate.getMonth() + 1
+    }-${selectedDate.getDate()}`;
+
+    const formattedTime = `${selectedTime}:00`;
+
+    const link = process.env.REACT_APP_BASE_URL;
+    const endPoint = "/floorincharge/get_stations_previous_data";
+    const fullLink = link + endPoint;
+
+    try {
+
+        const params = new URLSearchParams();
+        params.append("floor_no", floor_no);
+        params.append("date", formattedDate);
+        params.append("time", formattedTime);
+
+        
+      const response = await fetch(fullLink, {
+        method: "POST",
+        body: params,
+        headers: {
+            "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("data of getiing info on selected date and time", data)
+        if (Object.keys(data.Datas).length === 0 && data.constructor === Object) {
+            // Data is an empty object
+            toast.info("Nothing assigned on that day and time");
+          } else {
+            setPreviousData(data.Datas);
+          }
+      } else {
+        console.error("Failed to fetch part and process info");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  const [selectedEmployees, setSelectedEmployees] = useState({});
+
+  // Inside the TaskNew component
+  
+  // Function to handle employee selection for each station
+  const handleEmployeeChange = (employee, stationId) => {
+    setSelectedEmployees({ ...selectedEmployees, [stationId]: employee });
+  };
+
+
+  const assignTask = async () => {
+    // Check if shift timings are selected
+    if (!startShiftTime || !endShiftTime) {
+      toast.warning("Please select shift timings", { autoClose: 5000 });
+      return; // Exit the function early
+    }
+  
+    const link = process.env.REACT_APP_BASE_URL;
+    const endPoint = "/floorincharge/assign_task";
+    const fullLink = link + endPoint;
+  
+    // Initialize an empty array to store task objects
+    const tasksArray = [];
+    // Flag to track if any station has missing selections
+    let missingSelections = false;
+  
+    console.log("stationdata", stationData);
+    // Loop through each station and its tasks
+    Object.entries(stationData.stations).map(([line, stations], index) => {
+      // Inside this map function, you have access to both the line and its associated stations
+      stations.forEach((station) => {
+        const stationId = station;
+        // Get the selected part, process, and employee for the station
+        const selectedPart = selectedParts[stationId];
+        const selectedProcess = selectedProcesses[stationId];
+        const selectedEmployee = selectedEmployees[stationId];
+  
+        // If all selections are made for the station
+       
+          // Create a new task object for the station
+          const newTask = {
+            station_id: stationId,
+            employee_id: "",
+            part_no: selectedPart,
+            process_no: selectedProcess,
+            shift: "A",
+            start_shift_time: startShiftTime,
+            end_shift_time: endShiftTime,
+            assigned_by_owner: login.employee_id,
+            total_assigned_task:4
+          };
+          // Push the new task object to the tasksArray
+          tasksArray.push(newTask);
+        
+      });
+    });
+   
+  
+    try {
+      // Send a POST request to the server with the tasks data
+      const response = await fetch(fullLink, {
+        method: "POST",
+        body: JSON.stringify(tasksArray),
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+  
+        // Check if the API response contains a specific message
+        if (data.Message.trim() === 'Please reset the all task first') {
+          // Show toast message if the API response contains the specified message
+          toast.info("Please free all the tasks First", { autoClose: 10000 });
+        } else {
+          console.log("Task Assigned Successfully", data);
+          // Reset input fields for part and process after successful task assignment
+          setSelectedParts({}); // Reset selectedParts state
+          setSelectedProcesses({}); // Reset selectedProcesses state
+          setSelectedEmployees({}); // Reset selectedEmployees state
+          setStartShiftTime(""); // Reset startShiftTime state
+          setEndShiftTime(""); // Reset endShiftTime state
+          toast.success("Task Assigned Successfully");
+        }
+      } else {
+        console.error("Failed to assign tasks", response.error);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+  
+
+
+
   return (
     <>
       <ToastContainer />
@@ -208,6 +383,35 @@ function TaskNew() {
           </div>
         </div>
         <hr />
+
+
+<div className="previous_task">
+
+      <div className="previous_task_date">
+        <p>Select Date:</p>
+        <DatePicker
+        className="date_picker"
+          selected={selectedDate}
+          onChange={handleDateChange}
+          dateFormat="yyyy-MM-dd"
+        />
+      </div>
+      <div className="previous_task_date">
+        <p>Select Time:</p>
+        <input
+          type="time"
+          value={selectedTime}
+          onChange={handleTimeChange}
+        //   step="1"
+        />
+      </div>
+      <button
+       className="task_qty_btn"
+       onClick={getPartAndProcessInfo}>See Previous Logs</button>
+   
+</div>
+
+<hr/>
 
         <div className="task_buttons">
           {stationData.lines &&
@@ -246,7 +450,7 @@ function TaskNew() {
 
             <button className="task_qty_btn">Fetch From Quantity</button>
             <div>
-              <button className="task_assign_btn">Assign Task</button>
+              <button className="task_assign_btn" onClick={assignTask}>Assign Task</button>
             </div>
           </div>
         </div>
@@ -266,25 +470,30 @@ function TaskNew() {
                 >
                   <div className="task_stations_container">
                     {stations.map((station, indx) => {
+                        
+                        const partInfo = previousData[station] ? previousData[station][3] : '';
+                        const operatorfname = previousData[station] ? previousData[station][0] : '';
+                        const operatorlname = previousData[station] ? previousData[station][1] : '';
+                        const processInfo = previousData[station] ? previousData[station][4] : '';
                       return (
                         <div key={station} className="task_stations">
                           <div className="task_stations_left">
                             <h4>{station}</h4>
                             <div className="task_stations_part">
-                              <p>Part: {selectedParts[station] || ""}</p>
+                              <p>Part: {selectedParts[station] || partInfo}</p>
                             </div>
                             <div className="task_stations_part">
-                              <p>Process: {selectedProcesses[station] || ""}</p>
+                              <p>Process: {selectedProcesses[station] || processInfo}</p>
                             </div>
                             <div className="task_stations_part">
-                              <p className="employee-name">Employee: </p>
+                              <p className="employee-name">Employee: {operatorfname+" "+operatorlname} </p>
                             </div>
                           </div>
 
                           <div className="task_stations_right">
                             <input className="task_station_input" />
                             <div className="task_dropdown">
-                              <select
+                              <select                             
                                 onChange={(e) => handlePartChange(e, station)}
                               >
                                 <option value="">Select</option>
@@ -295,7 +504,7 @@ function TaskNew() {
                               </select>
                             </div>
                             <div className="task_dropdown">
-                              <select
+                              <select                              
                                 onChange={(e) =>
                                   handleProcessChange(e, station)
                                 }

@@ -220,3 +220,41 @@ padding: 20px;
     margin-top: 8rem;
     margin-left: 20rem;
 }
+
+/* TaskNew.css */
+
+.previous_task{
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.previous_task_date{
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
+
+.previous_task p{
+    margin-right: 1rem;
+}
+
+.date_picker{
+    border-radius: 10px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    outline: none;
+}
+  
+  .previous_task_date input[type="time"] {
+    border-radius: 10px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    outline: none;
+  }
+  
+  
+  
