@@ -10,13 +10,11 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 function TaskNew() {
-
-   
-
   const [stationData, setStationData] = useState({});
   const navigate = useNavigate();
   const token = JSON.parse(localStorage.getItem("Token"));
   const floor_no = JSON.parse(localStorage.getItem("floor_no"));
+  const tokenExpired = useTokenExpirationCheck(token, navigate);
   const login=JSON.parse(localStorage.getItem("Login"))
   const [selectedLine, setSelectedLine] = useState(1);
   const [parts, setParts] = useState([]);
@@ -321,6 +319,8 @@ function TaskNew() {
       // Push the new task object to the tasksArray
       tasksArray.push(newTask);
     });
+
+    console.log("object tasksArray",tasksArray)
   
     try {
       // Send a POST request to the server with the tasks data
@@ -368,6 +368,43 @@ function TaskNew() {
     }));
   };
 
+
+  useEffect(()=>{
+    const freeStation = async () => {
+        const link = process.env.REACT_APP_BASE_URL;
+        const endPoint = "/floorincharge/free_station";
+        const fullLink = link + endPoint;
+      
+        try {
+          const allStationsData = Object.values(stationData.stations); // Extract all stations from stationData
+      
+          // Flatten the array of arrays to get a single array of all station IDs
+          const stationIds = allStationsData.flat();
+      
+          const response = await fetch(fullLink, {
+            method: "POST",
+            body: JSON.stringify({ stations_ids: stationIds }), // Send all station IDs in a single request
+            headers: {
+              "Content-type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
+      
+          if (response.ok) {
+            // Handle success response here
+            console.log("All stations freed successfully");
+         
+          } else {
+            // Handle error response here
+            console.error("Failed to free all stations");
+          }
+        } catch (error) {
+          console.error("Error:", error);
+        }
+      };
+      
+      freeStation()
+  },[])
 
 
   return (
@@ -480,6 +517,9 @@ function TaskNew() {
                         const operatorfname = previousData[station] ? previousData[station][0] : '';
                         const operatorlname = previousData[station] ? previousData[station][1] : '';
                         const processInfo = previousData[station] ? previousData[station][4] : '';
+                        const skillRequired=previousData[station]?previousData[station][5]:''
+                        const empSkill=previousData[station]?previousData[station][2]:''
+                        
                       return (
                         <div key={station} className="task_stations">
                           <div className="task_stations_left">
@@ -489,9 +529,12 @@ function TaskNew() {
                             </div>
                             <div className="task_stations_part">
                               <p>Process: {selectedProcesses[station] || processInfo}</p>
+                              <p style={{fontSize:'12px'}}>Skill Required:&nbsp;{skillRequired ? `${skillRequired} Or Above` : ""}</p>
                             </div>
                             <div className="task_stations_part">
                               <p className="employee-name">Employee: {operatorfname+" "+operatorlname} </p>
+                              <p style={{fontSize:'12px'}}>Skill :&nbsp;{empSkill}</p>
+
                             </div>
                           </div>
 
