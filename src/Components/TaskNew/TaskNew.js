@@ -653,8 +653,7 @@ const handleEmployeeChange = (employee, stationId) => {
                         const empId=previousData[station]?previousData[station][6]:""
 
 
-                        
-
+                    
                       // Check if the current station is in the runningTasks array
                       const isRunning = runningTasks.includes(station);
 
@@ -665,12 +664,12 @@ const handleEmployeeChange = (employee, stationId) => {
 
                             <h4>{station}</h4>
                             <div className="task_stations_part">
-                              <p>Part: {selectedParts[station] || partInfo}</p>
+                              <p>Part: {selectedParts[station] || partInfo ?partInfo:""}</p>
                             </div>
                             <div className="task_stations_part">
                               <p>
                                 Process:{" "}
-                                {selectedProcesses[station] || processInfo}
+                                {selectedProcesses[station] || processInfo?processInfo:""}
                               </p>
                               <p style={{ fontSize: "12px" }}>
                                 Skill Required:&nbsp;
@@ -721,7 +720,7 @@ const handleEmployeeChange = (employee, stationId) => {
                                 <option value="">Select</option>
                                 {parts &&
                                   parts.map((data, idx) => (
-                                    <option key={idx}>{data.part_no}</option>
+                                    <option key={idx} value={data.part_no}>{data.part_no}</option>
                                   ))}
                               </select>
                             </div>
@@ -735,7 +734,7 @@ const handleEmployeeChange = (employee, stationId) => {
                                 <option>Select</option>
                                 {processes[station] &&
                                   processes[station].map((process, index) => (
-                                    <option key={index}>
+                                    <option key={index} value={process.process_no}>
                                       {process.process_no}
                                     </option>
                                   ))}
