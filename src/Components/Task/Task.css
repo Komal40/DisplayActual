@@ -258,4 +258,7 @@ padding: 20px;
   }
   
   
-  
+  .task-running{
+    color: var(--color-blue);
+    font-weight: 800;
+  }

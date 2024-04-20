@@ -131,24 +131,35 @@ function TaskNew() {
 
   useEffect(() => {
     getParts();
- 
   }, []);
+
   const handlePartChange = (e, stationId) => {
-    const selectedPartNo = e.target.value;
-    setSelectedParts(prevParts => ({ ...prevParts, [stationId]: selectedPartNo }));
-    console.log("selectedParts", selectedParts);
-    getProcesses(selectedPartNo, stationId);
+    const selectedPartNo = e;
+    // setSelectedParts(prevParts => ({ ...prevParts, [stationId]: selectedPartNo }));
+    // console.log("selectedParts", selectedParts);
+    // getProcesses(selectedPartNo, stationId);
+    setSelectedParts((prevParts) => {
+      const updatedParts = { ...prevParts, [stationId]: selectedPartNo };
+      console.log("selectedParts", updatedParts); // Log the updated state
+      getProcesses(selectedPartNo, stationId); // Call getProcesses with the new value
+      return updatedParts; // Return the updated state
+    });
+    //   setSelectedProcesses(prevProcesses => ({ ...prevProcesses, [stationId]: "" })); // Reset corresponding process information
   };
-  
+
   const handleProcessChange = (e, stationId) => {
     const selectedProcessNo = e.target.value;
-    setSelectedProcesses(prevProcesses => ({
+    setSelectedProcesses((prevProcesses) => ({
       ...prevProcesses,
       [stationId]: selectedProcessNo,
     }));
     console.log("selectedProcesses", selectedProcesses);
   };
 
+  useEffect(() => {
+    // This effect runs every time selectedProcesses changes
+    console.log("selectedProcesses", selectedProcesses);
+  }, [selectedProcesses]); // Only run this effect when selectedProcesses changes
 
   const getProcesses = async (partNo, stationId) => {
     // e.preventDefault();
@@ -188,22 +199,17 @@ function TaskNew() {
     }
   }, [selectedPartNo]);
 
-
-
   const handleLineClick = async (line) => {
     // line=G01 F02 L01
     const data = parseInt(line.split("L")[1]);
     setSelectedLine(data);
 
-  // Parse the stations data from the state
-  const allStations = (stationData.stations);
-  // Find stations corresponding to the selected line
-  const stationsForSelectedLine = allStations[line] || [];
-  console.log("stationsForSelectedLine",stationsForSelectedLine)
+    // Parse the stations data from the state
+    const allStations = stationData.stations;
+    // Find stations corresponding to the selected line
+    const stationsForSelectedLine = allStations[line] || [];
+    console.log("stationsForSelectedLine", stationsForSelectedLine);
   };
-
-
-
 
   function generateTimeOptions() {
     const options = [];
@@ -266,12 +272,9 @@ function TaskNew() {
         const data = await response.json();
         setRunningTasks(data.running_task_on_stations || []);
         console.log("data of getiing info on selected date and time", data);
-        if (
-          Object.keys(data.Datas).length === 0 &&
-          data.constructor === Object
-        ) {
-          // Data is an empty object
-          toast.info("Nothing assigned on that day and time");
+        if (Object.keys(data.Datas).length === 0 && data.running_task_on_stations.length === 0) {
+            // Show a toast message indicating that nothing is assigned on that day and time
+            toast.info("Nothing assigned on that day and time");
           //     const selectedLineStations = stationData.lines;
           // const blankData = {};
           // selectedLineStations.forEach((station) => {
@@ -288,8 +291,6 @@ function TaskNew() {
       console.error("Error:", error);
     }
   };
-
-
 
   const assignTask = async () => {
     // Check if shift timings are selected
@@ -309,61 +310,55 @@ function TaskNew() {
     const selectedLineStations =
       stationData.stations[`G01 F02 L0${selectedLine}`];
 
-    // // Loop through each station on the selected line
-    // selectedLineStations.forEach((station) => {
-    //   // Get the selected part, process, and employee for the station
-    //   const selectedPart = selectedParts[station] ;
-    // const selectedProcess = selectedProcesses[station] ;
-    // const selectedEmployee = selectedEmployees[station] ;
-
-    // // Create a new task object for the station
-    // if ((selectedPart) && (selectedProcess) && (selectedEmployee)) {
-    // const newTask = {
-    //   station_id: station,
-    //   employee_id: selectedEmployee ? employeeCode[station] : "",
-    //   part_no: selectedPart ? selectedPart[station] : "",
-    //   process_no: selectedProcess ? selectedProcess[station] : "",
-    //   shift: "A",
-    //   start_shift_time: startShiftTime,
-    //   end_shift_time: endShiftTime,
-    //   assigned_by_owner: login.employee_id,
-    //   total_assigned_task: userEnteredValue[station] || 0,
-    // };
-
-
-     // Check if selectedLineStations is defined and iterable
-     if (!selectedLineStations || !Array.isArray(selectedLineStations)) {
-        console.error("Selected line stations are undefined or not iterable");
-        return;
+    // Check if selectedLineStations is defined and iterable
+    if (!selectedLineStations || !Array.isArray(selectedLineStations)) {
+      console.error("Selected line stations are undefined or not iterable");
+      return;
     }
 
-    selectedLineStations.forEach(station => {
-        if (previousData.hasOwnProperty(station)) {
-        // Extract required data from previousData for the current station
-        const [firstName, lastName, skillLevel, part, process, skillRequired, employeeid] = previousData[station];
-        
-        // Check if the user has entered values for part, process, and employee ID for the current station
-        if (
-            (userEnteredValue[station] && selectedParts[station] && selectedProcesses[station] && selectedEmployees[station]) ||
-            (!userEnteredValue[station] && !selectedParts[station] && !selectedProcesses[station] && !selectedEmployees[station])
-        ) {
-            // Create a new task object for the station
-            const newTask = {
-                station_id: station,
-                employee_id: userEnteredValue[station] ? selectedEmployees[station] : employeeid, // Use user entered value if available, otherwise use value from previousData
-                part_no: selectedParts[station] ? selectedParts[station] : part, // Use user entered value if available, otherwise use value from previousData
-                process_no: selectedProcesses[station] ? selectedProcesses[station] : process, // Use user entered value if available, otherwise use value from previousData
-                shift: "A",
-                start_shift_time: startShiftTime,
-                end_shift_time: endShiftTime,
-                assigned_by_owner: login.employee_id,
-                total_assigned_task: userEnteredValue[station] || 0,
-            };
+    selectedLineStations.forEach((station) => {
+      // if (previousData.hasOwnProperty(station)) {
+      // Extract required data from previousData for the current station
+      const [
+        firstName,
+        lastName,
+        skillLevel,
+        part,
+        process,
+        skillRequired,
+        employeeid,
+      ] = previousData[station] || [];
 
+      // Check if the user has entered values for part, process, and employee ID for the current station
+      if (
+        (selectedParts[station] &&
+          selectedProcesses[station] &&
+          selectedEmployees[station]) ||
+        (part && process && employeeid)
+      ) {
+        // Create a new task object for the station
+        const newTask = {
+          station_id: station,
+          // employee_id: employeeCode[station] || employeeid ? employeeid:"", // Use user entered value if available, otherwise use value from previousData
+          // part_no: selectedParts[station] || part?  part:"", // Use user entered value if available, otherwise use value from previousData
+          // process_no: selectedProcesses[station] ||process?process:"" , // Use user entered value if available, otherwise use value from previousData
+          employee_id: selectedEmployees[station]
+            ? employeeCode[station]
+            : employeeid || "", // Use user entered value if available, otherwise use value from previousData
+          part_no: selectedParts[station] || part || "", // Use user entered value if available, otherwise use value from previousData
+          process_no: selectedProcesses[station] || process || "",
+          shift: "A",
+          start_shift_time: startShiftTime,
+          end_shift_time: endShiftTime,
+          assigned_by_owner: login.employee_id,
+          total_assigned_task: userEnteredValue[station] || 0,
+        };
 
-      // Push the new task object to the tasksArray
-      tasksArray.push(newTask);
-    }}});
+        // Push the new task object to the tasksArray
+        console.log("adding newTask", newTask);
+        tasksArray.push(newTask);
+      }
+    });
 
     console.log("object tasksArray", tasksArray);
 
@@ -377,33 +372,45 @@ function TaskNew() {
           Authorization: `Bearer ${token}`,
         },
       });
-
-      if (response.ok) {
+    if (response.ok) {
         const data = await response.json();
-        // Check if the API response contains a specific message
-        
-        if (data.Message.trim() === "Please reset the all task first") {
-          // Show toast message if the API response contains the specified message
-          toast.info("Please free all the tasks First", { autoClose: 10000 });
-        } else {
-          console.log("Task Assigned Successfully", data);
-          // Reset input fields for part and process after successful task assignment
-          setSelectedParts({}); // Reset selectedParts state
-          setSelectedProcesses({}); // Reset selectedProcesses state
-          setSelectedEmployees({}); // Reset selectedEmployees state
-          setStartShiftTime(""); // Reset startShiftTime state
-          setEndShiftTime(""); // Reset endShiftTime state
-          toast.success("Task Assigned Successfully");
+    
+        if (Object.keys(data["assigned task to"]).length > 0) {
+            // Tasks were assigned successfully to specific stations
+            const assignedStations = Object.keys(data["assigned task to"]).join(", ");
+            toast.success(`Task assigned successfully to stations: ${assignedStations}`);
+    
+            // Reset input fields for part and process after successful task assignment
+            setSelectedParts({}); // Reset selectedParts state
+            setSelectedProcesses({}); // Reset selectedProcesses state
+            setSelectedEmployees({}); // Reset selectedEmployees state
+            setStartShiftTime(""); // Reset startShiftTime state
+            setEndShiftTime(""); // Reset endShiftTime state
         }
-      } else {
+    
+        if (Object.keys(data["operator_assigned_to_stations"]).length > 0) {
+            // Operator(s) is already assigned to stations
+            const operatorKeys = Object.keys(data["operator_assigned_to_stations"]);
+            operatorKeys.forEach(operator => {
+                const stations = data["operator_assigned_to_stations"][operator].join(", ");
+                toast.info(`Operator ${operator} already assigned on station ${stations}`, { autoClose: 10000 });
+            });
+        }
+    
+        if (Object.keys(data["assigned task to"]).length === 0 && Object.keys(data["operator_assigned_to_stations"]).length === 0) {
+            // No tasks were assigned and no operator assigned to stations
+            toast.info("Please free all the tasks First", { autoClose: 10000 });
+        }
+    } else {
         console.error("Failed to assign tasks", response.error);
-      }
-    } catch (error) {
+    }
+    
+    }
+
+    catch (error) {
       console.error("Error:", error);
     }
   };
-
-
 
   const [userEnteredValue, setUserEnteredValue] = useState({});
   // Modify handleInputChange to update the entered value for the corresponding station
@@ -416,6 +423,8 @@ function TaskNew() {
     }));
   };
 
+
+  const [runningTaskInitially, setRunningTaskInitially]=useState([])
   useEffect(() => {
     const freeStation = async () => {
       const link = process.env.REACT_APP_BASE_URL;
@@ -439,7 +448,9 @@ function TaskNew() {
 
         if (response.ok) {
           // Handle success response here
+          const data=await response.json()
           console.log("All stations freed successfully");
+          setRunningTaskInitially(data.task_running_on_stations)
         } else {
           // Handle error response here
           console.error("Failed to free all stations");
@@ -452,7 +463,6 @@ function TaskNew() {
     freeStation();
   }, [stationData]);
 
- 
   const [employeeDetails, setEmployeeDetails] = useState(null);
 
   const handleEmployeeCodeChange = (event) => {
@@ -476,17 +486,15 @@ function TaskNew() {
     return null;
   };
 
+  //   particular employee details from employee code
+  const [selectedEmployees, setSelectedEmployees] = useState({});
+  // Function to handle employee selection for each station
+  const handleEmployeeChange = (employee, stationId) => {
+    setSelectedEmployees({ ...selectedEmployees, [stationId]: employee });
+  };
 
-  
-//   particular employee details from employee code
-const [selectedEmployees, setSelectedEmployees] = useState({});
-// Function to handle employee selection for each station
-const handleEmployeeChange = (employee, stationId) => {
-  setSelectedEmployees({ ...selectedEmployees, [stationId]: employee });
-};
-
-   // select employee name and skill from employee code
-   const [employeeCode, setEmployeeCode] = useState("");
+  // select employee name and skill from employee code
+  const [employeeCode, setEmployeeCode] = useState("");
 
   const employeeChange = async (event, stationId) => {
     const { value } = event.target;
@@ -525,9 +533,6 @@ const handleEmployeeChange = (employee, stationId) => {
     }
   };
 
-
-
-
   return (
     <>
       <ToastContainer />
@@ -536,18 +541,7 @@ const handleEmployeeChange = (employee, stationId) => {
       </div>
 
       <div className="task__main">
-        {/* <div className="task__head">
-          <div className="task_left_head">
-            <p className="task_left_view">View Running Task</p>
-            <button className="task_left_btn"> View</button>
-          </div>
-
-          <div className="task_right_head">
-            <p className="task_right_view">Add Previous Task to Logs</p>
-            <button className="task_right_btn">Add</button>
-          </div>
-        </div> */}
-
+      
         <div className="previous_task">
           <div className="previous_task_date">
             <p>Select Date:</p>
@@ -632,44 +626,36 @@ const handleEmployeeChange = (employee, stationId) => {
                 >
                   <div className="task_stations_container">
                     {stations.map((station, index) => {
-                      const partInfo = previousData[station]
-                        ? previousData[station][3]
-                        : "";
-                      const operatorfname = previousData[station]
-                        ? previousData[station][0]
-                        : "";
-                      const operatorlname = previousData[station]
-                        ? previousData[station][1]
-                        : "";
-                      const processInfo = previousData[station]
-                        ? previousData[station][4]
-                        : "";
-                      const skillRequired = previousData[station]
-                        ? previousData[station][5]
-                        : "";
-                      const empSkill = previousData[station]
-                        ? previousData[station][2]
-                        : "";
-                        const empId=previousData[station]?previousData[station][6]:""
+                    //   const partInfo = previousData[station]
+                    //     ? previousData[station][3]
+                    //     : "";
+                   
+                    const [operatorfname, operatorlname, empSkill, partInfo, processInfo, skillRequired, empId] = previousData[station] ?? ["", "", "", "", "", "", ""];
 
-
-                    
                       // Check if the current station is in the runningTasks array
                       const isRunning = runningTasks.includes(station);
+                      const freeStationApirunningTask=runningTaskInitially.includes(station)
 
                       return (
-                        <div key={station} className="task_stations">
+                       <>
+                       
+                        <div key={station} className="task_stations">                      
                           <div className="task_stations_left">
-                          {isRunning && <p className="task-running">Task is already running</p>}
-
+                          <div>
+                        {(isRunning || freeStationApirunningTask) && (
+                          <u className="task-running">
+                            Task is already running..
+                          </u>
+                        )}
+                        </div>
                             <h4>{station}</h4>
                             <div className="task_stations_part">
-                              <p>Part: {selectedParts[station] || partInfo ?partInfo:""}</p>
+                              <p>Part: {selectedParts[station] || partInfo}</p>
                             </div>
                             <div className="task_stations_part">
                               <p>
                                 Process:{" "}
-                                {selectedProcesses[station] || processInfo?processInfo:""}
+                                {selectedProcesses[station] || processInfo}
                               </p>
                               <p style={{ fontSize: "12px" }}>
                                 Skill Required:&nbsp;
@@ -712,15 +698,22 @@ const handleEmployeeChange = (employee, stationId) => {
                                 userEnteredValue[station]
                               }
                               onChange={(e) => handleInputChange(e, station)}
+                              disabled={isRunning || freeStationApirunningTask}
                             />
                             <div className="task_dropdown">
                               <select
-                                onChange={(e) => handlePartChange(e, station)}
+                                onChange={(e) =>
+                                  handlePartChange(e.target.value, station)
+                                }
+                                disabled={isRunning || freeStationApirunningTask}
+                                
                               >
                                 <option value="">Select</option>
                                 {parts &&
                                   parts.map((data, idx) => (
-                                    <option key={idx} value={data.part_no}>{data.part_no}</option>
+                                    <option key={idx} value={data.part_no}>
+                                      {data.part_no}
+                                    </option>
                                   ))}
                               </select>
                             </div>
@@ -734,7 +727,10 @@ const handleEmployeeChange = (employee, stationId) => {
                                 <option>Select</option>
                                 {processes[station] &&
                                   processes[station].map((process, index) => (
-                                    <option key={index} value={process.process_no}>
+                                    <option
+                                      key={index}
+                                      value={process.process_no}
+                                    >
                                       {process.process_no}
                                     </option>
                                   ))}
@@ -746,12 +742,27 @@ const handleEmployeeChange = (employee, stationId) => {
                                 className="task_station_input"
                                 type="text"
                                 placeholder="Id"
-                                value={employeeCode[station] ?employeeCode[station] : empId}
+                                disabled={isRunning || freeStationApirunningTask}
+                                value={
+                                  employeeCode[station]
+                                    ? employeeCode[station]
+                                    : empId
+                                }
                                 onChange={(e) => employeeChange(e, station)}
                               />
                             </div>
+
+                            {/* Show a message if part and process are selected but employee ID is missing */}
+                            {
+                              selectedProcesses[station] &&
+                              !employeeCode[station] && (
+                                <p style={{ color: "red", fontSize: "12px" }}>
+                                  Employee ID is required
+                                </p>
+                              )}
                           </div>
                         </div>
+                        </>
                       );
                     })}
                   </div>
