@@ -9,6 +9,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+
 function TaskNew() {
   const [stationData, setStationData] = useState({});
   const navigate = useNavigate();
@@ -37,6 +38,52 @@ function TaskNew() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedTime, setSelectedTime] = useState("00:00");
 
+  const [startTimeOptions, setStartTimeOptions] = useState([]);
+  const [endTimeOptions, setEndTimeOptions] = useState([]);
+
+  useEffect(() => {
+    // Generate options for start and end times
+    const currentHour = new Date().getHours();
+    const currentMinute = new Date().getMinutes();
+
+    const startOptions = generateTimeOptions(currentHour, currentMinute, 24);
+    const endOptions = generateTimeOptions(currentHour, currentMinute, 48); // End time options for next 24 hours
+
+    setStartTimeOptions(startOptions);
+    setEndTimeOptions(endOptions);
+  }, []);
+
+//   function generateTimeOptions(startHour, startMinute, numberOfHours) {
+//     const options = [];
+//     for (let hour = startHour; hour < startHour + numberOfHours; hour++) {
+//       for (let minute = 0; minute < 60; minute += 30) {
+//         if (hour === startHour && minute < startMinute) {
+//           continue; // Skip past times for the start dropdown
+//         }
+//         const formattedHour = hour < 10 ? "0" + hour : hour;
+//         const formattedMinute = minute < 10 ? "0" + minute : minute;
+//         const time = `${formattedHour}:${formattedMinute}:00`;
+//         options.push(<option key={time}>{time}</option>);
+//       }
+//     }
+//   }
+
+function generateTimeOptions(currentHour, currentMinute, hours) {
+    const options = [];
+    for (let hour = currentHour; hour < currentHour + hours; hour++) {
+      const adjustedHour = hour % 24; // Ensure hour stays within 24-hour format
+      for (let minute = 0; minute < 60; minute += 30) {
+        const time = `${adjustedHour < 10 ? "0" + adjustedHour : adjustedHour}:${
+          minute === 0 ? "00" : minute
+        }:00`;
+        options.push(<option key={time}>{time}</option>);
+      }
+    }
+    return options;
+  }
+
+
+
   const handleDateChange = (date) => {
     setSelectedDate(date);
   };
@@ -52,6 +99,7 @@ function TaskNew() {
   }-${selectedDate.getDate()}`;
 
   const formattedTime = `${selectedTime}:00`;
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -147,12 +195,22 @@ function TaskNew() {
     //   setSelectedProcesses(prevProcesses => ({ ...prevProcesses, [stationId]: "" })); // Reset corresponding process information
   };
 
+  const [selectedSkill, setSelectedSkill]=useState({})
   const handleProcessChange = (e, stationId) => {
     const selectedProcessNo = e.target.value;
+    const selectedProcess = processes[stationId].find(process => process.process_no == selectedProcessNo);
+  
     setSelectedProcesses((prevProcesses) => ({
       ...prevProcesses,
       [stationId]: selectedProcessNo,
     }));
+    if (selectedProcess) {
+        setSelectedSkill((prevSkill)=>({
+            ...prevSkill,
+            [stationId]:selectedProcess.skill_level
+        }))
+      }
+    
     console.log("selectedProcesses", selectedProcesses);
   };
 
@@ -184,7 +242,10 @@ function TaskNew() {
         // setProcessName(data.data);
         const processesData = data.data;
         setProcesses({ ...processes, [stationId]: processesData });
-        console.log("object processName", processName);
+        // setProcessName(processesData);
+
+        console.log("object processName", processesData);
+       
       } else {
         console.error("Failed to fetch parts", response.error);
       }
@@ -199,6 +260,7 @@ function TaskNew() {
     }
   }, [selectedPartNo]);
 
+
   const handleLineClick = async (line) => {
     // line=G01 F02 L01
     const data = parseInt(line.split("L")[1]);
@@ -211,18 +273,18 @@ function TaskNew() {
     console.log("stationsForSelectedLine", stationsForSelectedLine);
   };
 
-  function generateTimeOptions() {
-    const options = [];
-    for (let hour = 0; hour < 24; hour++) {
-      for (let minute = 0; minute < 60; minute += 30) {
-        const time = `${hour < 10 ? "0" + hour : hour}:${
-          minute === 0 ? "00" : minute
-        }:00`;
-        options.push(<option key={time}>{time}</option>);
-      }
-    }
-    return options;
-  }
+//   function generateTimeOptions() {
+//     const options = [];
+//     for (let hour = 0; hour < 24; hour++) {
+//       for (let minute = 0; minute < 60; minute += 30) {
+//         const time = `${hour < 10 ? "0" + hour : hour}:${
+//           minute === 0 ? "00" : minute
+//         }:00`;
+//         options.push(<option key={time}>{time}</option>);
+//       }
+//     }
+//     return options;
+//   }
 
   // Function to handle change in start shift time
   const handleStartShiftChange = (e) => {
@@ -299,6 +361,11 @@ function TaskNew() {
       return; // Exit the function early
     }
 
+    // if(userEnteredValue==""){
+    //     toast.warning("Please Enter Quantity timings", { autoClose: 5000 });
+    //     return;
+    // }
+
     const link = process.env.REACT_APP_BASE_URL;
     const endPoint = "/floorincharge/assign_task";
     const fullLink = link + endPoint;
@@ -306,9 +373,13 @@ function TaskNew() {
     // Initialize an empty array to store task objects
     const tasksArray = [];
 
+    const lineCode = selectedLine < 10 ? `L0${selectedLine}` : `L${selectedLine}`;
+
     // Get the selected line
     const selectedLineStations =
-      stationData.stations[`G01 F02 L0${selectedLine}`];
+      stationData.stations[`${floor_no} ${lineCode}`];
+
+      console.log("object selectedLineStations",selectedLineStations)
 
     // Check if selectedLineStations is defined and iterable
     if (!selectedLineStations || !Array.isArray(selectedLineStations)) {
@@ -333,7 +404,7 @@ function TaskNew() {
       if (
         (selectedParts[station] &&
           selectedProcesses[station] &&
-          selectedEmployees[station]) ||
+          selectedEmployees[station]) && (userEnteredValue[station])||
         (part && process && employeeid)
       ) {
         // Create a new task object for the station
@@ -591,14 +662,15 @@ function TaskNew() {
             <div className="update_dropdown">
               <select onChange={handleStartShiftChange}>
                 <option>Start </option>
-                {generateTimeOptions()}
+                {/* {generateTimeOptions()} */}
+                {startTimeOptions}
               </select>
             </div>
 
             <div className="update_dropdown">
               <select onChange={handleEndShiftChange}>
                 <option>End </option>
-                {generateTimeOptions()}
+                {endTimeOptions}
               </select>
             </div>
 
@@ -659,9 +731,7 @@ function TaskNew() {
                               </p>
                               <p style={{ fontSize: "12px" }}>
                                 Skill Required:&nbsp;
-                                {skillRequired
-                                  ? `${skillRequired} Or Above`
-                                  : ""}
+                                {selectedSkill[station] ? `${selectedSkill[station]} Or Above` : skillRequired? `${skillRequired} Or Above`: ""}
                               </p>
                             </div>
 
@@ -697,6 +767,7 @@ function TaskNew() {
                                 // If the user has entered a value for the station, show it; otherwise, show the value from the API or default to 0
                                 userEnteredValue[station]
                               }
+                              placeholder="qty"
                               onChange={(e) => handleInputChange(e, station)}
                               disabled={isRunning || freeStationApirunningTask}
                             />

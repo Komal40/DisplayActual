@@ -83,11 +83,6 @@ export default function Navbar() {
                       </HashLink>
                     </li>
                     <li>
-                      <HashLink to="/addStation" className="dashboard_items">
-                        STATIONS
-                      </HashLink>
-                    </li>
-                    <li>
                       <HashLink to="/parts" className="dashboard_items">
                         PARTS
                       </HashLink>

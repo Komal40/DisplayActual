@@ -182,11 +182,31 @@ export default function Dashboard() {
       withCredentials: true,
     });
 
+     // Send messages after the socket connection is established
+     socket.on("connect", () => {
+      console.log("WebSocket connected");
+      // Send the messages
+      socket.emit("message", "G01 F02");
+      socket.emit("ack", "set_filter");
+    });
+
+      // Send message with parameters and handle acknowledgment
+    //   socket.emit('update_work_for_operator', {
+    //     station: 'G01 F02', // Example station parameter
+    //     event: 'update_work_operator',
+    //     ack: 'set_filter'
+    // }, (response) => {
+    //     console.log('Acknowledgment received:', response);
+    // });
+
+
+
     socket.on("update_work_for_operator", (data) => {
       console.log("Received update from WebSocket:", data);
       setProcessData(data.all_stations_data);
     });
 
+   
     return () => {
       socket.disconnect(); // Cleanup on component unmount
     };

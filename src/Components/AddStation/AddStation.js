@@ -7,9 +7,7 @@ import { FaRegSave } from "react-icons/fa";
 import { useUser } from "../../UserContext";
 import { FiLogIn } from "react-icons/fi";
 import Login from "../Login/Login";
-import { toast } from "react-toastify";
- 
-// Import toastify css file
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
  
 // toast-configuration method,
@@ -122,7 +120,7 @@ const AddStationModal = ({ showModal, closeModal, totalLines }) => {
 
   const addStation = async () => {
     const link = process.env.REACT_APP_BASE_URL;
-    const endPoint = "/floorincharge/add_station";
+    const endPoint = "/floorincharge/add_stations";
     const fullLink = link + endPoint;
 
     const newStations = [];
@@ -157,31 +155,56 @@ const AddStationModal = ({ showModal, closeModal, totalLines }) => {
 
       if (response.ok) {
         const data = await response.json();
-        toast("Stations Added Successfully")
+        toast.success("Stations Added Successfully")
         console.log("Stations Added Successfully", data);
       } else {
         console.error("Failed to add stations", response.error);
+        toast.warning("Failed to add stations")
       }
     } catch (error) {
       console.error("Error:", error);
     }
   };
    
+  const handleLineChange=(e)=>{
+console.log(e)
+  }
 
   return (
+    <>
+    <ToastContainer/>
     <div className={`modal ${showModal ? "show" : ""}`}>
       <div className="modal-content">
         <span className="close" onClick={closeAndClearModal}>
           &times;
         </span>
-        <div>
-          <div>
+        <div style={{display:'flex'}}>
+
+         <div>
+         <div>
             <p>
               <h4>Add New Station</h4>
             </p>
           </div>
           <div className="dashboard_content_leftline"></div>
+          </div>
+
+          <div className="update_dropdown">
+  <select onChange={(e)=>handleLineChange(e.target.value)}>
+    <option>Select</option>
+    {
+      Array.from({length:totalLines}, (_,idx)=>(
+        <option key={idx} value={idx+1}>Line {idx+1}</option>
+      ))
+    }
+  </select>
+</div>
+ 
         </div>
+
+
+    
+
 
         <div className="addnostation">
           <p>Number of Stations </p>
@@ -205,7 +228,7 @@ const AddStationModal = ({ showModal, closeModal, totalLines }) => {
       </div>
 
       <div className="addStationsBtn">
-        <button className="addstationcancelbtn" onClick={cancel}>
+        <button className="addstationcancelbtn" onClick={closeAndClearModal}>
           Cancel
         </button>
         <div className="update__btn">
@@ -216,6 +239,7 @@ const AddStationModal = ({ showModal, closeModal, totalLines }) => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 
