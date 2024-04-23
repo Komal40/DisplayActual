@@ -120,7 +120,9 @@ export default function Dashboard() {
             lines: lines,
             totalLines: totalLines,
           });
-
+          localStorage.setItem('stationData', JSON.stringify({
+            stations: stations
+          }));
           console.log("object set station data", setStationData);
         } else {
           const errorData = await response.text();
@@ -132,7 +134,9 @@ export default function Dashboard() {
     };
 
     fetchData();
+    
   }, [navigate, token]);
+
 
   const updateStationData = (updatedData) => {
     setStationData((prevData) => {
@@ -155,8 +159,9 @@ export default function Dashboard() {
     });
   };
 
+
   useEffect(() => {
-    const link = "ws://192.168.1.11:5000";
+    const link = "ws://192.168.1.12:5000";
 
     // Get the current date
     const currentDate = new Date();
@@ -185,21 +190,8 @@ export default function Dashboard() {
      // Send messages after the socket connection is established
      socket.on("connect", () => {
       console.log("WebSocket connected");
-      // Send the messages
-      socket.emit("message", "G01 F02");
-      socket.emit("ack", "set_filter");
+      socket.emit( "set_filter", floor_no);
     });
-
-      // Send message with parameters and handle acknowledgment
-    //   socket.emit('update_work_for_operator', {
-    //     station: 'G01 F02', // Example station parameter
-    //     event: 'update_work_operator',
-    //     ack: 'set_filter'
-    // }, (response) => {
-    //     console.log('Acknowledgment received:', response);
-    // });
-
-
 
     socket.on("update_work_for_operator", (data) => {
       console.log("Received update from WebSocket:", data);
@@ -211,6 +203,7 @@ export default function Dashboard() {
       socket.disconnect(); // Cleanup on component unmount
     };
   }, []);
+
 
   const handleLineClick = async (line) => {
     // line=G01 F02 L01
@@ -275,6 +268,15 @@ export default function Dashboard() {
       console.log(lineCode); // Output: L01
       handleLineClick(firstLine);
   }
+  }, [stationData]);
+
+  // Function to store stationData in localStorage
+const storeStationDataInLocalStorage = (stationData) => {
+  localStorage.setItem('stationData', JSON.stringify(stationData));
+};
+  useEffect(() => {
+    // Store stationData in localStorage whenever it changes
+    storeStationDataInLocalStorage(stationData);
   }, [stationData]);
 
   // const handleLineClick = (line) => {

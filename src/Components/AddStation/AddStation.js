@@ -9,7 +9,7 @@ import { FiLogIn } from "react-icons/fi";
 import Login from "../Login/Login";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
- 
+
 // toast-configuration method,
 // it is compulsory method.
 // toast.configure();
@@ -36,8 +36,7 @@ const AddStationModal = ({ showModal, closeModal, totalLines }) => {
   const [arr, setArr] = useState([]);
 
   const [stationData, setStationData] = useState([]);
-  const [line, setLine]=useState(0)
-
+  const [line, setLine] = useState(0);
 
   const getData = (e) => {
     // setStationNum(stationnum);
@@ -83,11 +82,9 @@ const AddStationModal = ({ showModal, closeModal, totalLines }) => {
   };
 
   const generateDivs = () => {
-
-     const divs = [];
+    const divs = [];
 
     const lineNum = parseInt(totalLines) + 1;
-  
 
     for (let i = 0; i < count; i++) {
       const stationNum = i + 1;
@@ -112,11 +109,9 @@ const AddStationModal = ({ showModal, closeModal, totalLines }) => {
           </div>
         </div>
       );
-      }
+    }
     return divs;
   };
-
- 
 
   const addStation = async () => {
     const link = process.env.REACT_APP_BASE_URL;
@@ -155,90 +150,83 @@ const AddStationModal = ({ showModal, closeModal, totalLines }) => {
 
       if (response.ok) {
         const data = await response.json();
-        toast.success("Stations Added Successfully")
+        toast.success("Stations Added Successfully");
         console.log("Stations Added Successfully", data);
       } else {
         console.error("Failed to add stations", response.error);
-        toast.warning("Failed to add stations")
+        toast.warning("Failed to add stations");
       }
     } catch (error) {
       console.error("Error:", error);
     }
   };
-   
-  const handleLineChange=(e)=>{
-console.log(e)
-  }
+
+  const handleLineChange = (e) => {
+    console.log(e);
+  };
 
   return (
     <>
-    <ToastContainer/>
-    <div className={`modal ${showModal ? "show" : ""}`}>
-      <div className="modal-content">
-        <span className="close" onClick={closeAndClearModal}>
-          &times;
-        </span>
-        <div style={{display:'flex'}}>
-
-         <div>
-         <div>
-            <p>
-              <h4>Add New Station</h4>
-            </p>
-          </div>
-          <div className="dashboard_content_leftline"></div>
-          </div>
-
-          <div className="update_dropdown">
-  <select onChange={(e)=>handleLineChange(e.target.value)}>
-    <option>Select</option>
-    {
-      Array.from({length:totalLines}, (_,idx)=>(
-        <option key={idx} value={idx+1}>Line {idx+1}</option>
-      ))
-    }
-  </select>
-</div>
- 
-        </div>
-
-
-    
-
-
-        <div className="addnostation">
-          <p>Number of Stations </p>
-          <div>
-            <RiSubtractLine className="subSign" onClick={() => subCount()} />
-          </div>
-          <div className={`count_var ${count > 0 ? "active" : ""}`}>
-            {count}
-          </div>
-
-          <div>
-            <FaPlus className="subSign" onClick={() => addCount()} />
-          </div>
-        </div>
-
-        <div className="addStation_container">{generateDivs()}</div>
-
-        <div>
-          <p>Error Message</p>
-        </div>
-      </div>
-
-      <div className="addStationsBtn">
-        <button className="addstationcancelbtn" onClick={closeAndClearModal}>
-          Cancel
-        </button>
-        <div className="update__btn">
-          <FaRegSave className="update_regsave" />
-          <span>
-            <button onClick={addStation}>Update</button>
+      <ToastContainer />
+      <div className={`modal ${showModal ? "show" : ""}`}>
+        <div className="modal-content">
+          <span className="close" onClick={closeAndClearModal}>
+            &times;
           </span>
+          <div style={{ display: "flex" }}>
+            <div>
+              <div>
+                <p>
+                  <h4>Add New Station</h4>
+                </p>
+              </div>
+              <div className="dashboard_content_leftline"></div>
+            </div>
+
+            <div className="update_dropdown">
+              <select onChange={(e) => handleLineChange(e.target.value)}>
+                <option>Select</option>
+                {Array.from({ length: totalLines }, (_, idx) => (
+                  <option key={idx} value={idx + 1}>
+                    Line {idx + 1}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <div className="addnostation">
+            <p>Number of Stations </p>
+            <div>
+              <RiSubtractLine className="subSign" onClick={() => subCount()} />
+            </div>
+            <div className={`count_var ${count > 0 ? "active" : ""}`}>
+              {count}
+            </div>
+
+            <div>
+              <FaPlus className="subSign" onClick={() => addCount()} />
+            </div>
+          </div>
+
+          <div className="addStation_container">{generateDivs()}</div>
+
+          <div>
+            <p>Error Message</p>
+          </div>
+        </div>
+
+        <div className="addStationsBtn">
+          <button className="addstationcancelbtn" onClick={closeAndClearModal}>
+            Cancel
+          </button>
+          <div className="update__btn">
+            <FaRegSave className="update_regsave" />
+            <span>
+              <button onClick={addStation}>Update</button>
+            </span>
+          </div>
         </div>
       </div>
-    </div>
     </>
   );
 };
