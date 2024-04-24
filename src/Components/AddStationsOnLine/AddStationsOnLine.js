@@ -1,5 +1,4 @@
 // AddStationModal.js
-import "./AddStation.css";
 import React, { useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa6";
 import { RiSubtractLine } from "react-icons/ri";
@@ -14,7 +13,7 @@ import "react-toastify/dist/ReactToastify.css";
 // it is compulsory method.
 // toast.configure();
 
-const AddStationModal = ({ showModal, closeModal, totalLines }) => {
+const AddStationsOnLine = ({ showModal, closeModal, selectedLine, stationData, stationCount }) => {
   const [count, setCount] = useState(1);
   const [stationnum, setStationNum] = useState();
   const floor_no = JSON.parse(localStorage.getItem("floor_no"));
@@ -41,6 +40,9 @@ const AddStationModal = ({ showModal, closeModal, totalLines }) => {
   const getData = (e) => {
     // setStationNum(stationnum);
   };
+
+
+  console.log("object selectedLine addstationline",selectedLine)
 
   const cancel = () => {
     setSelectedMornEmployee("");
@@ -81,13 +83,20 @@ const AddStationModal = ({ showModal, closeModal, totalLines }) => {
     setCount((prevCount) => prevCount + 1);
   };
 
-  const generateDivs = () => {
-    const divs = [];
 
-    const lineNum = parseInt(totalLines) + 1;
+  const generateDivs = () => {    
+    const divs = [];
+    if (!stationData || !stationData.stations || !stationData.stations[selectedLine]) {
+        // Handle the case where station data is not available
+        return null; // or return an empty array or some default content
+      }
+    // Get the stations array for the selected line
+    const lineStations = stationData.stations[selectedLine];
+    const stationCount = lineStations.length;
+    const lineNum=selectedLine === "" ? 1 :parseInt(selectedLine.split("L")[1])
 
     for (let i = 0; i < count; i++) {
-      const stationNum = i + 1;
+      const stationNum = stationCount+1+ i;
       const stationCode =
         stationNum < 10 ? `S0${stationNum}` : `S${stationNum}`;
       const lineCode = lineNum < 10 ? `L0${lineNum}` : `L${lineNum}`;
@@ -113,53 +122,53 @@ const AddStationModal = ({ showModal, closeModal, totalLines }) => {
     return divs;
   };
 
-  const addStation = async () => {
-    const link = process.env.REACT_APP_BASE_URL;
-    const endPoint = "/floorincharge/add_stations";
-    const fullLink = link + endPoint;
+//   const addStation = async () => {
+//     const link = process.env.REACT_APP_BASE_URL;
+//     const endPoint = "/floorincharge/add_stations";
+//     const fullLink = link + endPoint;
 
-    const newStations = [];
-    const lineNum = parseInt(totalLines) + 1;
-    for (let i = 0; i < count; i++) {
-      const stationNum = i + 1;
-      const stationCode =
-        stationNum < 10 ? `S0${stationNum}` : `S${stationNum}`;
-      const lineCode = lineNum < 10 ? `L0${lineNum}` : `L${lineNum}`;
+//     const newStations = [];
+//     const lineNum = parseInt(selectedLine);
+//     for (let i = 0; i < count; i++) {
+//       const stationNum = i + 1;
+//       const stationCode =
+//         stationNum < 10 ? `S0${stationNum}` : `S${stationNum}`;
+//       const lineCode = lineNum < 10 ? `L0${lineNum}` : `L${lineNum}`;
 
-      const newStation = {
-        station_id: `${floor_no} ${lineCode} ${stationCode}`,
-        line_no: lineCode,
-        floor_no: floor_no,
-        building_no: floor_no.split(" ")[0],
-        location: "gurugram",
-        added_by_owner: login.employee_id,
-      };
-      newStations.push(newStation);
-    }
+//       const newStation = {
+//         station_id: `${floor_no} ${lineCode} ${stationCode}`,
+//         line_no: lineCode,
+//         floor_no: floor_no,
+//         building_no: floor_no.split(" ")[0],
+//         location: "gurugram",
+//         added_by_owner: login.employee_id,
+//       };
+//       newStations.push(newStation);
+//     }
 
-    try {
-      // Send a POST request to the server with the tasks data
-      const response = await fetch(fullLink, {
-        method: "POST",
-        body: JSON.stringify(newStations),
-        headers: {
-          "Content-type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+//     try {
+//       // Send a POST request to the server with the tasks data
+//       const response = await fetch(fullLink, {
+//         method: "POST",
+//         body: JSON.stringify(newStations),
+//         headers: {
+//           "Content-type": "application/json",
+//           Authorization: `Bearer ${token}`,
+//         },
+//       });
 
-      if (response.ok) {
-        const data = await response.json();
-        toast.success("Stations Added Successfully");
-        console.log("Stations Added Successfully", data);
-      } else {
-        console.error("Failed to add stations", response.error);
-        toast.warning("Failed to add stations");
-      }
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  };
+//       if (response.ok) {
+//         const data = await response.json();
+//         toast.success("Stations Added Successfully");
+//         console.log("Stations Added Successfully", data);
+//       } else {
+//         console.error("Failed to add stations", response.error);
+//         toast.warning("Failed to add stations");
+//       }
+//     } catch (error) {
+//       console.error("Error:", error);
+//     }
+//   };
 
  
 
@@ -214,7 +223,7 @@ const AddStationModal = ({ showModal, closeModal, totalLines }) => {
           <div className="update__btn">
             <FaRegSave className="update_regsave" />
             <span>
-              <button onClick={addStation}>Update</button>
+              <button >Update</button>
             </span>
           </div>
         </div>
@@ -223,4 +232,4 @@ const AddStationModal = ({ showModal, closeModal, totalLines }) => {
   );
 };
 
-export default AddStationModal;
+export default AddStationsOnLine;

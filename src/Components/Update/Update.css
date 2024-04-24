@@ -31,7 +31,7 @@
     font-size:15px;
     font-weight: 700;
     border: 2px solid #ECECEC;
-    color:#4f4d4d
+    color:#4f4d4d,
 }
 
 .update_add_btn button{
@@ -130,6 +130,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-top: 2rem;
 
 }
 .updateparts__btn{
@@ -237,7 +238,6 @@
     padding: 4px;
     font-family: var(--font-family);
     cursor: pointer;
-
 }
 
 

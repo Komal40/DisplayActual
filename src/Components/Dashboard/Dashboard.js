@@ -270,14 +270,11 @@ export default function Dashboard() {
   }
   }, [stationData]);
 
-  // Function to store stationData in localStorage
-const storeStationDataInLocalStorage = (stationData) => {
-  localStorage.setItem('stationData', JSON.stringify(stationData));
-};
-  useEffect(() => {
-    // Store stationData in localStorage whenever it changes
-    storeStationDataInLocalStorage(stationData);
-  }, [stationData]);
+//   // Function to store stationData in localStorage
+// const storeStationDataInLocalStorage = (stationData) => {
+//   localStorage.setItem('stationData', JSON.stringify(stationData));
+// };
+ 
 
   // const handleLineClick = (line) => {
   //   const data = parseInt(line.split("L")[1]);

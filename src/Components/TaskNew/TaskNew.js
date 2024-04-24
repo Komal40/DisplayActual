@@ -674,7 +674,7 @@ function generateTimeOptions(currentHour, currentMinute, hours) {
               </select>
             </div>
 
-            <button className="task_qty_btn">Fetch From Quantity</button>
+            {/* <button className="task_qty_btn">Fetch From Quantity</button> */}
             <div>
               <button className="task_assign_btn" onClick={assignTask}>
                 Assign Task
