@@ -122,53 +122,63 @@ const AddStationsOnLine = ({ showModal, closeModal, selectedLine, stationData, s
     return divs;
   };
 
-//   const addStation = async () => {
-//     const link = process.env.REACT_APP_BASE_URL;
-//     const endPoint = "/floorincharge/add_stations";
-//     const fullLink = link + endPoint;
+  const addStation = async () => {
+    const link = process.env.REACT_APP_BASE_URL;
+    const endPoint = "/floorincharge/add_stations";
+    const fullLink = link + endPoint;
 
-//     const newStations = [];
-//     const lineNum = parseInt(selectedLine);
-//     for (let i = 0; i < count; i++) {
-//       const stationNum = i + 1;
-//       const stationCode =
-//         stationNum < 10 ? `S0${stationNum}` : `S${stationNum}`;
-//       const lineCode = lineNum < 10 ? `L0${lineNum}` : `L${lineNum}`;
+    if (!stationData || !stationData.stations || !stationData.stations[selectedLine]) {
+        // Handle the case where station data is not available
+        toast.warning("No Data Available. Please select line")
+        return null; // or return an empty array or some default content
+      }
+    // Get the stations array for the selected line
+    const lineStations = stationData.stations[selectedLine];
+    const stationCount = lineStations.length;
+    const lineNum=selectedLine === "" ? 1 :parseInt(selectedLine.split("L")[1])
 
-//       const newStation = {
-//         station_id: `${floor_no} ${lineCode} ${stationCode}`,
-//         line_no: lineCode,
-//         floor_no: floor_no,
-//         building_no: floor_no.split(" ")[0],
-//         location: "gurugram",
-//         added_by_owner: login.employee_id,
-//       };
-//       newStations.push(newStation);
-//     }
+    const newStations = [];
+    // const lineNum = parseInt(selectedLine);
+    for (let i = 0; i < count; i++) {
+      const stationNum = i + 1+stationCount;
+      const stationCode =
+        stationNum < 10 ? `S0${stationNum}` : `S${stationNum}`;
+      const lineCode = lineNum < 10 ? `L0${lineNum}` : `L${lineNum}`;
 
-//     try {
-//       // Send a POST request to the server with the tasks data
-//       const response = await fetch(fullLink, {
-//         method: "POST",
-//         body: JSON.stringify(newStations),
-//         headers: {
-//           "Content-type": "application/json",
-//           Authorization: `Bearer ${token}`,
-//         },
-//       });
+      const newStation = {
+        station_id: `${floor_no} ${lineCode} ${stationCode}`,
+        line_no: lineCode,
+        floor_no: floor_no,
+        building_no: floor_no.split(" ")[0],
+        location: "gurugram",
+        added_by_owner: login.employee_id,
+      };
+      newStations.push(newStation);
+    }
 
-//       if (response.ok) {
-//         const data = await response.json();
-//         toast.success("Stations Added Successfully");
-//         console.log("Stations Added Successfully", data);
-//       } else {
-//         console.error("Failed to add stations", response.error);
-//         toast.warning("Failed to add stations");
-//       }
-//     } catch (error) {
-//       console.error("Error:", error);
-//     }
-//   };
+    try {
+      // Send a POST request to the server with the tasks data
+      const response = await fetch(fullLink, {
+        method: "POST",
+        body: JSON.stringify(newStations),
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        toast.success("Stations Added Successfully");
+        console.log("Stations Added Successfully", data);
+      } else {
+        console.error("Failed to add stations", response.error);
+        toast.warning("Failed to add stations");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
 
  
 
@@ -223,7 +233,7 @@ const AddStationsOnLine = ({ showModal, closeModal, selectedLine, stationData, s
           <div className="update__btn">
             <FaRegSave className="update_regsave" />
             <span>
-              <button >Update</button>
+              <button onClick={addStation} >Update</button>
             </span>
           </div>
         </div>
