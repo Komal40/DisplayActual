@@ -188,7 +188,7 @@ export default function Update() {
           <div className="update_linecontainer">
           <div className="update_dropdown">
               <select onClick={(e) => handleLineChange(e.target.value)}>
-                {/* <option >Select</option> */}
+                <option disabled>Select</option>
                 {generateLineButtons()}
               </select>
             </div>
@@ -204,9 +204,9 @@ export default function Update() {
         </div>
 
         <AddStationsOnLine
-        showModal={showLine} closeModal={closeLine}
-        selectedLine={selectedLine}
-       
+        showModal={showLine}
+        closeModal={closeLine}
+        selectedLine={selectedLine}       
         stationData={stationData}/>
       </div>
     </>

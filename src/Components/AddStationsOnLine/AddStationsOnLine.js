@@ -13,7 +13,7 @@ import "react-toastify/dist/ReactToastify.css";
 // it is compulsory method.
 // toast.configure();
 
-const AddStationsOnLine = ({ showModal, closeModal, selectedLine, stationData, stationCount }) => {
+const AddStationsOnLine = ({ showModal, closeModal, selectedLine, stationData}) => {
   const [count, setCount] = useState(1);
   const [stationnum, setStationNum] = useState();
   const floor_no = JSON.parse(localStorage.getItem("floor_no"));

@@ -9,7 +9,6 @@ import "react-datepicker/dist/react-datepicker.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-
 function TaskNew() {
   const [stationData, setStationData] = useState({});
   const navigate = useNavigate();
@@ -53,36 +52,34 @@ function TaskNew() {
     setEndTimeOptions(endOptions);
   }, []);
 
-//   function generateTimeOptions(startHour, startMinute, numberOfHours) {
-//     const options = [];
-//     for (let hour = startHour; hour < startHour + numberOfHours; hour++) {
-//       for (let minute = 0; minute < 60; minute += 30) {
-//         if (hour === startHour && minute < startMinute) {
-//           continue; // Skip past times for the start dropdown
-//         }
-//         const formattedHour = hour < 10 ? "0" + hour : hour;
-//         const formattedMinute = minute < 10 ? "0" + minute : minute;
-//         const time = `${formattedHour}:${formattedMinute}:00`;
-//         options.push(<option key={time}>{time}</option>);
-//       }
-//     }
-//   }
+  //   function generateTimeOptions(startHour, startMinute, numberOfHours) {
+  //     const options = [];
+  //     for (let hour = startHour; hour < startHour + numberOfHours; hour++) {
+  //       for (let minute = 0; minute < 60; minute += 30) {
+  //         if (hour === startHour && minute < startMinute) {
+  //           continue; // Skip past times for the start dropdown
+  //         }
+  //         const formattedHour = hour < 10 ? "0" + hour : hour;
+  //         const formattedMinute = minute < 10 ? "0" + minute : minute;
+  //         const time = `${formattedHour}:${formattedMinute}:00`;
+  //         options.push(<option key={time}>{time}</option>);
+  //       }
+  //     }
+  //   }
 
-function generateTimeOptions(currentHour, currentMinute, hours) {
+  function generateTimeOptions(currentHour, currentMinute, hours) {
     const options = [];
     for (let hour = currentHour; hour < currentHour + hours; hour++) {
       const adjustedHour = hour % 24; // Ensure hour stays within 24-hour format
       for (let minute = 0; minute < 60; minute += 30) {
-        const time = `${adjustedHour < 10 ? "0" + adjustedHour : adjustedHour}:${
-          minute === 0 ? "00" : minute
-        }:00`;
+        const time = `${
+          adjustedHour < 10 ? "0" + adjustedHour : adjustedHour
+        }:${minute === 0 ? "00" : minute}:00`;
         options.push(<option key={time}>{time}</option>);
       }
     }
     return options;
   }
-
-
 
   const handleDateChange = (date) => {
     setSelectedDate(date);
@@ -99,7 +96,6 @@ function generateTimeOptions(currentHour, currentMinute, hours) {
   }-${selectedDate.getDate()}`;
 
   const formattedTime = `${selectedTime}:00`;
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -195,22 +191,24 @@ function generateTimeOptions(currentHour, currentMinute, hours) {
     //   setSelectedProcesses(prevProcesses => ({ ...prevProcesses, [stationId]: "" })); // Reset corresponding process information
   };
 
-  const [selectedSkill, setSelectedSkill]=useState({})
+  const [selectedSkill, setSelectedSkill] = useState({});
   const handleProcessChange = (e, stationId) => {
     const selectedProcessNo = e.target.value;
-    const selectedProcess = processes[stationId].find(process => process.process_no == selectedProcessNo);
-  
+    const selectedProcess = processes[stationId].find(
+      (process) => process.process_no == selectedProcessNo
+    );
+
     setSelectedProcesses((prevProcesses) => ({
       ...prevProcesses,
       [stationId]: selectedProcessNo,
     }));
     if (selectedProcess) {
-        setSelectedSkill((prevSkill)=>({
-            ...prevSkill,
-            [stationId]:selectedProcess.skill_level
-        }))
-      }
-    
+      setSelectedSkill((prevSkill) => ({
+        ...prevSkill,
+        [stationId]: selectedProcess.skill_level,
+      }));
+    }
+
     console.log("selectedProcesses", selectedProcesses);
   };
 
@@ -245,7 +243,6 @@ function generateTimeOptions(currentHour, currentMinute, hours) {
         // setProcessName(processesData);
 
         console.log("object processName", processesData);
-       
       } else {
         console.error("Failed to fetch parts", response.error);
       }
@@ -260,7 +257,6 @@ function generateTimeOptions(currentHour, currentMinute, hours) {
     }
   }, [selectedPartNo]);
 
-
   const handleLineClick = async (line) => {
     // line=G01 F02 L01
     const data = parseInt(line.split("L")[1]);
@@ -273,18 +269,18 @@ function generateTimeOptions(currentHour, currentMinute, hours) {
     console.log("stationsForSelectedLine", stationsForSelectedLine);
   };
 
-//   function generateTimeOptions() {
-//     const options = [];
-//     for (let hour = 0; hour < 24; hour++) {
-//       for (let minute = 0; minute < 60; minute += 30) {
-//         const time = `${hour < 10 ? "0" + hour : hour}:${
-//           minute === 0 ? "00" : minute
-//         }:00`;
-//         options.push(<option key={time}>{time}</option>);
-//       }
-//     }
-//     return options;
-//   }
+  //   function generateTimeOptions() {
+  //     const options = [];
+  //     for (let hour = 0; hour < 24; hour++) {
+  //       for (let minute = 0; minute < 60; minute += 30) {
+  //         const time = `${hour < 10 ? "0" + hour : hour}:${
+  //           minute === 0 ? "00" : minute
+  //         }:00`;
+  //         options.push(<option key={time}>{time}</option>);
+  //       }
+  //     }
+  //     return options;
+  //   }
 
   // Function to handle change in start shift time
   const handleStartShiftChange = (e) => {
@@ -334,9 +330,12 @@ function generateTimeOptions(currentHour, currentMinute, hours) {
         const data = await response.json();
         setRunningTasks(data.running_task_on_stations || []);
         console.log("data of getiing info on selected date and time", data);
-        if (Object.keys(data.Datas).length === 0 && data.running_task_on_stations.length === 0) {
-            // Show a toast message indicating that nothing is assigned on that day and time
-            toast.info("Nothing assigned on that day and time");
+        if (
+          Object.keys(data.Datas).length === 0 &&
+          data.running_task_on_stations.length === 0
+        ) {
+          // Show a toast message indicating that nothing is assigned on that day and time
+          toast.info("Nothing assigned on that day and time");
           //     const selectedLineStations = stationData.lines;
           // const blankData = {};
           // selectedLineStations.forEach((station) => {
@@ -373,13 +372,14 @@ function generateTimeOptions(currentHour, currentMinute, hours) {
     // Initialize an empty array to store task objects
     const tasksArray = [];
 
-    const lineCode = selectedLine < 10 ? `L0${selectedLine}` : `L${selectedLine}`;
+    const lineCode =
+      selectedLine < 10 ? `L0${selectedLine}` : `L${selectedLine}`;
 
     // Get the selected line
     const selectedLineStations =
       stationData.stations[`${floor_no} ${lineCode}`];
 
-      console.log("object selectedLineStations",selectedLineStations)
+    console.log("object selectedLineStations", selectedLineStations);
 
     // Check if selectedLineStations is defined and iterable
     if (!selectedLineStations || !Array.isArray(selectedLineStations)) {
@@ -404,7 +404,8 @@ function generateTimeOptions(currentHour, currentMinute, hours) {
       if (
         (selectedParts[station] &&
           selectedProcesses[station] &&
-          selectedEmployees[station]) && (userEnteredValue[station])||
+          selectedEmployees[station] &&
+          userEnteredValue[station]) ||
         (part && process && employeeid)
       ) {
         // Create a new task object for the station
@@ -443,42 +444,52 @@ function generateTimeOptions(currentHour, currentMinute, hours) {
           Authorization: `Bearer ${token}`,
         },
       });
-    if (response.ok) {
+      if (response.ok) {
         const data = await response.json();
-    
-        if (Object.keys(data["assigned task to"]).length > 0) {
-            // Tasks were assigned successfully to specific stations
-            const assignedStations = Object.keys(data["assigned task to"]).join(", ");
-            toast.success(`Task assigned successfully to stations: ${assignedStations}`);
-    
-            // Reset input fields for part and process after successful task assignment
-            setSelectedParts({}); // Reset selectedParts state
-            setSelectedProcesses({}); // Reset selectedProcesses state
-            setSelectedEmployees({}); // Reset selectedEmployees state
-            setStartShiftTime(""); // Reset startShiftTime state
-            setEndShiftTime(""); // Reset endShiftTime state
-        }
-    
-        if (Object.keys(data["operator_assigned_to_stations"]).length > 0) {
-            // Operator(s) is already assigned to stations
-            const operatorKeys = Object.keys(data["operator_assigned_to_stations"]);
-            operatorKeys.forEach(operator => {
-                const stations = data["operator_assigned_to_stations"][operator].join(", ");
-                toast.info(`Operator ${operator} already assigned on station ${stations}`, { autoClose: 10000 });
-            });
-        }
-    
-        if (Object.keys(data["assigned task to"]).length === 0 && Object.keys(data["operator_assigned_to_stations"]).length === 0) {
-            // No tasks were assigned and no operator assigned to stations
-            toast.info("Please free all the tasks First", { autoClose: 10000 });
-        }
-    } else {
-        console.error("Failed to assign tasks", response.error);
-    }
-    
-    }
 
-    catch (error) {
+        if (Object.keys(data["assigned task to"]).length > 0) {
+          // Tasks were assigned successfully to specific stations
+          const assignedStations = Object.keys(data["assigned task to"]).join(
+            ", "
+          );
+          toast.success(
+            `Task assigned successfully to stations: ${assignedStations}`
+          );
+
+          // Reset input fields for part and process after successful task assignment
+          setSelectedParts({}); // Reset selectedParts state
+          setSelectedProcesses({}); // Reset selectedProcesses state
+          setSelectedEmployees({}); // Reset selectedEmployees state
+          setStartShiftTime(""); // Reset startShiftTime state
+          setEndShiftTime(""); // Reset endShiftTime state
+        }
+
+        if (Object.keys(data["operator_assigned_to_stations"]).length > 0) {
+          // Operator(s) is already assigned to stations
+          const operatorKeys = Object.keys(
+            data["operator_assigned_to_stations"]
+          );
+          operatorKeys.forEach((operator) => {
+            const stations =
+              data["operator_assigned_to_stations"][operator].join(", ");
+            toast.info(
+              `Operator ${operator} already assigned on station ${stations}`,
+              { autoClose: 10000 }
+            );
+          });
+        }
+
+        if (
+          Object.keys(data["assigned task to"]).length === 0 &&
+          Object.keys(data["operator_assigned_to_stations"]).length === 0
+        ) {
+          // No tasks were assigned and no operator assigned to stations
+          toast.info("Please free all the tasks First", { autoClose: 10000 });
+        }
+      } else {
+        console.error("Failed to assign tasks", response.error);
+      }
+    } catch (error) {
       console.error("Error:", error);
     }
   };
@@ -494,8 +505,7 @@ function generateTimeOptions(currentHour, currentMinute, hours) {
     }));
   };
 
-
-  const [runningTaskInitially, setRunningTaskInitially]=useState([])
+  const [runningTaskInitially, setRunningTaskInitially] = useState([]);
   useEffect(() => {
     const freeStation = async () => {
       const link = process.env.REACT_APP_BASE_URL;
@@ -519,9 +529,9 @@ function generateTimeOptions(currentHour, currentMinute, hours) {
 
         if (response.ok) {
           // Handle success response here
-          const data=await response.json()
+          const data = await response.json();
           console.log("All stations freed successfully");
-          setRunningTaskInitially(data.task_running_on_stations)
+          setRunningTaskInitially(data.task_running_on_stations);
         } else {
           // Handle error response here
           console.error("Failed to free all stations");
@@ -612,7 +622,6 @@ function generateTimeOptions(currentHour, currentMinute, hours) {
       </div>
 
       <div className="task__main">
-      
         <div className="previous_task">
           <div className="previous_task_date">
             <p>Select Date:</p>
@@ -698,141 +707,193 @@ function generateTimeOptions(currentHour, currentMinute, hours) {
                 >
                   <div className="task_stations_container">
                     {stations.map((station, index) => {
-                    //   const partInfo = previousData[station]
-                    //     ? previousData[station][3]
-                    //     : "";
-                   
-                    const [operatorfname, operatorlname, empSkill, partInfo, processInfo, skillRequired, empId] = previousData[station] ?? ["", "", "", "", "", "", ""];
+                      //   const partInfo = previousData[station]
+                      //     ? previousData[station][3]
+                      //     : "";
+
+                      const [
+                        operatorfname,
+                        operatorlname,
+                        empSkill,
+                        partInfo,
+                        processInfo,
+                        skillRequired,
+                        empId,
+                      ] = previousData[station] ?? ["", "", "", "", "", "", ""];
 
                       // Check if the current station is in the runningTasks array
-                      const isRunning = runningTasks.includes(station);
-                      const freeStationApirunningTask=runningTaskInitially.includes(station)
+                      const runningOnLogs = runningTasks.some(
+                        (task) => task[0] === station
+                      );
+                      const freeStationApirunningTask =
+                        runningTaskInitially.includes(station);
+
+                      const isRunning = runningTaskInitially.some(
+                        (task) => task[0] === station
+                      );
+                     
+
+                      let stationId,
+                        employeeId,
+                        firstName,
+                        lastName,
+                        runempSkill,
+                        empprocessInfo,
+                        runprocessSkill
+                      if (isRunning || runningOnLogs) {
+                        // Extract details from the running task
+                        const runningTask = runningTaskInitially.find(
+                          (task) => task[0] === station
+                        );
+                        [
+                          stationId,
+                          employeeId,
+                          firstName,
+                          lastName,
+                         runempSkill,
+                          empprocessInfo,
+                          runprocessSkill
+                        ] = runningTask;
+                      }
 
                       return (
-                       <>
-                       
-                        <div key={station} className="task_stations">                      
-                          <div className="task_stations_left">
-                          <div>
-                        {(isRunning || freeStationApirunningTask) && (
-                          <u className="task-running">
-                            Task is already running..
-                          </u>
-                        )}
-                        </div>
-                            <h4>{station}</h4>
-                            <div className="task_stations_part">
-                              <p>Part: {selectedParts[station] || partInfo}</p>
-                            </div>
-                            <div className="task_stations_part">
-                              <p>
-                                Process:{" "}
-                                {selectedProcesses[station] || processInfo}
-                              </p>
-                              <p style={{ fontSize: "12px" }}>
-                                Skill Required:&nbsp;
-                                {selectedSkill[station] ? `${selectedSkill[station]} Or Above` : skillRequired? `${skillRequired} Or Above`: ""}
-                              </p>
-                            </div>
-
-                            {selectedEmployees[station] ? (
+                        <>
+                          <div key={station} className="task_stations">
+                            <div className="task_stations_left">
+                              <div>
+                                {(isRunning || runningOnLogs) && (
+                                  <u className="task-running">
+                                    Task is already running..
+                                  </u>
+                                )}
+                              </div>
+                              <h4>{station}</h4>
                               <div className="task_stations_part">
-                                <p className="employee-name">
-                                  Employee:{" "}
-                                  {selectedEmployees[station]["First Name"]}{" "}
-                                  {selectedEmployees[station]["Last Name"]}
-                                </p>
-                                <p style={{ fontSize: "12px" }}>
-                                  Skill:{" "}
-                                  {selectedEmployees[station]["Skill Level"]}
+                                <p>
+                                  Part: {selectedParts[station] || partInfo}
                                 </p>
                               </div>
-                            ) : (
                               <div className="task_stations_part">
-                                <p className="employee-name">
-                                  Employee:{" "}
-                                  {operatorfname + " " + operatorlname}{" "}
+                                <p>
+                                  Process:{" "}
+                                  {(isRunning || runningOnLogs)
+                                    ? empprocessInfo
+                                    : selectedProcesses[station] || processInfo}
                                 </p>
                                 <p style={{ fontSize: "12px" }}>
-                                  Skill :&nbsp;{empSkill}
+                                  Skill Required:&nbsp;{(isRunning || runningOnLogs) ? runprocessSkill :(selectedSkill[station]? `${selectedSkill[station]} Or Above`
+                                    : skillRequired
+                                    ? `${skillRequired} Or Above`
+                                    : "")}
+                                  
                                 </p>
                               </div>
-                            )}
-                          </div>
 
-                          <div className="task_stations_right">
-                            <input
-                              className="task_station_input"
-                              value={
-                                // If the user has entered a value for the station, show it; otherwise, show the value from the API or default to 0
-                                userEnteredValue[station]
-                              }
-                              placeholder="qty"
-                              onChange={(e) => handleInputChange(e, station)}
-                              disabled={isRunning || freeStationApirunningTask}
-                            />
-                            <div className="task_dropdown">
-                              <select
-                                onChange={(e) =>
-                                  handlePartChange(e.target.value, station)
-                                }
-                                disabled={isRunning || freeStationApirunningTask}
-                                
-                              >
-                                <option value="">Select</option>
-                                {parts &&
-                                  parts.map((data, idx) => (
-                                    <option key={idx} value={data.part_no}>
-                                      {data.part_no}
-                                    </option>
-                                  ))}
-                              </select>
+                              {selectedEmployees[station] ? (
+                                <div className="task_stations_part">
+                                  <p className="employee-name">
+                                    Employee:{" "}
+                                    {selectedEmployees[station]["First Name"]}{" "}
+                                    {selectedEmployees[station]["Last Name"]}
+                                  </p>
+                                  <p style={{ fontSize: "12px" }}>
+                                    Skill:{" "}
+                                    {selectedEmployees[station]["Skill Level"]}
+                                  </p>
+                                </div>
+                              ) : (
+                                <div className="task_stations_part">
+                                  <p className="employee-name">
+                                    Employee:{" "}
+                                    {(isRunning || runningOnLogs) ? employeeId :operatorfname + " " + operatorlname}{" "}
+                                  </p>
+                                  <p style={{ fontSize: "12px" }}>
+                                    Skill :&nbsp;{(isRunning || runningOnLogs) ? runempSkill:empSkill}
+                                  </p>
+                                </div>
+                              )}
                             </div>
 
-                            <div className="task_dropdown">
-                              <select
-                                onChange={(e) =>
-                                  handleProcessChange(e, station)
-                                }
-                              >
-                                <option>Select</option>
-                                {processes[station] &&
-                                  processes[station].map((process, index) => (
-                                    <option
-                                      key={index}
-                                      value={process.process_no}
-                                    >
-                                      {process.process_no}
-                                    </option>
-                                  ))}
-                              </select>
-                            </div>
-
-                            <div className="task_dropdown">
+                            <div className="task_stations_right">
                               <input
                                 className="task_station_input"
-                                type="text"
-                                placeholder="Id"
-                                disabled={isRunning || freeStationApirunningTask}
                                 value={
-                                  employeeCode[station]
-                                    ? employeeCode[station]
-                                    : empId
+                                  // If the user has entered a value for the station, show it; otherwise, show the value from the API or default to 0
+                                  userEnteredValue[station]
                                 }
-                                onChange={(e) => employeeChange(e, station)}
+                                placeholder="qty"
+                                onChange={(e) => handleInputChange(e, station)}
+                                disabled={
+                                  isRunning || runningOnLogs
+                                }
                               />
-                            </div>
+                              <div className="task_dropdown">
+                                <select
+                                  onChange={(e) =>
+                                    handlePartChange(e.target.value, station)
+                                  }
+                                  disabled={
+                                    isRunning || runningOnLogs
+                                  }
+                                >
+                                  <option value="">Select</option>
+                                  {parts &&
+                                    parts.map((data, idx) => (
+                                      <option key={idx} value={data.part_no}>
+                                        {data.part_no}
+                                      </option>
+                                    ))}
+                                </select>
+                              </div>
 
-                            {/* Show a message if part and process are selected but employee ID is missing */}
-                            {
-                              selectedProcesses[station] &&
-                              !employeeCode[station] && (
-                                <p style={{ color: "red", fontSize: "12px" }}>
-                                  Employee ID is required
-                                </p>
-                              )}
+                              <div className="task_dropdown">
+                                <select
+                                  onChange={(e) =>
+                                    handleProcessChange(e, station)
+                                  }
+                                  disabled={
+                                    isRunning || runningOnLogs
+                                  }
+                                >
+                                  <option>Select</option>
+                                  {processes[station] &&
+                                    processes[station].map((process, index) => (
+                                      <option
+                                        key={index}
+                                        value={process.process_no}
+                                      >
+                                        {process.process_no}
+                                      </option>
+                                    ))}
+                                </select>
+                              </div>
+
+                              <div className="task_dropdown">
+                                <input
+                                  className="task_station_input"
+                                  type="text"
+                                  placeholder="Id"
+                                  disabled={
+                                    isRunning || runningOnLogs
+                                  }
+                                  value={
+                                    employeeCode[station]
+                                      ? employeeCode[station]
+                                      : empId
+                                  }
+                                  onChange={(e) => employeeChange(e, station)}
+                                />
+                              </div>
+
+                              {/* Show a message if part and process are selected but employee ID is missing */}
+                              {selectedProcesses[station] &&
+                                !employeeCode[station] && (
+                                  <p style={{ color: "red", fontSize: "12px" }}>
+                                    Employee ID is required
+                                  </p>
+                                )}
+                            </div>
                           </div>
-                        </div>
                         </>
                       );
                     })}
