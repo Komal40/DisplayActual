@@ -51,8 +51,56 @@ function TaskNew() {
     setStartTimeOptions(startOptions);
     setEndTimeOptions(endOptions);
   }, []);
+  
+  function generateTimeOptions(currentHour, currentMinute, hours) {
+    const options = [];
+  
+    // Start generating options from the current hour and minute
+    let hour = currentHour;
+    let minute = currentMinute;
+  
+    for (let i = 0; i < hours; i++) {
+      const adjustedHour = hour % 24; // Ensure hour stays within 24-hour format
+  
+      // Format hour and minute as string with leading zeros
+      const formattedHour = adjustedHour.toString().padStart(2, '0');
+      const formattedMinute = minute.toString().padStart(2, '0');
+  
+      // Construct the time string (e.g., "HH:mm")
+      const timeString = `${formattedHour}:${formattedMinute}:00`;
+  
+      // Push the option element with the time string as key and value
+      options.push(<option key={timeString}>{timeString}</option>);
+  
+      // Increment minute by 30 (to represent each half-hour interval)
+      minute += 30;
+  
+      // If minute exceeds 59, increment hour and reset minute to 0
+      if (minute >= 60) {
+        hour++;
+        minute %= 60;
+      }
+    }
+  
+    return options;
+  }
 
-  //   function generateTimeOptions(startHour, startMinute, numberOfHours) {
+  // function generateTimeOptions(currentHour, currentMinute, hours) {
+  //   const options = [];
+  //   for (let hour = currentHour; hour < currentHour + hours; hour++) {
+  //     const adjustedHour = hour % 24; // Ensure hour stays within 24-hour format
+  //     for (let minute = 0; minute < 60; minute += 30) {
+  //       const time = `${
+  //         adjustedHour < 10 ? "0" + adjustedHour : adjustedHour
+  //       }:${minute === 0 ? "00" : minute}:00`;
+  //       options.push(<option key={time}>{time}</option>);
+  //     }
+  //   }
+  //   return options;
+  // }
+
+
+    //   function generateTimeOptions(startHour, startMinute, numberOfHours) {
   //     const options = [];
   //     for (let hour = startHour; hour < startHour + numberOfHours; hour++) {
   //       for (let minute = 0; minute < 60; minute += 30) {
@@ -66,20 +114,6 @@ function TaskNew() {
   //       }
   //     }
   //   }
-
-  function generateTimeOptions(currentHour, currentMinute, hours) {
-    const options = [];
-    for (let hour = currentHour; hour < currentHour + hours; hour++) {
-      const adjustedHour = hour % 24; // Ensure hour stays within 24-hour format
-      for (let minute = 0; minute < 60; minute += 30) {
-        const time = `${
-          adjustedHour < 10 ? "0" + adjustedHour : adjustedHour
-        }:${minute === 0 ? "00" : minute}:00`;
-        options.push(<option key={time}>{time}</option>);
-      }
-    }
-    return options;
-  }
 
   const handleDateChange = (date) => {
     setSelectedDate(date);
@@ -732,7 +766,6 @@ function TaskNew() {
                         (task) => task[0] === station
                       );
                      
-
                       let stationId,
                         employeeId,
                         firstName,
@@ -742,9 +775,8 @@ function TaskNew() {
                         runprocessSkill
                       if (isRunning || runningOnLogs) {
                         // Extract details from the running task
-                        const runningTask = runningTaskInitially.find(
-                          (task) => task[0] === station
-                        );
+                        const runningTask = runningTaskInitially.find((task) => task[0] === station) || runningTasks.find((task) => task[0] === station);
+
                         [
                           stationId,
                           employeeId,

@@ -152,7 +152,7 @@ const NotificationModal = ({ notifications, closeModal }) => {
             <li key={index}>
               <p>{`${index + 1}. ${notification.csp_name} at ${
                 notification.station_id
-              }, created at ${notification.created_at}`}</p>
+              }, created at ${notification.created_time} on ${notification.created_date}`}</p>
             </li>
           ))}
         </ul>
