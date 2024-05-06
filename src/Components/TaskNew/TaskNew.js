@@ -40,10 +40,11 @@ function TaskNew() {
   const [startTimeOptions, setStartTimeOptions] = useState([]);
   const [endTimeOptions, setEndTimeOptions] = useState([]);
 
+   // Generate options for start and end times
+   const currentHour = new Date().getHours();
+   const currentMinute = new Date().getMinutes();
+   
   useEffect(() => {
-    // Generate options for start and end times
-    const currentHour = new Date().getHours();
-    const currentMinute = new Date().getMinutes();
 
     const startOptions = generateTimeOptions(currentHour, currentMinute, 24);
     const endOptions = generateTimeOptions(currentHour, currentMinute, 48); // End time options for next 24 hours
@@ -73,7 +74,9 @@ function TaskNew() {
       options.push(<option key={timeString}>{timeString}</option>);
   
       // Increment minute by 30 (to represent each half-hour interval)
-      minute += 30;
+      // minute += 30;
+      minute += 15;
+
   
       // If minute exceeds 59, increment hour and reset minute to 0
       if (minute >= 60) {
@@ -453,7 +456,7 @@ function TaskNew() {
             : employeeid || "", // Use user entered value if available, otherwise use value from previousData
           part_no: selectedParts[station] || part || "", // Use user entered value if available, otherwise use value from previousData
           process_no: selectedProcesses[station] || process || "",
-          shift: "A",
+          shift: "B",
           start_shift_time: startShiftTime,
           end_shift_time: endShiftTime,
           assigned_by_owner: login.employee_id,

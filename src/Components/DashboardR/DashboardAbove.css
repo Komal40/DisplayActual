@@ -66,4 +66,35 @@
     cursor: pointer;
     
 }
+
+.notification-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.notification-item {
+  margin-bottom: 10px; /* Add margin between each notification item */
+}
+
+.notification-item p {
+  display: flex;
+  align-items: center;
+}
+
+
+.notification-item p span {
+  flex-grow: 1; /* Allow the notification text to grow and fill available space */
+  margin-right: 10px; /* Add spacing between the notification text and delete button */
+}
+
+.delete-button {
+  background-color: transparent;
+  /* border: 2px solid red; */
+  /* border-radius: 100%; */
+  border:none;
+  font-size: 18px;
+  color: red;
+  cursor: pointer;
+  padding: 0 5px; /* Add padding to the delete button for spacing */
+}
   
