@@ -397,6 +397,11 @@ function TaskNew() {
       return; // Exit the function early
     }
 
+    if(shift===""){
+      toast.warning("Please select Shift", { autoClose: 5000 });
+      return;
+    }
+
     // if(userEnteredValue==""){
     //     toast.warning("Please Enter Quantity timings", { autoClose: 5000 });
     //     return;
@@ -456,7 +461,7 @@ function TaskNew() {
             : employeeid || "", // Use user entered value if available, otherwise use value from previousData
           part_no: selectedParts[station] || part || "", // Use user entered value if available, otherwise use value from previousData
           process_no: selectedProcesses[station] || process || "",
-          shift: "B",
+          shift: shift,
           start_shift_time: startShiftTime,
           end_shift_time: endShiftTime,
           assigned_by_owner: login.employee_id,
@@ -651,6 +656,8 @@ function TaskNew() {
     }
   };
 
+  const [shift, setShift]=useState("")
+
   return (
     <>
       <ToastContainer />
@@ -717,6 +724,15 @@ function TaskNew() {
               <select onChange={handleEndShiftChange}>
                 <option>End </option>
                 {endTimeOptions}
+              </select>
+            </div>
+
+            <div className="update_dropdown">
+              <select onChange={(e)=>setShift(e.target.value)}>
+                <option value="">Shift</option>
+                <option value="A">A</option>
+                <option value="B">B</option>
+                <option value="C">C</option>             
               </select>
             </div>
 

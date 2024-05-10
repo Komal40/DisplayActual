@@ -18,14 +18,35 @@ const DashBoardAbove = () => {
   }, []);
 
   const formattedDateTime = () => {
+    const suffixes = ["st", "nd", "rd"];
     const currentDate = new Date();
-    return currentDate.toLocaleString("en-US", {
-      hour: "numeric",
-      minute: "numeric",   
-      second: "numeric",
-      hour12: true,
-    });
-  };
+
+      // Get the date components
+      const day = currentDate.getDate();
+      const monthName = currentDate.toLocaleString("en-US", { month: "short" });
+      const year = currentDate.getFullYear();
+  
+      // Get the time components
+      const hours = currentDate.getHours();
+      const minutes = currentDate.getMinutes();
+      const seconds = currentDate.getSeconds();
+      let daySuffix = "th";
+    if (day >= 1 && day <= 3) {
+      daySuffix = suffixes[day - 1] || "th";
+    }
+
+    const formattedDate = `${day}${daySuffix} ${monthName} ${year}`;
+    const formattedTime = `${hours}:${minutes}:${seconds}`;
+
+    // return currentDate.toLocaleString("en-US", {
+    //   hour: "numeric",
+    //   minute: "numeric",   
+    //   second: "numeric",
+    //   hour12: true,
+    // });
+    return `${formattedDate} : ${formattedTime}`;
+    
+  }; 
 
   const handleShowNotifications = async () => {
     const link = process.env.REACT_APP_BASE_URL;

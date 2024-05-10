@@ -11,6 +11,7 @@ import Process from './Components/Process/Process';
 import Parameters from './Components/Parameters/Parameters';
 import Task from './Components/Task/Task';
 import TaskNew from './Components/TaskNew/TaskNew';
+import Chart from './Components/Chart/Chart';
 
 
 
@@ -28,7 +29,7 @@ function App() {
       <Route path='/process' element={<ProtectedRoute Component={Process}/>}/>
       <Route path='/para' element={<ProtectedRoute Component={Parameters}/>}/>
       <Route path='/task' element={<ProtectedRoute Component={TaskNew}/>}/>
-      
+      <Route path='/chart' element={<ProtectedRoute Component={Chart}/>}/>
     </Routes>
     </BrowserRouter>
     </>

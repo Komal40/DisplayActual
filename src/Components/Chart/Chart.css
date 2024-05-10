@@ -1,0 +1,61 @@
+.chart_main{
+    margin-left: 15em;
+    margin-top: 1rem;
+}
+
+.date_chart_section{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 60%;
+}
+
+.charts_parameters_head{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.chart_date{
+    display: flex;
+}
+
+.param_btn{
+    margin-top: 1rem;
+}
+
+/* Target the navigation arrows in react-datepicker */
+.react-datepicker__navigation {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background-color: #9d9c9c; /* Dark background color */
+  color: white; /* Light text color */
+  border: none; /* Remove default border */
+  border-radius: 50%; /* Make the arrows circular */
+  padding: 3px; /* Adjust padding for the arrows */
+}
+
+
+/* Style the previous (left) navigation arrow */
+.react-datepicker__navigation--previous {
+  margin-right: 10px; /* Add space between arrows */
+}
+
+/* Style the next (right) navigation arrow */
+.react-datepicker__navigation--next {
+  margin-left: 10px; /* Add spac6=-e between arrows */
+}
+
+  
+.charts_stationID{
+    display: flex;
+    margin-top: 2rem;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.chart_drop_station{
+    display: flex;
+}
