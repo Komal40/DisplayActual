@@ -17,6 +17,8 @@ export default function Chart() {
   const [parameters, setParameters] = useState([]);
   const [selectedStationId, setSelectedStationId] = useState("");
   const [availableShifts, setAvailableShifts] = useState([]);
+  const [availableDates, setAvailableDates] = useState([]);
+  const [selectedShift, setSelectedShift]=useState('')
   const token = JSON.parse(localStorage.getItem("Token"));
 
   const handleStartDateChange = (date) => {
@@ -188,6 +190,9 @@ export default function Chart() {
       if (response.ok) {
         const data = await response.json();
         setReading(data.result);
+       // Extract available dates from the response
+    const dates = Object.keys(data.result);
+    setAvailableDates(dates);
         extractStationIds(data.result);
       } else {
         console.error("Failed to fetch parts", response.error);
@@ -213,28 +218,34 @@ export default function Chart() {
   };
 
 
-
-
   const handleStationChange = (e) => {
     const selectedStationId = e.target.value;
     setSelectedStationId(selectedStationId);
     console.log("Selected Station ID:", selectedStationId);
+    console.log("availableShifts", reading,availableDates )
+    let foundShifts = [];
 
-    if (
-      reading[selectedStartDate] &&
-      reading[selectedStartDate][selectedStationId]
-    ) {
-      const shifts = Object.keys(reading[selectedStartDate][selectedStationId]);
-      setAvailableShifts(shifts);
-    } else {
-      setAvailableShifts([]);
-    }
+    // Iterate over each available date to find the station
+    availableDates.forEach((date) => {
+      if (reading[date] && reading[date][selectedStationId]) {
+        const stationData = reading[date][selectedStationId];
+        const shifts = Object.keys(stationData);
+        foundShifts = foundShifts.concat(shifts);
+      }
+    });
+
+    // Remove duplicates from found shifts
+    const uniqueShifts = [...new Set(foundShifts)];
+
+    // Set the available shifts for the selected station
+    setSelectedShift("");
+    setAvailableShifts(uniqueShifts);
   };
 
   const handleShiftChange = (e) => {
     // Handle shift selection
-    const selectedShift = e.target.value;
-    console.log("Selected Shift:", selectedShift);
+    setSelectedShift(e.target.value)
+    console.log("Selected Shift:", (e.target.value));
   };
 
   return (
