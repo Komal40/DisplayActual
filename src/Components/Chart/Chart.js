@@ -220,16 +220,15 @@ export default function Chart() {
     setSelectedStationId(selectedStationId);
     console.log("Selected Station ID:", selectedStationId);
 
-    // if (
-    //   reading[selectedStartDate] &&
-    //   reading[selectedStartDate][selectedStationId]
-    // ) {
-    //   // Extract available shifts for the selected station ID
-    //   const shifts = Object.keys(reading[selectedStartDate][selectedStationId]);
-    //   setAvailableShifts(shifts);
-    // } else {
-    //   setAvailableShifts([]);
-    // }
+    if (
+      reading[selectedStartDate] &&
+      reading[selectedStartDate][selectedStationId]
+    ) {
+      const shifts = Object.keys(reading[selectedStartDate][selectedStationId]);
+      setAvailableShifts(shifts);
+    } else {
+      setAvailableShifts([]);
+    }
   };
 
   const handleShiftChange = (e) => {
@@ -274,7 +273,7 @@ export default function Chart() {
         <div>
           <div className="charts_parameters_head">
             <div className="process_head">
-              <p>Select Part Name:</p>
+              <p>Part:</p>
               <div className="update_dropdown">
                 <select onChange={handlePartChange}>
                   <option>Select</option>
@@ -289,7 +288,7 @@ export default function Chart() {
             </div>
 
             <div className="process_head">
-              <p>Select Process Name:</p>
+              <p>Process:</p>
               <div className="update_dropdown">
                 <select onChange={handleProcessChange}>
                   <option>Select</option>
@@ -304,7 +303,7 @@ export default function Chart() {
             </div>
 
             <div className="process_head">
-              <p>Select Parameter No:</p>
+              <p>Parameter No:</p>
               <div className="update_dropdown">
                 <select onChange={(e) => setParamNo(e.target.value)}>
                   <option>Select</option>
