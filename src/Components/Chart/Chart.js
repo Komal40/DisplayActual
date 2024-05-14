@@ -15,6 +15,8 @@ export default function Chart() {
   const [parts, setParts] = useState([]);
   const [processName, setProcessName] = useState([]);
   const [parameters, setParameters] = useState([]);
+  const [selectedStationId, setSelectedStationId] = useState("");
+  const [availableShifts, setAvailableShifts] = useState([]);
   const token = JSON.parse(localStorage.getItem("Token"));
 
   const handleStartDateChange = (date) => {
@@ -152,15 +154,13 @@ export default function Chart() {
     return `${year}-${month}-${day}`;
   };
 
+  const [reading, setReading] = useState({});
+  const [stationIds, setStationIds] = useState([]);
 
-const [reading, setReading]=useState({})
-const [stationIds, setStationIds] = useState([]);
-
-  const getReadings=async()=>{
-
-    if(paramNo===""){
-        toast.info("Please Select Parameter No.")
-        return;
+  const getReadings = async () => {
+    if (paramNo === "") {
+      toast.info("Please Select Parameter No.");
+      return;
     }
 
     const link = process.env.REACT_APP_BASE_URL;
@@ -176,7 +176,6 @@ const [stationIds, setStationIds] = useState([]);
       params.append("end_date", endDateFormatted);
       params.append("parameter_no", paramNo);
 
-
       const response = await fetch(fullLink, {
         method: "POST",
         body: params,
@@ -188,7 +187,7 @@ const [stationIds, setStationIds] = useState([]);
 
       if (response.ok) {
         const data = await response.json();
-        setReading(data.result)
+        setReading(data.result);
         extractStationIds(data.result);
       } else {
         console.error("Failed to fetch parts", response.error);
@@ -196,28 +195,52 @@ const [stationIds, setStationIds] = useState([]);
     } catch (error) {
       console.error("Error:", error);
     }
-  }
+  };
 
   const extractStationIds = (result) => {
     const allStationIds = [];
 
     Object.keys(result).forEach((dateKey) => {
-        const dateData = result[dateKey];
-        Object.keys(dateData).forEach((stationId) => {
-          if (!allStationIds.includes(stationId)) {
-            allStationIds.push(stationId);
-          }
-        });
+      const dateData = result[dateKey];
+      Object.keys(dateData).forEach((stationId) => {
+        if (!allStationIds.includes(stationId)) {
+          allStationIds.push(stationId);
+        }
       });
+    });
 
     setStationIds(allStationIds);
   };
 
 
 
+
+  const handleStationChange = (e) => {
+    const selectedStationId = e.target.value;
+    setSelectedStationId(selectedStationId);
+    console.log("Selected Station ID:", selectedStationId);
+
+    // if (
+    //   reading[selectedStartDate] &&
+    //   reading[selectedStartDate][selectedStationId]
+    // ) {
+    //   // Extract available shifts for the selected station ID
+    //   const shifts = Object.keys(reading[selectedStartDate][selectedStationId]);
+    //   setAvailableShifts(shifts);
+    // } else {
+    //   setAvailableShifts([]);
+    // }
+  };
+
+  const handleShiftChange = (e) => {
+    // Handle shift selection
+    const selectedShift = e.target.value;
+    console.log("Selected Shift:", selectedShift);
+  };
+
   return (
     <>
-    <ToastContainer/>
+      <ToastContainer />
       <div>
         <Navbar />
       </div>
@@ -227,16 +250,16 @@ const [stationIds, setStationIds] = useState([]);
       <div className="chart_main">
         <div className="date_chart_section">
           <div className="chart_date">
-            <p>Select Start Date:&nbsp;</p>
+            <p>Select Start Date:&nbsp;&nbsp;</p>
             <DatePicker
               className="date_picker"
               selected={selectedStartDate}
               onChange={handleStartDateChange}
-              dateFormat="yyyy-MM-dd"              
+              dateFormat="yyyy-MM-dd"
             />
           </div>
           <div className="chart_date">
-            <p>Select End Date:&nbsp;</p>
+            <p>Select End Date:&nbsp;&nbsp;</p>
             <DatePicker
               className="date_picker"
               selected={selectedEndDate}
@@ -296,47 +319,44 @@ const [stationIds, setStationIds] = useState([]);
             </div>
 
             <div className="param_btn">
-                <button className="task_assign_btn"
-                onClick={getReadings}
-                >Show Station ID</button>
+              <button className="task_assign_btn" onClick={getReadings}>
+                Show Station ID
+              </button>
             </div>
           </div>
 
+          <div className="charts_stationID">
+            <div className="chart_drop_station">
+              <p>Select Station ID:</p>
+              <div className="update_dropdown">
+                <select onChange={handleStationChange}>
+                  <option value="">Station Id</option>
+                  {stationIds.map((stationId) => (
+                    <option key={stationId} value={stationId}>
+                      {stationId}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
 
-<div className="charts_stationID">
-   <div className="chart_drop_station">
-   <p>Select Station ID:</p>
-          <div className="update_dropdown">
-        <select>
-          <option value="">Station Id</option>
-          {stationIds.map((stationId) => (
-            <option key={stationId} value={stationId}>
-              {stationId}
-            </option>
-          ))}
-        </select>
-      </div>
-   </div>
-
-      <div className="chart_drop_station">
-      <p>Select Shift</p>
-      <div className="update_dropdown">
-        <select>
-          <option value="">Shift</option>
-          {stationIds.map((stationId) => (
-            <option key={stationId} value={stationId}>
-              {stationId}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      </div>
-      <div>
-        <button className="task_assign_btn">Show Chart</button>
-      </div>
-      </div>
-
+            <div className="chart_drop_station">
+              <p>Select Shift</p>
+              <div className="update_dropdown">
+                <select onChange={handleShiftChange}>
+                  <option value="">Select Shift</option>
+                  {availableShifts.map((shift) => (
+                    <option key={shift} value={shift}>
+                      {shift}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div>
+              <button className="task_assign_btn">Show Chart</button>
+            </div>
+          </div>
         </div>
       </div>
     </>
