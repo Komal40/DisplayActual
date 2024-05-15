@@ -5,6 +5,7 @@ import DatePicker from "react-datepicker";
 import DashBoardAbove from "../DashboardR/DashBoardAbove";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ChartComponent from "./ChartComponent";
 
 export default function Chart() {
   const [selectedStartDate, setSelectedStartDate] = useState(new Date());
@@ -221,10 +222,8 @@ export default function Chart() {
   const handleStationChange = (e) => {
     const selectedStationId = e.target.value;
     setSelectedStationId(selectedStationId);
-    console.log("Selected Station ID:", selectedStationId);
-    console.log("availableShifts", reading,availableDates )
+   
     let foundShifts = [];
-
     // Iterate over each available date to find the station
     availableDates.forEach((date) => {
       if (reading[date] && reading[date][selectedStationId]) {
@@ -236,16 +235,13 @@ export default function Chart() {
 
     // Remove duplicates from found shifts
     const uniqueShifts = [...new Set(foundShifts)];
-
-    // Set the available shifts for the selected station
-    setSelectedShift("");
+    // Set the available shifts for the selected station    
     setAvailableShifts(uniqueShifts);
   };
 
   const handleShiftChange = (e) => {
     // Handle shift selection
     setSelectedShift(e.target.value)
-    console.log("Selected Shift:", (e.target.value));
   };
 
   return (
@@ -363,12 +359,16 @@ export default function Chart() {
                 </select>
               </div>
             </div>
-            <div>
-              <button className="task_assign_btn">Show Chart</button>
-            </div>
+            
           </div>
         </div>
       </div>
+{/*  availableDates, readingData, selectedStationId  */}
+      {/* <ChartComponent availableDates={availableDates} readingData={reading} selectedStationId={selectedStationId}/> */}
+      {selectedStationId && selectedShift && (
+           <ChartComponent availableDates={availableDates} readingData={reading} selectedStationId={selectedStationId}
+           selectedShift={selectedShift}/>
+      )}
     </>
   );
 }
