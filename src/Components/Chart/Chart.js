@@ -6,6 +6,7 @@ import DashBoardAbove from "../DashboardR/DashBoardAbove";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ChartComponent from "./ChartComponent";
+import ChartComponent2 from "./ChartComponent2";
 
 export default function Chart() {
   const [selectedStartDate, setSelectedStartDate] = useState(new Date());
@@ -19,8 +20,9 @@ export default function Chart() {
   const [selectedStationId, setSelectedStationId] = useState("");
   const [availableShifts, setAvailableShifts] = useState([]);
   const [availableDates, setAvailableDates] = useState([]);
-  const [selectedShift, setSelectedShift]=useState('')
+  const [selectedShift, setSelectedShift] = useState("");
   const token = JSON.parse(localStorage.getItem("Token"));
+  const [constVal, setConstVal]=useState({})
 
   const handleStartDateChange = (date) => {
     setSelectedStartDate(date);
@@ -38,6 +40,45 @@ export default function Chart() {
   const handleProcessChange = (e) => {
     const val = e.target.value;
     setSelectedProcessNo(val);
+  };
+
+  const handleParamNo = (e) => {
+    const val = e.target.value;
+    setParamNo(val);
+
+    console.log("val", val);
+    // USL LSL A2 D2
+    const getconstvalue = async (val) => {
+      // e.preventDefault();
+      const link = process.env.REACT_APP_BASE_URL;
+      const endPoint = "/floorincharge/get_readings_values_of_param";
+      const fullLink = link + endPoint;
+
+      try {
+        const params = new URLSearchParams();
+        params.append("parameter_no", val);
+
+        const response = await fetch(fullLink, {
+          method: "POST",
+          body: params,
+          headers: {
+            "Content-type": "application/x-www-form-urlencoded",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setConstVal(data.Datas)
+        } else {
+          console.error("Failed to fetch parts", response.error);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    };
+
+    getconstvalue(val);
   };
 
   const getParts = async (e) => {
@@ -191,9 +232,9 @@ export default function Chart() {
       if (response.ok) {
         const data = await response.json();
         setReading(data.result);
-       // Extract available dates from the response
-    const dates = Object.keys(data.result);
-    setAvailableDates(dates);
+        // Extract available dates from the response
+        const dates = Object.keys(data.result);
+        setAvailableDates(dates);
         extractStationIds(data.result);
       } else {
         console.error("Failed to fetch parts", response.error);
@@ -218,11 +259,10 @@ export default function Chart() {
     setStationIds(allStationIds);
   };
 
-
   const handleStationChange = (e) => {
     const selectedStationId = e.target.value;
     setSelectedStationId(selectedStationId);
-   
+
     let foundShifts = [];
     // Iterate over each available date to find the station
     availableDates.forEach((date) => {
@@ -235,13 +275,13 @@ export default function Chart() {
 
     // Remove duplicates from found shifts
     const uniqueShifts = [...new Set(foundShifts)];
-    // Set the available shifts for the selected station    
+    // Set the available shifts for the selected station
     setAvailableShifts(uniqueShifts);
   };
 
   const handleShiftChange = (e) => {
     // Handle shift selection
-    setSelectedShift(e.target.value)
+    setSelectedShift(e.target.value);
   };
 
   return (
@@ -312,7 +352,7 @@ export default function Chart() {
             <div className="process_head">
               <p>Parameter No:</p>
               <div className="update_dropdown">
-                <select onChange={(e) => setParamNo(e.target.value)}>
+                <select onChange={handleParamNo}>
                   <option>Select</option>
                   {parameters &&
                     parameters.map((part, index) => (
@@ -359,15 +399,28 @@ export default function Chart() {
                 </select>
               </div>
             </div>
-            
           </div>
         </div>
       </div>
-{/*  availableDates, readingData, selectedStationId  */}
+      {/*  availableDates, readingData, selectedStationId  */}
       {/* <ChartComponent availableDates={availableDates} readingData={reading} selectedStationId={selectedStationId}/> */}
       {selectedStationId && selectedShift && (
-           <ChartComponent availableDates={availableDates} readingData={reading} selectedStationId={selectedStationId}
-           selectedShift={selectedShift}/>
+        <>
+          <ChartComponent
+            availableDates={availableDates}
+            readingData={reading}
+            selectedStationId={selectedStationId}
+            selectedShift={selectedShift}
+            constVal={constVal}
+          />
+          <ChartComponent2
+            availableDates={availableDates}
+            readingData={reading}
+            selectedStationId={selectedStationId}
+            selectedShift={selectedShift}
+            constVal={constVal}
+          />
+        </>
       )}
     </>
   );

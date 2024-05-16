@@ -528,9 +528,15 @@ function TaskNew() {
           // No tasks were assigned and no operator assigned to stations
           toast.info("Please free all the tasks First", { autoClose: 10000 });
         }
+
+        if(Object.keys(data['last_shift_on_these_stations']).length>0){
+          toast.info("Please select Another Shift",{autoClose: 10000})
+        }
       } else {
         console.error("Failed to assign tasks", response.error);
       }
+
+      
     } catch (error) {
       console.error("Error:", error);
     }

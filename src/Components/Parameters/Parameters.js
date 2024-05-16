@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useReducer, useRef } from "react";
 import "./Parameters.css";
 import DashboardR from "../DashboardR/DashboardR";
 import useTokenExpirationCheck from "../useTokenExpirationCheck";
@@ -28,6 +28,13 @@ function Parameters() {
 
   const token = JSON.parse(localStorage.getItem("Token"));
   const tokenExpired = useTokenExpirationCheck(token, navigate);
+
+  const usl=useRef("");
+  const lsl=useRef("")
+  const A2=useRef("")
+  const D2=useRef("")
+  const D3=useRef("")
+  const D4=useRef("")
 
   const getParts = async (e) => {
     const link = process.env.REACT_APP_BASE_URL;
@@ -120,6 +127,7 @@ function Parameters() {
   };
 
   const addParameters = async (e) => {
+
     if (!paramName || !paramId || !selectedPartNo || !selectedProcessNo) {
       setErrorMessage("Please fill all the fields.");
       setShowErrPopup(true); // Show the pop-up if validation fails
@@ -142,6 +150,17 @@ function Parameters() {
       params.append("min", min);
       params.append("max", max);
       params.append("unit", unit);
+
+      if (showParameterValue) {
+        // Only include additional parameters if showParameterValue is true
+        params.append("USL", usl.current.value);
+        params.append("LSL", lsl.current.value);
+        params.append("A2", A2.current.value);
+        params.append("D2", D2.current.value);
+        params.append("D3", D3.current.value);
+        params.append("D4", D4.current.value);
+      }
+  
 
       // Log individual parameters
       params.forEach((value, key) => console.log(`${key}: ${value}`));
@@ -173,6 +192,7 @@ function Parameters() {
   };
 
   const handlePartChange = (e) => {
+    e.preventDefault()
     const selectedPartNo = e.target.value;
     setSelectedPartNo(selectedPartNo);
   };
@@ -184,11 +204,15 @@ function Parameters() {
   }, [selectedPartNo]);
 
   const handleDropdownChange = (e) => {
+    e.preventDefault()
+
     const selectedValue = e.target.value;
     setShowParameterValue(selectedValue === "Yes");
   };
 
   const handleProcessChange = (e) => {
+    e.preventDefault()
+
     const val = e.target.value;
     setSelectedProcessNo(val);
   };
@@ -250,7 +274,10 @@ function Parameters() {
             <input
               placeholder="Parameter Name"
               value={paramName}
-              onChange={(e) => setParamName(e.target.value)}
+              onChange={(e) => {
+    e.preventDefault()
+                
+                setParamName(e.target.value)}}
             />
           </p>
           <p>
@@ -258,7 +285,10 @@ function Parameters() {
             <input
               placeholder="Parameter Id"
               value={paramId}
-              onChange={(e) => setParamId(e.target.value)}
+              onChange={(e) => {
+    e.preventDefault()
+                
+                setParamId(e.target.value)}}
             />
           </p>
           <p>
@@ -266,7 +296,10 @@ function Parameters() {
             <input
               placeholder="Enter Min Value"
               value={min}
-              onChange={(e) => setMin(e.target.value)}
+              onChange={(e) => {
+    e.preventDefault()
+                
+                setMin(e.target.value)}}
             />
           </p>
           <p>
@@ -274,7 +307,10 @@ function Parameters() {
             <input
               placeholder="Enter Max Value"
               value={max}
-              onChange={(e) => setMax(e.target.value)}
+              onChange={(e) =>{
+    e.preventDefault()
+                
+                setMax(e.target.value)}}
             />
           </p>
           <p>
@@ -282,7 +318,10 @@ function Parameters() {
             <input
               placeholder="Enter Unit"
               value={unit}
-              onChange={(e) => setUnit(e.target.value)}
+              onChange={(e) => {
+    e.preventDefault()
+                
+                setUnit(e.target.value)}}
             />
           </p>
         </div>
@@ -301,12 +340,28 @@ function Parameters() {
         {showParameterValue && (
           <div className="parameter_value">
             <p>
-              Enter UCL:
-              <input placeholder="UCL" />
+              Enter USL:
+              <input placeholder="USL" ref={usl} />
             </p>
             <p>
-              Enter LCL:
-              <input placeholder="LCL" />
+              Enter LSL:
+              <input placeholder="LSL" ref={lsl}/>
+            </p>
+            <p>
+              Enter A2:
+              <input placeholder="A2" ref={A2}/>
+            </p>
+            <p>
+              Enter D2:
+              <input placeholder="D2" ref={D2}/>
+            </p>
+            <p>
+              Enter D3:
+              <input placeholder="D3" ref={D3}/>
+            </p>
+            <p>
+              Enter D4:
+              <input placeholder="D4" ref={D4} />
             </p>
           </div>
         )}
