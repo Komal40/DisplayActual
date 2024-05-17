@@ -29,12 +29,12 @@ function Parameters() {
   const token = JSON.parse(localStorage.getItem("Token"));
   const tokenExpired = useTokenExpirationCheck(token, navigate);
 
-  const usl=useRef("");
-  const lsl=useRef("")
-  const A2=useRef("")
-  const D2=useRef("")
-  const D3=useRef("")
-  const D4=useRef("")
+  const usl = useRef("");
+  const lsl = useRef("");
+  const A2 = useRef("");
+  const D2 = useRef("");
+  const D3 = useRef("");
+  const D4 = useRef("");
 
   const getParts = async (e) => {
     const link = process.env.REACT_APP_BASE_URL;
@@ -127,7 +127,6 @@ function Parameters() {
   };
 
   const addParameters = async (e) => {
-
     if (!paramName || !paramId || !selectedPartNo || !selectedProcessNo) {
       setErrorMessage("Please fill all the fields.");
       setShowErrPopup(true); // Show the pop-up if validation fails
@@ -160,7 +159,6 @@ function Parameters() {
         params.append("D3", D3.current.value);
         params.append("D4", D4.current.value);
       }
-  
 
       // Log individual parameters
       params.forEach((value, key) => console.log(`${key}: ${value}`));
@@ -192,7 +190,7 @@ function Parameters() {
   };
 
   const handlePartChange = (e) => {
-    e.preventDefault()
+    e.preventDefault();
     const selectedPartNo = e.target.value;
     setSelectedPartNo(selectedPartNo);
   };
@@ -204,14 +202,14 @@ function Parameters() {
   }, [selectedPartNo]);
 
   const handleDropdownChange = (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     const selectedValue = e.target.value;
     setShowParameterValue(selectedValue === "Yes");
   };
 
   const handleProcessChange = (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     const val = e.target.value;
     setSelectedProcessNo(val);
@@ -275,9 +273,10 @@ function Parameters() {
               placeholder="Parameter Name"
               value={paramName}
               onChange={(e) => {
-    e.preventDefault()
-                
-                setParamName(e.target.value)}}
+                e.preventDefault();
+
+                setParamName(e.target.value);
+              }}
             />
           </p>
           <p>
@@ -286,9 +285,10 @@ function Parameters() {
               placeholder="Parameter Id"
               value={paramId}
               onChange={(e) => {
-    e.preventDefault()
-                
-                setParamId(e.target.value)}}
+                e.preventDefault();
+
+                setParamId(e.target.value);
+              }}
             />
           </p>
           <p>
@@ -297,9 +297,10 @@ function Parameters() {
               placeholder="Enter Min Value"
               value={min}
               onChange={(e) => {
-    e.preventDefault()
-                
-                setMin(e.target.value)}}
+                e.preventDefault();
+
+                setMin(e.target.value);
+              }}
             />
           </p>
           <p>
@@ -307,10 +308,11 @@ function Parameters() {
             <input
               placeholder="Enter Max Value"
               value={max}
-              onChange={(e) =>{
-    e.preventDefault()
-                
-                setMax(e.target.value)}}
+              onChange={(e) => {
+                e.preventDefault();
+
+                setMax(e.target.value);
+              }}
             />
           </p>
           <p>
@@ -319,9 +321,10 @@ function Parameters() {
               placeholder="Enter Unit"
               value={unit}
               onChange={(e) => {
-    e.preventDefault()
-                
-                setUnit(e.target.value)}}
+                e.preventDefault();
+
+                setUnit(e.target.value);
+              }}
             />
           </p>
         </div>
@@ -345,23 +348,23 @@ function Parameters() {
             </p>
             <p>
               Enter LSL:
-              <input placeholder="LSL" ref={lsl}/>
+              <input placeholder="LSL" ref={lsl} required />
             </p>
             <p>
               Enter A2:
-              <input placeholder="A2" ref={A2}/>
+              <input placeholder="A2" ref={A2} required />
             </p>
             <p>
               Enter D2:
-              <input placeholder="D2" ref={D2}/>
+              <input placeholder="D2" ref={D2} required />
             </p>
             <p>
               Enter D3:
-              <input placeholder="D3" ref={D3}/>
+              <input placeholder="D3" ref={D3} required />
             </p>
             <p>
               Enter D4:
-              <input placeholder="D4" ref={D4} />
+              <input placeholder="D4" ref={D4} required />
             </p>
           </div>
         )}
