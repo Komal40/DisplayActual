@@ -152,6 +152,7 @@ function Parameters() {
 
       if (showParameterValue) {
         // Only include additional parameters if showParameterValue is true
+        params.append("readings_is_available",true)
         params.append("USL", usl.current.value);
         params.append("LSL", lsl.current.value);
         params.append("A2", A2.current.value);
@@ -282,7 +283,7 @@ function Parameters() {
           <p>
             Enter Parameter Id:
             <input
-              placeholder="Parameter Id"
+              placeholder="Parameter Id (001)"
               value={paramId}
               onChange={(e) => {
                 e.preventDefault();
@@ -344,7 +345,7 @@ function Parameters() {
           <div className="parameter_value">
             <p>
               Enter USL:
-              <input placeholder="USL" ref={usl} />
+              <input placeholder="USL" ref={usl} required />
             </p>
             <p>
               Enter LSL:

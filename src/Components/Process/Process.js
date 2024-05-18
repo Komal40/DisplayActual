@@ -24,16 +24,17 @@ function Process() {
   const login = JSON.parse(localStorage.getItem("Login"));
 
   const tokenExpired = useTokenExpirationCheck(token, navigate);
-    // Example file input handler and component state
-    const [files, setFiles] = useState([]);
-    const handleFileChange = (e) => {
-      // Filter out non-image files
-      const selectedFiles = Array.from(e.target.files).filter((file) =>
-        file.type.startsWith("image/")
-      );
-      setFiles(selectedFiles);
-      console.log("selectedFilesselectedFilesselectedFiles", selectedFiles)
-    };
+  // Example file input handler and component state
+  const [files, setFiles] = useState([]);
+  const handleFileChange = (e) => {
+    // Filter out non-image files
+    // const selectedFiles = Array.from(e.target.files).filter((file) =>
+    //   file.type.startsWith("image/")
+    // );
+    // setFiles(selectedFiles);
+
+    setFiles(Array.from(e.target.files));
+  };
 
   const getParts = async (e) => {
     // e.preventDefault();
@@ -82,11 +83,9 @@ function Process() {
     });
   };
 
-
   const addProcess = async (e) => {
-
-    if(files.length==0){
-      toast.error("Please Select Images")
+    if (files.length == 0) {
+      toast.error("Please Select Images");
     }
 
     if (!processId || !processName) {
@@ -102,23 +101,25 @@ function Process() {
     const fullLink = link + endPoint;
 
     try {
-      const params = new URLSearchParams();
-      // const formData = new FormData();
-      params.append("process_name", processName);
-      params.append("process_id", processId);
-      params.append("belongs_to_part", partName);
-      params.append("added_by_owner", login.employee_id);
+      // const params = new URLSearchParams();
+      const formData = new FormData();
+      formData.append("process_name", processName);
+      formData.append("process_id", processId);
+      formData.append("belongs_to_part", partName);
+      formData.append("added_by_owner", login.employee_id);
       // params.append("file", " ");
 
       // Append all selected image files as an array under the 'file' key
-    const fileList = files.map((file) => file);
-    params.append("file", fileList);
+      // const fileList = files.map((file) => file);
+      // formData.append("file", fileList);
+      files.forEach((file, index) => {
+        formData.append("file", file);
+      });
 
       const response = await fetch(fullLink, {
         method: "POST",
-        body: params,
+        body: formData,
         headers: {
-          "Content-type": "application/x-www-form-urlencoded",
           Authorization: `Bearer ${token}`,
         },
       });
@@ -140,6 +141,7 @@ function Process() {
   };
 
   const handleClickOutside = (e) => {
+    setFiles([]);
     if (e.target.classList.contains("err_process_popup")) {
       // If clicked outside of the pop-up
       setShowErrPopup(false); // Close the pop-up
@@ -161,14 +163,12 @@ function Process() {
     };
   }, [showErrPopup, showPopup]);
 
-
-
   return (
     <div>
       <div>
         <DashboardR />
       </div>
-      <ToastContainer/>
+      <ToastContainer />
 
       {showErrPopup && (
         <div className="err_process_popup">
@@ -200,13 +200,16 @@ function Process() {
             </select>
           </div>
           <div className="process_file">
-          <input type="file" multiple accept="image/*" onChange={handleFileChange} />
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={handleFileChange}
+            />
           </div>
         </div>
 
-        <div>
-          
-        </div>
+        <div></div>
         <div className="parts_details">
           <p>
             Enter Process Name:
@@ -230,7 +233,6 @@ function Process() {
 
         <div className="parts_add">
           <button type="submit" onClick={addProcess}>
-            
             ADD
           </button>
         </div>
