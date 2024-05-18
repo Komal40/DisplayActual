@@ -4,6 +4,9 @@ import DashboardR from "../DashboardR/DashboardR";
 import { useNavigate } from "react-router-dom";
 import useTokenExpirationCheck from "../useTokenExpirationCheck";
 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 function Process() {
   const navigate = useNavigate();
 
@@ -21,6 +24,16 @@ function Process() {
   const login = JSON.parse(localStorage.getItem("Login"));
 
   const tokenExpired = useTokenExpirationCheck(token, navigate);
+    // Example file input handler and component state
+    const [files, setFiles] = useState([]);
+    const handleFileChange = (e) => {
+      // Filter out non-image files
+      const selectedFiles = Array.from(e.target.files).filter((file) =>
+        file.type.startsWith("image/")
+      );
+      setFiles(selectedFiles);
+      console.log("selectedFilesselectedFilesselectedFiles", selectedFiles)
+    };
 
   const getParts = async (e) => {
     // e.preventDefault();
@@ -60,7 +73,22 @@ function Process() {
     getParts();
   };
 
+  const convertFileToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
+
   const addProcess = async (e) => {
+
+    if(files.length==0){
+      toast.error("Please Select Images")
+    }
+
     if (!processId || !processName) {
       setErrorMessage("Please fill all the fields.");
       setShowErrPopup(true); // Show the pop-up if validation fails
@@ -75,11 +103,16 @@ function Process() {
 
     try {
       const params = new URLSearchParams();
+      // const formData = new FormData();
       params.append("process_name", processName);
       params.append("process_id", processId);
       params.append("belongs_to_part", partName);
       params.append("added_by_owner", login.employee_id);
-      params.append("file", " ");
+      // params.append("file", " ");
+
+      // Append all selected image files as an array under the 'file' key
+    const fileList = files.map((file) => file);
+    params.append("file", fileList);
 
       const response = await fetch(fullLink, {
         method: "POST",
@@ -97,6 +130,7 @@ function Process() {
         setProcessName("");
         setProcessId("");
         setPartName("");
+        setFiles([]); // Clear the files after successful upload
       } else {
         console.error("Failed to fetch parts", response.error);
       }
@@ -127,11 +161,14 @@ function Process() {
     };
   }, [showErrPopup, showPopup]);
 
+
+
   return (
     <div>
       <div>
         <DashboardR />
       </div>
+      <ToastContainer/>
 
       {showErrPopup && (
         <div className="err_process_popup">
@@ -151,7 +188,7 @@ function Process() {
 
       <div className="process_container">
         <div className="process_head">
-          <p>Select Part Name:</p>
+          <p>Select Part No:</p>
           <div className="update_dropdown">
             <select onChange={handleDropdownChange}>
               <option>Select</option>
@@ -162,8 +199,14 @@ function Process() {
                 ))}
             </select>
           </div>
+          <div className="process_file">
+          <input type="file" multiple accept="image/*" onChange={handleFileChange} />
+          </div>
         </div>
 
+        <div>
+          
+        </div>
         <div className="parts_details">
           <p>
             Enter Process Name:
@@ -187,7 +230,7 @@ function Process() {
 
         <div className="parts_add">
           <button type="submit" onClick={addProcess}>
-            {" "}
+            
             ADD
           </button>
         </div>

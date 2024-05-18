@@ -137,7 +137,7 @@ const ChartComponent = ({
 
   return (
     <div className="chart-container">
-      <h2>Average Shift {selectedShift} Values for Station {selectedStationId}</h2>
+      <h2>X-bar chart for Shift {selectedShift} Values for Station {selectedStationId}</h2>
       <Line data={chartData} options={options} />
     </div>
   );

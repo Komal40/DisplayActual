@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "../Navbar/Navbar";
 import "./Chart.css";
+import useTokenExpirationCheck from "../useTokenExpirationCheck";
+import { useNavigate } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import DashBoardAbove from "../DashboardR/DashBoardAbove";
 import { ToastContainer, toast } from "react-toastify";
@@ -8,7 +10,10 @@ import "react-toastify/dist/ReactToastify.css";
 import ChartComponent from "./ChartComponent";
 import ChartComponent2 from "./ChartComponent2";
 
+
 export default function Chart() {
+
+  const navigate=useNavigate()
   const [selectedStartDate, setSelectedStartDate] = useState(new Date());
   const [selectedEndDate, setSelectedEndDate] = useState(new Date());
   const [selectedPartNo, setSelectedPartNo] = useState("");
@@ -23,6 +28,9 @@ export default function Chart() {
   const [selectedShift, setSelectedShift] = useState("");
   const token = JSON.parse(localStorage.getItem("Token"));
   const [constVal, setConstVal]=useState({})
+
+  
+  const tokenExpired = useTokenExpirationCheck(token, navigate);
 
   const handleStartDateChange = (date) => {
     setSelectedStartDate(date);
