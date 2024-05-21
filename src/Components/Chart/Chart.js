@@ -9,6 +9,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ChartComponent from "./ChartComponent";
 import ChartComponent2 from "./ChartComponent2";
+import ExportCharts from "./ExportCharts";
 
 
 export default function Chart() {
@@ -428,6 +429,12 @@ export default function Chart() {
             selectedShift={selectedShift}
             constVal={constVal}
           />
+          {/* <ExportCharts 
+          availableDates={availableDates}
+            readingData={reading}
+            selectedStationId={selectedStationId}
+            selectedShift={selectedShift}
+            constVal={constVal}/> */}
         </>
       )}
     </>

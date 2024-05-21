@@ -182,6 +182,11 @@ function Parameters() {
         setParamName("");
         setSelectedPartNo("");
         setSelectedProcessNo("");
+        setMax("");
+        setMin("")
+        setUnit("")
+
+        
       } else {
         console.error("Failed to fetch parts", response.error);
       }
@@ -204,14 +209,12 @@ function Parameters() {
 
   const handleDropdownChange = (e) => {
     e.preventDefault();
-
     const selectedValue = e.target.value;
     setShowParameterValue(selectedValue === "Yes");
   };
 
   const handleProcessChange = (e) => {
     e.preventDefault();
-
     const val = e.target.value;
     setSelectedProcessNo(val);
   };

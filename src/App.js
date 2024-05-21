@@ -12,6 +12,7 @@ import Parameters from './Components/Parameters/Parameters';
 import Task from './Components/Task/Task';
 import TaskNew from './Components/TaskNew/TaskNew';
 import Chart from './Components/Chart/Chart';
+import withScreenSizeCheck from './WithScreenSizeCheck';
 
 
 
@@ -36,5 +37,5 @@ function App() {
   );
 }
 
-export default App;
+export default withScreenSizeCheck(App);
 

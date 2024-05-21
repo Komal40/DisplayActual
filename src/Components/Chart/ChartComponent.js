@@ -1,16 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, forwardRef, useImperativeHandle } from "react";
 import { Line } from "react-chartjs-2";
-import { Chart,CategoryScale,LinearScale, LineElement, PointElement, Title, Legend } from "chart.js";
+import { Chart, CategoryScale, LinearScale, LineElement, PointElement, Title, Legend } from "chart.js";
 import "chartjs-adapter-date-fns";
 import "./ChartComponent.css";
 
-const ChartComponent = ({
-  availableDates,
-  readingData,
-  selectedStationId,
-  selectedShift,
-  constVal,
-}) => {
+const ChartComponent = forwardRef(({ availableDates, readingData, selectedStationId, selectedShift, constVal }, ref) => {
   const [chartData, setChartData] = useState(null);
 
   useEffect(() => {
@@ -18,21 +12,10 @@ const ChartComponent = ({
   }, []);
 
   useEffect(() => {
-    if (
-      availableDates &&
-      availableDates.length > 0 &&
-      readingData &&
-      selectedStationId &&
-      selectedShift
-    ) {
+    if (availableDates && availableDates.length > 0 && readingData && selectedStationId && selectedShift) {
       const labels = availableDates;
       const averages = [];
-      // const uclXBarConstant = calculateAverage(averages) + (constVal.A2 * constVal.D2);
       const uclXBarConstant = calculateAverage(averages) + (constVal.A2 * constVal.D2);
-
-      // ... Data processing continues here
-
-      const uclXBarData = Array(averages.length).fill(uclXBarConstant);
 
       availableDates.forEach((date) => {
         let total = 0;
@@ -55,11 +38,10 @@ const ChartComponent = ({
       });
 
       const averageOfAverages = calculateAverage(averages);
-      console.log("constVal",(Array(averages.length).fill(averageOfAverages))+(constVal.A2*constVal.D2))
-      const ucl=((averageOfAverages)+(constVal.A2*constVal.D2))
-      const lcl=((averageOfAverages)-(constVal.A2*constVal.D2))
-      
-      const newData={
+      const ucl = (averageOfAverages) + (constVal.A2 * constVal.D2);
+      const lcl = (averageOfAverages) - (constVal.A2 * constVal.D2);
+
+      const newData = {
         labels: labels,
         datasets: [
           {
@@ -92,21 +74,24 @@ const ChartComponent = ({
           },
         ],
       };
-      console.log("New chart data:", newData); // Log the new chart data
 
-    setChartData(newData);
+      setChartData(newData);
     } else {
-      setChartData(null); // Reset chart data if data is not available
+      setChartData(null);
     }
-  }, [availableDates, readingData, selectedStationId, selectedShift,constVal]);
+  }, [availableDates, readingData, selectedStationId, selectedShift, constVal]);
 
   const calculateAverage = (array) => {
     const sum = array.reduce((acc, value) => acc + parseFloat(value), 0);
     return sum / array.length;
   };
 
+  useImperativeHandle(ref, () => ({
+    chartInstance: ref.current.chartInstance,
+  }));
+
   if (!chartData) {
-    return <div>Loading chart...</div>; // Render a loading state while data is being fetched
+    return <div>Loading chart...</div>;
   }
 
   const options = {
@@ -126,21 +111,25 @@ const ChartComponent = ({
         },
       },
       x: {
-        type: "category", // Use 'category' scale for categorical data (e.g., dates)
+        type: "category",
         title: {
           display: true,
           text: "Dates",
         },
       },
     },
+    responsive: true,
+    maintainAspectRatio: false,
   };
 
   return (
     <div className="chart-container">
       <h2>X-bar chart for Shift {selectedShift} Values for Station {selectedStationId}</h2>
-      <Line data={chartData} options={options} />
+      <div style={{ position: "relative", height: "400px", width: "600px", backgroundColor: "white" }}>
+        <Line ref={ref} data={chartData} options={options} />
+      </div>
     </div>
   );
-};
+});
 
 export default ChartComponent;
