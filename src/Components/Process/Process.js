@@ -14,6 +14,7 @@ function Process() {
   const [partName, setPartName] = useState("");
   const [processName, setProcessName] = useState("");
   const [processId, setProcessId] = useState("");
+  const [processVal, setProcessVal]=useState("")
   const { popUpRef } = useRef();
   const [parts, setParts] = useState([]);
   const token = JSON.parse(localStorage.getItem("Token"));
@@ -88,7 +89,7 @@ function Process() {
       toast.error("Please Select Images");
     }
 
-    if (!processId || !processName) {
+    if (!processId || !processName ||!processVal) {
       setErrorMessage("Please fill all the fields.");
       setShowErrPopup(true); // Show the pop-up if validation fails
       return;
@@ -107,6 +108,7 @@ function Process() {
       formData.append("process_id", processId);
       formData.append("belongs_to_part", partName);
       formData.append("added_by_owner", login.employee_id);
+      formData.append("process_precedence", processVal)
       // params.append("file", " ");
 
       // Append all selected image files as an array under the 'file' key
@@ -130,8 +132,9 @@ function Process() {
         setShowMsg(data.Message);
         setProcessName("");
         setProcessId("");
-        setPartName("");
-        setFiles([]); // Clear the files after successful upload
+        // setPartName("");
+        setProcessVal("")
+        // setFiles([]); // Clear the files after successful upload
       } else {
         console.error("Failed to fetch parts", response.error);
       }
@@ -226,6 +229,16 @@ function Process() {
               value={processId}
               onChange={(e) => setProcessId(e.target.value)}
               placeholder="Process Id"
+              required
+            />
+          </p>
+
+          <p>
+            Process Precedence
+            <input
+              value={processVal}
+              onChange={(e) => setProcessVal(e.target.value)}
+              placeholder="Precedence"
               required
             />
           </p>

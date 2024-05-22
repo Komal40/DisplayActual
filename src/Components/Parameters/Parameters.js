@@ -180,13 +180,9 @@ function Parameters() {
         setShowMsg(data.Message);
         setParamId("");
         setParamName("");
-        setSelectedPartNo("");
-        setSelectedProcessNo("");
         setMax("");
         setMin("")
-        setUnit("")
-
-        
+        setUnit("")        
       } else {
         console.error("Failed to fetch parts", response.error);
       }
