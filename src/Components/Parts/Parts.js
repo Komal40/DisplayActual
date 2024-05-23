@@ -3,6 +3,8 @@ import "./Parts.css";
 import DashboardR from "../DashboardR/DashboardR";
 import useTokenExpirationCheck from "../useTokenExpirationCheck";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function Parts() {
   const navigate = useNavigate();
@@ -74,15 +76,14 @@ function Parts() {
 
       if (response.ok) {
         setShowPopup(true);
-
         const data = await response.json();
         setShowMsg(data.Message);
         setPartId("");
         setPartName("");
       } else {
-        // Handle error response here
-        console.error("Failed to add part");
-        setError("Failed to add part");
+        const errorData = await response.json();
+        const errorMessage = errorData.Message;
+        toast.error(errorMessage);
       }
     } catch (error) {
       console.error("Error:", error);
@@ -115,6 +116,7 @@ function Parts() {
   
   return (
     <div>
+      <ToastContainer/>
       <div>
         <DashboardR />
       </div>

@@ -4,6 +4,9 @@ import DashboardR from "../DashboardR/DashboardR";
 import useTokenExpirationCheck from "../useTokenExpirationCheck";
 import { useNavigate } from "react-router-dom";
 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 function Parameters() {
   const navigate = useNavigate();
 
@@ -184,7 +187,9 @@ function Parameters() {
         setMin("")
         setUnit("")        
       } else {
-        console.error("Failed to fetch parts", response.error);
+        const errorData = await response.json();
+        const errorMessage = errorData.Message;
+        toast.error(errorMessage);
       }
     } catch (error) {
       console.error("Error:", error);
@@ -217,6 +222,7 @@ function Parameters() {
 
   return (
     <div>
+      <ToastContainer/>
       <div>
         <DashboardR />
       </div>

@@ -108,7 +108,7 @@ function Process() {
       formData.append("process_id", processId);
       formData.append("belongs_to_part", partName);
       formData.append("added_by_owner", login.employee_id);
-      formData.append("process_precedence", processVal)
+      formData.append("process_precedency", processVal)
       // params.append("file", " ");
 
       // Append all selected image files as an array under the 'file' key
@@ -132,11 +132,12 @@ function Process() {
         setShowMsg(data.Message);
         setProcessName("");
         setProcessId("");
-        // setPartName("");
         setProcessVal("")
-        // setFiles([]); // Clear the files after successful upload
-      } else {
-        console.error("Failed to fetch parts", response.error);
+        
+      } else{
+        const errorData = await response.json();
+        const errorMessage = errorData.Message;
+        toast.error(errorMessage);
       }
     } catch (error) {
       console.error("Error:", error);
@@ -236,6 +237,7 @@ function Process() {
           <p>
             Process Precedence
             <input
+            type="number"
               value={processVal}
               onChange={(e) => setProcessVal(e.target.value)}
               placeholder="Precedence"

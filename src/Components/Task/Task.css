@@ -97,6 +97,7 @@
     padding-left: 10px;
     width: 4rem;
     height:1.6rem;
+    margin-right: 10px;
 }
 
 
@@ -262,3 +263,12 @@ padding: 20px;
     color: var(--color-blue);
     font-weight: 800;
   }
+
+.task_id{
+    height: 2rem;
+    width: 4rem;
+    border-radius: 10px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    outline: none;
+}

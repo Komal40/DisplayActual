@@ -112,6 +112,7 @@ const ChartComponent2 = forwardRef(({ availableDates, readingData, selectedStati
       <div style={{ position: "relative", height: "400px", width: "600px", backgroundColor: "white" }}>
       <Line ref={ref} data={data} options={options} />
       </div>
+      
     </div>
   );
 });

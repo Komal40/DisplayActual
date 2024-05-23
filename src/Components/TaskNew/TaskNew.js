@@ -40,51 +40,49 @@ function TaskNew() {
   const [startTimeOptions, setStartTimeOptions] = useState([]);
   const [endTimeOptions, setEndTimeOptions] = useState([]);
 
-   // Generate options for start and end times
-   const currentHour = new Date().getHours();
-   const currentMinute = new Date().getMinutes();
-   
-  useEffect(() => {
+  // Generate options for start and end times
+  const currentHour = new Date().getHours();
+  const currentMinute = new Date().getMinutes();
 
+  useEffect(() => {
     const startOptions = generateTimeOptions(currentHour, currentMinute, 24);
     const endOptions = generateTimeOptions(currentHour, currentMinute, 48); // End time options for next 24 hours
 
     setStartTimeOptions(startOptions);
     setEndTimeOptions(endOptions);
   }, []);
-  
+
   function generateTimeOptions(currentHour, currentMinute, hours) {
     const options = [];
-  
+
     // Start generating options from the current hour and minute
     let hour = currentHour;
     let minute = currentMinute;
-  
+
     for (let i = 0; i < hours; i++) {
       const adjustedHour = hour % 24; // Ensure hour stays within 24-hour format
-  
+
       // Format hour and minute as string with leading zeros
-      const formattedHour = adjustedHour.toString().padStart(2, '0');
-      const formattedMinute = minute.toString().padStart(2, '0');
-  
+      const formattedHour = adjustedHour.toString().padStart(2, "0");
+      const formattedMinute = minute.toString().padStart(2, "0");
+
       // Construct the time string (e.g., "HH:mm")
       const timeString = `${formattedHour}:${formattedMinute}:00`;
-  
+
       // Push the option element with the time string as key and value
       options.push(<option key={timeString}>{timeString}</option>);
-  
+
       // Increment minute by 30 (to represent each half-hour interval)
       // minute += 30;
       minute += 15;
 
-  
       // If minute exceeds 59, increment hour and reset minute to 0
       if (minute >= 60) {
         hour++;
         minute %= 60;
       }
     }
-  
+
     return options;
   }
 
@@ -102,8 +100,7 @@ function TaskNew() {
   //   return options;
   // }
 
-
-    //   function generateTimeOptions(startHour, startMinute, numberOfHours) {
+  //   function generateTimeOptions(startHour, startMinute, numberOfHours) {
   //     const options = [];
   //     for (let hour = startHour; hour < startHour + numberOfHours; hour++) {
   //       for (let minute = 0; minute < 60; minute += 30) {
@@ -390,6 +387,21 @@ function TaskNew() {
     }
   };
 
+  const [taskId, setTaskId] = useState("");
+  const [error, setError] = useState("");
+
+  const handleChange = (event) => {
+    const { value } = event.target;
+    setTaskId(value);
+
+    // Validate if the input contains at least 4 digits
+    if (!/^\d{4,}$/.test(value)) {
+      setError("Please enter at least 4 digits");
+    } else {
+      setError("");
+    }
+  };
+
   const assignTask = async () => {
     // Check if shift timings are selected
     if (!startShiftTime || !endShiftTime) {
@@ -397,8 +409,13 @@ function TaskNew() {
       return; // Exit the function early
     }
 
-    if(shift===""){
+    if (shift === "") {
       toast.warning("Please select Shift", { autoClose: 5000 });
+      return;
+    }
+
+    if(taskId===""){
+      toast.warning("Please Enter Task Id", { autoClose: 5000 });
       return;
     }
 
@@ -462,8 +479,10 @@ function TaskNew() {
           part_no: selectedParts[station] || part || "", // Use user entered value if available, otherwise use value from previousData
           process_no: selectedProcesses[station] || process || "",
           shift: shift,
+          station_precedency: userEnteredPrecValue[station] || 0,
           start_shift_time: startShiftTime,
           end_shift_time: endShiftTime,
+          temp_task_id:taskId,
           assigned_by_owner: login.employee_id,
           total_assigned_task: userEnteredValue[station] || 0,
         };
@@ -502,8 +521,6 @@ function TaskNew() {
           setSelectedParts({}); // Reset selectedParts state
           setSelectedProcesses({}); // Reset selectedProcesses state
           setSelectedEmployees({}); // Reset selectedEmployees state
-          setStartShiftTime(""); // Reset startShiftTime state
-          setEndShiftTime(""); // Reset endShiftTime state
         }
 
         if (Object.keys(data["operator_assigned_to_stations"]).length > 0) {
@@ -529,16 +546,16 @@ function TaskNew() {
           toast.info("Please free all the tasks First", { autoClose: 10000 });
         }
 
-        if(Object.keys(data['last_shift_on_these_stations']).length>0){
-          toast.info("Please select Another Shift",{autoClose: 10000})
+        if (Object.keys(data["last_shift_on_these_stations"]).length > 0) {
+          toast.info("Please select Another Shift", { autoClose: 10000 });
         }
       } else {
-        console.error("Failed to assign tasks", response.error);
+        const errorData = await response.json();
+      const errorMessage = errorData.Message || "Failed to assign tasks";
+      toast.error(errorMessage);
       }
-
-      
     } catch (error) {
-      console.error("Error:", error);
+      toast.error("Error:", error);
     }
   };
 
@@ -548,6 +565,17 @@ function TaskNew() {
     const { value } = e.target;
     // Update the state with the entered value for the station
     setUserEnteredValue((prevState) => ({
+      ...prevState,
+      [stationId]: value,
+    }));
+  };
+
+  const [userEnteredPrecValue, setUserEnteredPrecValue] = useState({});
+  // Modify handleInputChange to update the entered value for the corresponding station
+  const handlePrecedenceVal = (e, stationId) => {
+    const { value } = e.target;
+    // Update the state with the entered value for the station
+    setUserEnteredPrecValue((prevState) => ({
       ...prevState,
       [stationId]: value,
     }));
@@ -662,7 +690,7 @@ function TaskNew() {
     }
   };
 
-  const [shift, setShift]=useState("")
+  const [shift, setShift] = useState("");
 
   return (
     <>
@@ -734,12 +762,24 @@ function TaskNew() {
             </div>
 
             <div className="update_dropdown">
-              <select onChange={(e)=>setShift(e.target.value)}>
+              <select onChange={(e) => setShift(e.target.value)}>
                 <option value="">Shift</option>
                 <option value="A">A</option>
                 <option value="B">B</option>
-                <option value="C">C</option>             
+                <option value="C">C</option>
               </select>
+            </div>
+            <div>
+              <input
+                className="task_id"
+                placeholder="TaskId"
+                pattern="[0-9]{4}" // This pattern allows only 4 numeric characters
+                title="Please enter exactly 4 numeric characters"
+                minLength={4}
+                value={taskId}
+                onChange={handleChange}
+              />
+              {error && <p style={{ color: "red" }}>{error}</p>}
             </div>
 
             {/* <button className="task_qty_btn">Fetch From Quantity</button> */}
@@ -790,26 +830,29 @@ function TaskNew() {
                       const isRunning = runningTaskInitially.some(
                         (task) => task[0] === station
                       );
-                     
+
                       let stationId,
                         employeeId,
                         firstName,
                         lastName,
                         runempSkill,
                         empprocessInfo,
-                        runprocessSkill
+                        runprocessSkill;
                       if (isRunning || runningOnLogs) {
                         // Extract details from the running task
-                        const runningTask = runningTaskInitially.find((task) => task[0] === station) || runningTasks.find((task) => task[0] === station);
+                        const runningTask =
+                          runningTaskInitially.find(
+                            (task) => task[0] === station
+                          ) || runningTasks.find((task) => task[0] === station);
 
                         [
                           stationId,
                           employeeId,
                           firstName,
                           lastName,
-                         runempSkill,
+                          runempSkill,
                           empprocessInfo,
-                          runprocessSkill
+                          runprocessSkill,
                         ] = runningTask;
                       }
 
@@ -833,16 +876,19 @@ function TaskNew() {
                               <div className="task_stations_part">
                                 <p>
                                   Process:{" "}
-                                  {(isRunning || runningOnLogs)
+                                  {isRunning || runningOnLogs
                                     ? empprocessInfo
                                     : selectedProcesses[station] || processInfo}
                                 </p>
                                 <p style={{ fontSize: "12px" }}>
-                                  Skill Required:&nbsp;{(isRunning || runningOnLogs) ? runprocessSkill :(selectedSkill[station]? `${selectedSkill[station]} Or Above`
+                                  Skill Required:&nbsp;
+                                  {isRunning || runningOnLogs
+                                    ? runprocessSkill
+                                    : selectedSkill[station]
+                                    ? `${selectedSkill[station]} Or Above`
                                     : skillRequired
                                     ? `${skillRequired} Or Above`
-                                    : "")}
-                                  
+                                    : ""}
                                 </p>
                               </div>
 
@@ -862,10 +908,17 @@ function TaskNew() {
                                 <div className="task_stations_part">
                                   <p className="employee-name">
                                     Employee:{" "}
-                                    {(isRunning || runningOnLogs) ? employeeId :operatorfname + " " + operatorlname}{" "}
+                                    {isRunning || runningOnLogs
+                                      ? employeeId
+                                      : operatorfname +
+                                        " " +
+                                        operatorlname}{" "}
                                   </p>
                                   <p style={{ fontSize: "12px" }}>
-                                    Skill :&nbsp;{(isRunning || runningOnLogs) ? runempSkill:empSkill}
+                                    Skill :&nbsp;
+                                    {isRunning || runningOnLogs
+                                      ? runempSkill
+                                      : empSkill}
                                   </p>
                                 </div>
                               )}
@@ -874,24 +927,29 @@ function TaskNew() {
                             <div className="task_stations_right">
                               <input
                                 className="task_station_input"
+                                value={userEnteredPrecValue[station]}
+                                onChange={(e) =>
+                                  handlePrecedenceVal(e, station)
+                                }
+                                disabled={isRunning || runningOnLogs}
+                              />
+                              <input
+                                className="task_station_input"
                                 value={
                                   // If the user has entered a value for the station, show it; otherwise, show the value from the API or default to 0
                                   userEnteredValue[station]
                                 }
                                 placeholder="qty"
                                 onChange={(e) => handleInputChange(e, station)}
-                                disabled={
-                                  isRunning || runningOnLogs
-                                }
+                                disabled={isRunning || runningOnLogs}
                               />
+
                               <div className="task_dropdown">
                                 <select
                                   onChange={(e) =>
                                     handlePartChange(e.target.value, station)
                                   }
-                                  disabled={
-                                    isRunning || runningOnLogs
-                                  }
+                                  disabled={isRunning || runningOnLogs}
                                 >
                                   <option value="">Select</option>
                                   {parts &&
@@ -908,9 +966,7 @@ function TaskNew() {
                                   onChange={(e) =>
                                     handleProcessChange(e, station)
                                   }
-                                  disabled={
-                                    isRunning || runningOnLogs
-                                  }
+                                  disabled={isRunning || runningOnLogs}
                                 >
                                   <option>Select</option>
                                   {processes[station] &&
@@ -930,9 +986,7 @@ function TaskNew() {
                                   className="task_station_input"
                                   type="text"
                                   placeholder="Id"
-                                  disabled={
-                                    isRunning || runningOnLogs
-                                  }
+                                  disabled={isRunning || runningOnLogs}
                                   value={
                                     employeeCode[station]
                                       ? employeeCode[station]

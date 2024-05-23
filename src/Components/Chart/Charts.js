@@ -292,10 +292,6 @@ export default function Chart() {
     // Handle shift selection
     setSelectedShift(e.target.value);
   };
-  function exportChartsToExcel(){
-    // console.log("click chart")
-    
-  }
 
   return (
     <>
@@ -439,8 +435,6 @@ export default function Chart() {
             selectedStationId={selectedStationId}
             selectedShift={selectedShift}
             constVal={constVal}/> */}
-              <button onClick={exportChartsToExcel}>Export Charts</button>
-
         </>
       )}
     </>

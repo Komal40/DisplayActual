@@ -73,6 +73,41 @@
     z-index: 9999;
   }
 
+  .modal_ {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    right: auto;
+    bottom: auto;
+    margin-right: '-50%';
+    transform: 'translate(-50%, -50%)';
+    background: #fff;
+    padding: 20px;
+    border-radius: 4px;
+    outline: none;
+    width: 20rem;
+    text-align: center;
+  }
+  
+  .overlay_ {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: 'rgba(0, 0, 0, 0.75)';
+  }
+  
+
+  .register_change_password{
+    display: flex;
+    flex-direction: column;
+  }
+
+  .register_input_{
+    display: flex;
+  }
+
 
 /* Media Query for responsiveness */
 @media screen and (max-width: 768px) {
@@ -84,4 +119,3 @@
       width: 100%;
     }
   }
-
