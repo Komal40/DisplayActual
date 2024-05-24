@@ -103,6 +103,12 @@ export default function Navbar() {
               {/* <li><HashLink to='/prevdata' className='dashboard_items'>Previous Data</HashLink></li> */}
 
               <li>
+                <HashLink to="/delete" className="dashboard_items">
+                  DELETE FLOOR
+                </HashLink>
+              </li>
+
+              <li>
                 <HashLink to="/register" className="dashboard_items">
                   ADD OPERATOR
                 </HashLink>

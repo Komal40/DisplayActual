@@ -52,7 +52,6 @@ export default function Chart() {
   const handleParamNo = (e) => {
     const val = e.target.value;
     setParamNo(val);
-
     console.log("val", val);
     // USL LSL A2 D2
     const getconstvalue = async (val) => {

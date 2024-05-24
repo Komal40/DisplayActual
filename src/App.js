@@ -13,6 +13,7 @@ import Task from './Components/Task/Task';
 import TaskNew from './Components/TaskNew/TaskNew';
 import Chart from './Components/Chart/Chart';
 import withScreenSizeCheck from './WithScreenSizeCheck';
+import DeleteFloor from './Components/DeleteFloor/DeleteFloor';
 
 
 
@@ -31,6 +32,7 @@ function App() {
       <Route path='/para' element={<ProtectedRoute Component={Parameters}/>}/>
       <Route path='/task' element={<ProtectedRoute Component={TaskNew}/>}/>
       <Route path='/chart' element={<ProtectedRoute Component={Chart}/>}/>
+      <Route path='/delete' element={<ProtectedRoute Component={DeleteFloor}/>}/>
     </Routes>
     </BrowserRouter>
     </>

@@ -1,0 +1,25 @@
+.delete_floor_container{
+    margin-left: 15rem;
+}
+
+.dlt_part_data{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 90%;
+}
+
+.delete_drop_head{
+    display: flex;
+    margin-top: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.delete_head{
+    margin-top: 2rem;
+    margin-right: 10rem;
+    padding-left: 5rem;
+    border: 2px solid var(--color-grey);
+    padding-bottom: 2rem;
+}
+
