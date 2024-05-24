@@ -52,6 +52,7 @@ function Register() {
     } else {
       setPasswordError("");
     }
+    
   };
 
   const handleSubmit = async (e) => {
@@ -292,20 +293,6 @@ function Register() {
         )}
       </div>
 
-      {/* <Modal
-        isOpen={isModalOpen}
-        onRequestClose={() => setIsModalOpen(false)}
-        contentLabel="Forgot Password Modal"
-        className="modal_"
-        overlayClassName="overlay_"
-      >
-        <h2>Forgot Password</h2>
-        <form onSubmit={changePassword}>
-          <input placeholder='Employee Id' name='employee_id' className='modal_input' required />
-          <input placeholder='New Password' name='password' type='password' className='modal_input' required />
-          <button type="submit" className='modal_btn'>Change Password</button>
-        </form>
-      </Modal> */}
       <div>
         {isModalOpen && (
           <div className="notify_modal">
@@ -323,7 +310,7 @@ function Register() {
                     placeholder="Employee Id"
                     ref={empId}
                     name="employee_id"
-                    className="register_input_"
+                    className="register_input_forgot"
                     required
                   />
                   <input
@@ -331,10 +318,11 @@ function Register() {
                     ref={empPass}
                     name="password"
                     type="password"
-                    className="register_input_"
+                    className="register_input_forgot"
                     required
+                    onChange={handleChange}
                   />
-                  <button type="submit" className="">
+                  <button type="submit" className="change_pass_btn">
                     Change Password
                   </button>
                 </form>

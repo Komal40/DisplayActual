@@ -7,8 +7,6 @@ import DatePicker from "react-datepicker";
 import DashBoardAbove from "../DashboardR/DashBoardAbove";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import ChartComponent from "./ChartComponent";
-import ChartComponent2 from "./ChartComponent2";
 import ExportCharts from "./ExportCharts";
 
 
@@ -292,10 +290,7 @@ export default function Chart() {
     // Handle shift selection
     setSelectedShift(e.target.value);
   };
-  function exportChartsToExcel(){
-    // console.log("click chart")
-    
-  }
+  
 
   return (
     <>
@@ -419,7 +414,7 @@ export default function Chart() {
       {/* <ChartComponent availableDates={availableDates} readingData={reading} selectedStationId={selectedStationId}/> */}
       {selectedStationId && selectedShift && (
         <>
-          <ChartComponent
+          {/* <ChartComponent
             availableDates={availableDates}
             readingData={reading}
             selectedStationId={selectedStationId}
@@ -432,14 +427,14 @@ export default function Chart() {
             selectedStationId={selectedStationId}
             selectedShift={selectedShift}
             constVal={constVal}
-          />
-          {/* <ExportCharts 
+          /> */}
+          <ExportCharts 
           availableDates={availableDates}
             readingData={reading}
             selectedStationId={selectedStationId}
             selectedShift={selectedShift}
-            constVal={constVal}/> */}
-              <button onClick={exportChartsToExcel}>Export Charts</button>
+            constVal={constVal}/>
+              {/* <button onClick={exportChartsToExcel}>Export Charts</button> */}
 
         </>
       )}

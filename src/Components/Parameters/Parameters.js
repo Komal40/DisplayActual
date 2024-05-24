@@ -16,6 +16,7 @@ function Parameters() {
   const [selectedPartNo, setSelectedPartNo] = useState("");
   const [selectedProcessNo, setSelectedProcessNo] = useState("");
   const [paramName, setParamName] = useState("");
+  const [fpa, setFpa]=useState("")
   const [paramId, setParamId] = useState("");
   const [min, setMin] = useState("");
   const [max, setMax] = useState("");
@@ -130,7 +131,7 @@ function Parameters() {
   };
 
   const addParameters = async (e) => {
-    if (!paramName || !paramId || !selectedPartNo || !selectedProcessNo) {
+    if (!paramName || !paramId || !selectedPartNo || !selectedProcessNo || !fpa) {
       setErrorMessage("Please fill all the fields.");
       setShowErrPopup(true); // Show the pop-up if validation fails
       return;
@@ -144,6 +145,7 @@ function Parameters() {
 
     try {
       const params = new URLSearchParams();
+      params.append("fpa_status",fpa)
       params.append("parameter_name", paramName);
       params.append("parameter_no", selectedProcessNo + " " + paramId);
       params.append("process_no", selectedProcessNo);
@@ -220,6 +222,15 @@ function Parameters() {
     setSelectedProcessNo(val);
   };
 
+  const handleFpaChange = (e) => {
+    const value = e.target.value;
+
+    // Only allow 0 or 1 to be entered
+    if (value === '0' || value === '1' || value === '') {
+      setFpa(value);
+    }
+  };
+  
   return (
     <div>
       <ToastContainer/>
@@ -273,6 +284,14 @@ function Parameters() {
         </div>
 
         <div className="parts_details">
+        <p className="param_title">
+            Enter FPA Status:
+            <input
+              placeholder="FPA Status"
+              value={fpa}
+              onChange={handleFpaChange}
+            />
+          </p>
           <p className="param_title">
             Enter Parameter Name:
             <input
@@ -280,7 +299,6 @@ function Parameters() {
               value={paramName}
               onChange={(e) => {
                 e.preventDefault();
-
                 setParamName(e.target.value);
               }}
             />

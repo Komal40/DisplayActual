@@ -58,3 +58,10 @@
 .chart_drop_station{
     display: flex;
 }
+
+.chart-container {
+    margin-top:3rem;
+    margin-left: 15rem;
+    /* width: 50rem; */
+    height: max-content;
+  }

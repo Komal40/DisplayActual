@@ -104,10 +104,31 @@
     flex-direction: column;
   }
 
-  .register_input_{
-    display: flex;
+
+  .register_change_password input{
+    width: 20rem;
+    height: 2rem;
+    padding-left: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    outline: none;
   }
 
+  .register_input_forgot{
+    display: flex;
+    margin-top: 2rem;
+  }
+
+  .change_pass_btn{
+    height: 2rem;
+    width: 10rem;
+    background-color: var(--color-orange);
+    color: white;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    margin-top: 2rem;
+  }
 
 /* Media Query for responsiveness */
 @media screen and (max-width: 768px) {
@@ -119,3 +140,4 @@
       width: 100%;
     }
   }
+

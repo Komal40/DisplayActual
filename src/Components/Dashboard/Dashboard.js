@@ -288,7 +288,6 @@ export default function Dashboard() {
   //     // try {
   //       // const params = new URLSearchParams();
   //       // params.append("floor_no", floor_no);
-
   //       // const response = await fetch(fullLink, {
   //       //   method: "POST",
   //       //   body: params,

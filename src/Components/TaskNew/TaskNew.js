@@ -226,6 +226,7 @@ function TaskNew() {
   };
 
   const [selectedSkill, setSelectedSkill] = useState({});
+  const [selectPrecedency, setSelectPrecedency]=useState({});
   const handleProcessChange = (e, stationId) => {
     const selectedProcessNo = e.target.value;
     const selectedProcess = processes[stationId].find(
@@ -241,7 +242,12 @@ function TaskNew() {
         ...prevSkill,
         [stationId]: selectedProcess.skill_level,
       }));
+      setSelectPrecedency((prevPrec) => ({
+        ...prevPrec,
+        [stationId]: selectedProcess.process_precedency,
+      }));
     }
+    
 
     console.log("selectedProcesses", selectedProcesses);
   };
@@ -447,6 +453,12 @@ function TaskNew() {
     }
 
     selectedLineStations.forEach((station) => {
+      
+      if (runningTaskInitially.includes(station)) {
+        console.log(`Skipping station ${station} as it already has a running task`);
+        return;
+      }
+
       // if (previousData.hasOwnProperty(station)) {
       // Extract required data from previousData for the current station
       const [
@@ -479,12 +491,12 @@ function TaskNew() {
           part_no: selectedParts[station] || part || "", // Use user entered value if available, otherwise use value from previousData
           process_no: selectedProcesses[station] || process || "",
           shift: shift,
-          station_precedency: userEnteredPrecValue[station] || 0,
+          station_precedency:selectPrecedency[station] || 0,
           start_shift_time: startShiftTime,
           end_shift_time: endShiftTime,
           temp_task_id:taskId,
           assigned_by_owner: login.employee_id,
-          total_assigned_task: userEnteredValue[station] || 0,
+          total_assigned_task: Number(userEnteredValue[station]) || 0,
         };
 
         // Push the new task object to the tasksArray
@@ -496,7 +508,7 @@ function TaskNew() {
     console.log("object tasksArray", tasksArray);
 
     try {
-      // Send a POST request to the server with the tasks data
+      // Send a POST request to the server with the tasks data`
       const response = await fetch(fullLink, {
         method: "POST",
         body: JSON.stringify(tasksArray),
@@ -505,55 +517,65 @@ function TaskNew() {
           Authorization: `Bearer ${token}`,
         },
       });
-      if (response.ok) {
-        const data = await response.json();
-
-        if (Object.keys(data["assigned task to"]).length > 0) {
-          // Tasks were assigned successfully to specific stations
-          const assignedStations = Object.keys(data["assigned task to"]).join(
-            ", "
-          );
-          toast.success(
-            `Task assigned successfully to stations: ${assignedStations}`
-          );
-
-          // Reset input fields for part and process after successful task assignment
-          setSelectedParts({}); // Reset selectedParts state
-          setSelectedProcesses({}); // Reset selectedProcesses state
-          setSelectedEmployees({}); // Reset selectedEmployees state
+      if (response){
+        if(response.ok){
+          {
+            const data = await response.json();
+    
+            if (Object.keys(data["assigned task to"]).length > 0) {
+              // Tasks were assigned successfully to specific stations
+              const assignedStations = Object.keys(data["assigned task to"]).join(
+                ", "
+              );
+              toast.success(
+                `Task assigned successfully to stations: ${assignedStations}`
+              );
+    
+              
+            }
+    
+            if (Object.keys(data["operator_assigned_to_stations"]).length > 0) {
+              // Operator(s) is already assigned to stations
+              const operatorKeys = Object.keys(
+                data["operator_assigned_to_stations"]
+              );
+              operatorKeys.forEach((operator) => {
+                const stations =
+                  data["operator_assigned_to_stations"][operator].join(", ");
+                toast.info(
+                  `Operator ${operator} already assigned on station ${stations}`,
+                  { autoClose: 10000 }
+                );
+              });
+            }
+    
+            if (
+              Object.keys(data["assigned task to"]).length === 0 &&
+              Object.keys(data["operator_assigned_to_stations"]).length === 0
+            ) {
+              // No tasks were assigned and no operator assigned to stations
+              toast.info("Please free all the tasks First", { autoClose: 10000 });
+            }
+    
+            // if (Object.keys(data["last_shift_on_these_stations"]).length > 0) {
+            //   toast.info("Please select Another Shift", { autoClose: 10000 });
+            // }
+          
+            freeStation();
+          }
         }
-
-        if (Object.keys(data["operator_assigned_to_stations"]).length > 0) {
-          // Operator(s) is already assigned to stations
-          const operatorKeys = Object.keys(
-            data["operator_assigned_to_stations"]
-          );
-          operatorKeys.forEach((operator) => {
-            const stations =
-              data["operator_assigned_to_stations"][operator].join(", ");
-            toast.info(
-              `Operator ${operator} already assigned on station ${stations}`,
-              { autoClose: 10000 }
-            );
-          });
-        }
-
-        if (
-          Object.keys(data["assigned task to"]).length === 0 &&
-          Object.keys(data["operator_assigned_to_stations"]).length === 0
-        ) {
-          // No tasks were assigned and no operator assigned to stations
-          toast.info("Please free all the tasks First", { autoClose: 10000 });
-        }
-
+        else{
+          const data = await response.json();
         if (Object.keys(data["last_shift_on_these_stations"]).length > 0) {
           toast.info("Please select Another Shift", { autoClose: 10000 });
         }
-      } else {
+        else{
         const errorData = await response.json();
       const errorMessage = errorData.Message || "Failed to assign tasks";
       toast.error(errorMessage);
-      }
+        }
+        }
+      } 
     } catch (error) {
       toast.error("Error:", error);
     }
@@ -570,55 +592,55 @@ function TaskNew() {
     }));
   };
 
-  const [userEnteredPrecValue, setUserEnteredPrecValue] = useState({});
-  // Modify handleInputChange to update the entered value for the corresponding station
-  const handlePrecedenceVal = (e, stationId) => {
-    const { value } = e.target;
-    // Update the state with the entered value for the station
-    setUserEnteredPrecValue((prevState) => ({
-      ...prevState,
-      [stationId]: value,
-    }));
-  };
+  // const [userEnteredPrecValue, setUserEnteredPrecValue] = useState({});
+  // // Modify handleInputChange to update the entered value for the corresponding station
+  // const handlePrecedenceVal = (e, stationId) => {
+  //   const { value } = e.target;
+  //   // Update the state with the entered value for the station
+  //   setUserEnteredPrecValue((prevState) => ({
+  //     ...prevState,
+  //     [stationId]: value,
+  //   }));
+  // };
 
   const [runningTaskInitially, setRunningTaskInitially] = useState([]);
   useEffect(() => {
-    const freeStation = async () => {
-      const link = process.env.REACT_APP_BASE_URL;
-      const endPoint = "/floorincharge/free_station";
-      const fullLink = link + endPoint;
-
-      try {
-        const allStationsData = Object.values(stationData.stations); // Extract all stations from stationData
-
-        // Flatten the array of arrays to get a single array of all station IDs
-        const stationIds = allStationsData.flat();
-
-        const response = await fetch(fullLink, {
-          method: "POST",
-          body: JSON.stringify({ stations_ids: stationIds }), // Send all station IDs in a single request
-          headers: {
-            "Content-type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (response.ok) {
-          // Handle success response here
-          const data = await response.json();
-          console.log("All stations freed successfully");
-          setRunningTaskInitially(data.task_running_on_stations);
-        } else {
-          // Handle error response here
-          console.error("Failed to free all stations");
-        }
-      } catch (error) {
-        console.error("Error:", error);
-      }
-    };
-
     freeStation();
   }, [stationData]);
+
+  const freeStation = async () => {
+    const link = process.env.REACT_APP_BASE_URL;
+    const endPoint = "/floorincharge/free_station";
+    const fullLink = link + endPoint;
+
+    try {
+      const allStationsData = Object.values(stationData.stations); // Extract all stations from stationData
+
+      // Flatten the array of arrays to get a single array of all station IDs
+      const stationIds = allStationsData.flat();
+
+      const response = await fetch(fullLink, {
+        method: "POST",
+        body: JSON.stringify({ stations_ids: stationIds }), // Send all station IDs in a single request
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        // Handle success response here
+        const data = await response.json();
+        console.log("All stations freed successfully");
+        setRunningTaskInitially(data.task_running_on_stations);
+      } else {
+        // Handle error response here
+        console.error("Failed to free all stations");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
 
   const [employeeDetails, setEmployeeDetails] = useState(null);
 
@@ -863,7 +885,7 @@ function TaskNew() {
                               <div>
                                 {(isRunning || runningOnLogs) && (
                                   <u className="task-running">
-                                    Task is already running..
+                                    Task is running..
                                   </u>
                                 )}
                               </div>
@@ -927,12 +949,13 @@ function TaskNew() {
                             <div className="task_stations_right">
                               <input
                                 className="task_station_input"
-                                value={userEnteredPrecValue[station]}
-                                onChange={(e) =>
-                                  handlePrecedenceVal(e, station)
-                                }
+                                value={selectPrecedency[station]}
+                                // onChange={(e) =>
+                                //   handlePrecedenceVal(e, station)
+                                // }
                                 disabled={isRunning || runningOnLogs}
                               />
+                              
                               <input
                                 className="task_station_input"
                                 value={
