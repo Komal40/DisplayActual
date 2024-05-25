@@ -131,12 +131,18 @@ function Parameters() {
   };
 
   const addParameters = async (e) => {
-    if (!paramName || !paramId || !selectedPartNo || !selectedProcessNo || !fpa) {
+    if (!paramName || !paramId || !selectedPartNo || !selectedProcessNo) {
       setErrorMessage("Please fill all the fields.");
       setShowErrPopup(true); // Show the pop-up if validation fails
       return;
     }
 
+    // if(fpa=""){
+    //   setErrorMessage("Please fill all the fields.");
+    //   setShowErrPopup(true); // Show the pop-up if validation fails
+    //   return;
+    // }
+    
     // e.preventDefault();
     const link = process.env.REACT_APP_BASE_URL;
     console.log("Base URL:", link);
@@ -145,7 +151,7 @@ function Parameters() {
 
     try {
       const params = new URLSearchParams();
-      params.append("fpa_status",fpa)
+      params.append("FPA_status",fpa)
       params.append("parameter_name", paramName);
       params.append("parameter_no", selectedProcessNo + " " + paramId);
       params.append("process_no", selectedProcessNo);
@@ -322,7 +328,6 @@ function Parameters() {
               value={min}
               onChange={(e) => {
                 e.preventDefault();
-
                 setMin(e.target.value);
               }}
             />

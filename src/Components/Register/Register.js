@@ -258,8 +258,7 @@ function Register() {
             {/* <div className='register_note'>
             <p>NOTE:</p>
             <ol>
-              <li></li>
-            
+              <li></li>            
             </ol>
           </div> */}
 
@@ -280,7 +279,7 @@ function Register() {
                 style={{ color: "red", cursor: "pointer" }}
                 onClick={showModalForPass}
               >
-                Forgot Password?
+                Change Password
               </p>
             </div>
           </div>
@@ -303,7 +302,7 @@ function Register() {
               >
                 &times;
               </span>
-              <h2>Forgot Password</h2>
+              <h2>Change Password</h2>
               <div className="register_change_password">
                 <form onSubmit={changePassword}>
                   <input

@@ -135,6 +135,13 @@
     cursor: pointer;
 }
 
+.task_assign_btn:active{
+    background-color: rgb(227, 148, 3);
+}
+
+.task_qty_btn:active{
+    background-color: rgb(227, 148, 3);
+}
 
 .task_stations{
 background-color: var(--color-grey);

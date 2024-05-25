@@ -3,6 +3,8 @@ import "./DeleteFloor.css";
 import DashBoardAbove from "../DashboardR/DashBoardAbove";
 import { useNavigate } from "react-router-dom";
 import useTokenExpirationCheck from "../useTokenExpirationCheck";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function DeleteFloor() {
   const navigate = useNavigate();
@@ -175,8 +177,117 @@ export default function DeleteFloor() {
     }
   };
 
+
+  const handleDeletePartNo = async (part) => {
+    
+    const link = process.env.REACT_APP_BASE_URL;
+    const endPoint = "/floorincharge/delete_part";
+    const fullLink = link + endPoint;
+
+    try {
+      const params = new URLSearchParams();
+      params.append("part_no", part);
+
+      const response = await fetch(fullLink, {
+        method: "POST",
+        body: params,
+        headers: {
+          "Content-type": "application/x-www-form-urlencoded",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response) {
+        const data=await response.json()
+        if(response.ok){
+            toast.success(`Part ${part} Deleted Successfully`)
+            setSelectedPartNo("")
+        }
+       else {
+        toast.error(data.Message);
+      }
+    }
+ } catch (error) {
+      console.error("Error :", error);
+    }
+  };
+
+  const handleDeleteProcessNo = async (process) => {   
+    
+    if(!process){
+        toast.error("No Process Found");
+        return;
+    }
+    
+    const link = process.env.REACT_APP_BASE_URL;
+    const endPoint = "/floorincharge/delete_processes";
+    const fullLink = link + endPoint;
+
+    try {
+      const params = new URLSearchParams();
+      params.append("process_no", process);
+
+      const response = await fetch(fullLink, {
+        method: "POST",
+        body: params,
+        headers: {
+          "Content-type": "application/x-www-form-urlencoded",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response) {
+        const data=await response.json()
+        if(response.ok){
+            toast.success(`Process ${process} Deleted Successfully`)
+            setSelectedProcessNo("")            
+        }
+       else {
+        toast.error(data.Message);
+      }
+    }
+ } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  const handleDeleteParameterNo = async (para) => {
+    
+    const link = process.env.REACT_APP_BASE_URL;
+    const endPoint = "/floorincharge/delete_parameter";
+    const fullLink = link + endPoint;
+
+    try {
+      const params = new URLSearchParams();
+      params.append("parameter_no", para);
+
+      const response = await fetch(fullLink, {
+        method: "POST",
+        body: params,
+        headers: {
+          "Content-type": "application/x-www-form-urlencoded",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response) {
+        const data=await response.json()
+        if(response.ok){
+            toast.success(`Parameter ${para} Deleted Successfully`)
+            setParamNo("")
+        }
+       else {
+        toast.error(data.Message);
+      }
+    }
+ } catch (error) {
+      console.error("Error :", error);
+    }
+  };
+
   return (
     <>
+    <ToastContainer/>
       <div>
         <DashBoardAbove />
       </div>
@@ -204,7 +315,7 @@ export default function DeleteFloor() {
             <div>Delete Part:</div>
             <div>{selectedPartNo}</div>
             <div>
-              <button className="task_assign_btn">Delete</button>
+              <button className="task_assign_btn" onClick={(e)=>handleDeletePartNo(selectedPartNo)}>Delete</button>
             </div>
             </div>
             </div>
@@ -230,7 +341,7 @@ export default function DeleteFloor() {
             <div>Delete Process:</div>
             <div>{selectedProcessNo}</div>
             <div>
-              <button className="task_assign_btn">Delete</button>
+              <button className="task_assign_btn" onClick={(e)=>handleDeleteProcessNo(selectedProcessNo)}>Delete</button>
             </div>
             </div>
             
@@ -255,7 +366,7 @@ export default function DeleteFloor() {
             <div>Delete Parameter No:</div>
             <div>{paramNo}</div>
             <div>
-              <button className="task_assign_btn">Delete</button>
+              <button className="task_assign_btn" onClick={(e)=>handleDeleteParameterNo(paramNo)}>Delete</button>
             </div>
             </div>
           </div>

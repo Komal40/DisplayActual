@@ -60,6 +60,12 @@
     margin-right: 2%;
 }
 
+.register_btn:active{
+    background-color: white;
+    color: #2B3499;
+    border: 2px solid #2B3499;
+}
+
 /* Success message pop-up styles */
 .success_popup {
     position: fixed;

@@ -41,7 +41,6 @@
     margin-top: 2%;
 }
 
-
 .parts_add button{
     border:none;
     background-color: var(--color-orange);
@@ -54,6 +53,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 8rem;
+    height: 2.3rem;
+}
+
+.parts_add button:active{
+  background-color: var(--color-skin);
+  color: var(--color-orange);
 }
 
 /* .parts_popup{

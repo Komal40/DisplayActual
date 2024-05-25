@@ -5,7 +5,6 @@ import useTokenExpirationCheck from "../useTokenExpirationCheck";
 import Line from "../Line/Line";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -247,7 +246,6 @@ function TaskNew() {
         [stationId]: selectedProcess.process_precedency,
       }));
     }
-    
 
     console.log("selectedProcesses", selectedProcesses);
   };
@@ -281,7 +279,6 @@ function TaskNew() {
         const processesData = data.data;
         setProcesses({ ...processes, [stationId]: processesData });
         // setProcessName(processesData);
-
         console.log("object processName", processesData);
       } else {
         console.error("Failed to fetch parts", response.error);

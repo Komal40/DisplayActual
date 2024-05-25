@@ -5,13 +5,12 @@ import { useNavigate } from "react-router-dom";
 import useTokenExpirationCheck from "../useTokenExpirationCheck";
 import Line from "../Line/Line";
 // Importing toastify module
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
- 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 // toast-configuration method,
 // it is compulsory method.
 // toast.configure();
-
 
 function Task() {
   const navigate = useNavigate();
@@ -195,10 +194,10 @@ function Task() {
     const tasksArray = []; // Initialize an empty array to store task objects
 
     // Check if shift timings are selected
-  if (!startShiftTime || !endShiftTime) {
-    toast.warning("Please select shift timings", { autoClose: 5000 });
-    return; // Exit the function early
-  }
+    if (!startShiftTime || !endShiftTime) {
+      toast.warning("Please select shift timings", { autoClose: 5000 });
+      return; // Exit the function early
+    }
 
     // Loop through each station and its tasks
     Object.keys(stationData).forEach((stationId) => {
@@ -211,8 +210,13 @@ function Task() {
 
       // Check if part number and process number are selected for the station
       if (
-        (indSelPart[stationId] && selectedProcesses[stationId] && selectedEmployees[stationId]) ||
-        (tasks.length > 0 && tasks[0].part_no && tasks[0].process_no && tasks[0].employee_id)
+        (indSelPart[stationId] &&
+          selectedProcesses[stationId] &&
+          selectedEmployees[stationId]) ||
+        (tasks.length > 0 &&
+          tasks[0].part_no &&
+          tasks[0].process_no &&
+          tasks[0].employee_id)
       ) {
         // Create a new task object for the station
         const newTask = {
@@ -230,21 +234,22 @@ function Task() {
           end_shift_time: endShiftTime,
           assigned_by_owner: login.employee_id,
           total_assigned_task:
-          // Check if the user has entered a value for the station, if not, use the value from the API or default to an empty string
-          userEnteredValue[stationId] !== undefined
-            ? userEnteredValue[stationId]
-            : stationQuantities[stationId] !== undefined
-            ? stationQuantities[stationId]
-            : tasks.length > 0
-            ? tasks[0].total_assigned_task
-            : "",
-      };
+            // Check if the user has entered a value for the station, if not, use the value from the API or default to an empty string
+            userEnteredValue[stationId] !== undefined
+              ? userEnteredValue[stationId]
+              : stationQuantities[stationId] !== undefined
+              ? stationQuantities[stationId]
+              : tasks.length > 0
+              ? tasks[0].total_assigned_task
+              : "",
+        };
         tasksArray.push(newTask);
         console.log("Task for station", stationId, ":", newTask);
-      }
-      else{
-        toast.warning("Please select part, process, and employee for all stations", { autoClose: 5000 });
-      
+      } else {
+        toast.warning(
+          "Please select part, process, and employee for all stations",
+          { autoClose: 5000 }
+        );
       }
     });
 
@@ -264,48 +269,46 @@ function Task() {
       });
 
       if (response.ok) {
-      const data = await response.json();
-      
-      if (data.Message.trim() == 'Please reset the all task first') {
-        // Show toast message if the API response contains the specified message
-        toast.info("Please free all the tasks First", { autoClose: 10000 });      
+        const data = await response.json();
+
+        if (data.Message.trim() == "Please reset the all task first") {
+          // Show toast message if the API response contains the specified message
+          toast.info("Please free all the tasks First", { autoClose: 10000 });
+        } else {
+          console.log("Task Assigned Successfully", data);
+          // Reset input fields for part and process after successful task assignment
+          setSelectedPart(""); // Reset selectedPart state
+          setSelectedProcesses({}); // Reset selectedProcesses state
+          setIndSelPart({}); // Reset indSelPart state
+          setIndSelProcess({}); // Reset indSelProcess state
+          toast.success("Task Assigned Successfully");
+        }
       } else {
-        console.log("Task Assigned Successfully", data);
-        // Reset input fields for part and process after successful task assignment
-        setSelectedPart(""); // Reset selectedPart state
-        setSelectedProcesses({}); // Reset selectedProcesses state
-        setIndSelPart({}); // Reset indSelPart state
-        setIndSelProcess({}); // Reset indSelProcess state
-        toast.success("Task Assigned Successfully")
+        console.error("Failed to assign tasks", response.error);
       }
-    } 
-    else {
-      console.error("Failed to assign tasks", response.error);
-    }
-  }catch (error) {
+    } catch (error) {
       console.error("Error:", error);
     }
   };
 
-
   useEffect(() => {
     console.log("indSelPart updated:", indSelPart);
   }, [indSelPart]);
-
 
   const freeStation = async (lineNo) => {
     const link = process.env.REACT_APP_BASE_URL;
     console.log("Base URL:", link);
     const endPoint = "/floorincharge/free_station";
     const fullLink = link + endPoint;
-  
+
     // Filter stationData to include only stations belonging to the specified line
-    const lineStationsData = Object.keys(stationData)
-      .filter((stationId) => stationId.startsWith(lineNo));
-  
+    const lineStationsData = Object.keys(stationData).filter((stationId) =>
+      stationId.startsWith(lineNo)
+    );
+
     // Extract only the station IDs
     const stationIds = lineStationsData.map((stationId) => stationId);
-  
+
     try {
       const response = await fetch(fullLink, {
         method: "POST",
@@ -315,11 +318,11 @@ function Task() {
           Authorization: `Bearer ${token}`,
         },
       });
-  
+
       if (response.ok) {
         // Handle success response here
         console.log("Stations on line", lineNo, "freed successfully");
-        toast("Stations on line", lineNo, "freed successfully")
+        toast("Stations on line", lineNo, "freed successfully");
       } else {
         // Handle error response here
         console.error("Failed to free stations on line", lineNo);
@@ -328,42 +331,39 @@ function Task() {
       console.error("Error:", error);
     }
   };
-  
-  
-//  const freeStation = async (lineNo) => {
-//   const link = process.env.REACT_APP_BASE_URL;
-//   console.log("Base URL:", link);
-//   const endPoint = "/floorincharge/free_station";
-//   const fullLink = link + endPoint;
 
-//   // Filter stationData to include only stations belonging to the specified line
-//   const lineStationsData = Object.keys(stationData)
-//     .filter((stationId) => stationId.startsWith(lineNo))
-//     .map((stationId) => stationId); // Directly return the stationId
+  //  const freeStation = async (lineNo) => {
+  //   const link = process.env.REACT_APP_BASE_URL;
+  //   console.log("Base URL:", link);
+  //   const endPoint = "/floorincharge/free_station";
+  //   const fullLink = link + endPoint;
 
+  //   // Filter stationData to include only stations belonging to the specified line
+  //   const lineStationsData = Object.keys(stationData)
+  //     .filter((stationId) => stationId.startsWith(lineNo))
+  //     .map((stationId) => stationId); // Directly return the stationId
 
-//   try {
-//     const response = await fetch(fullLink, {
-//       method: "POST",
-//       body: JSON.stringify(lineStationsData),
-//       headers: {
-//         "Content-type": "application/json",
-//         Authorization: `Bearer ${token}`,
-//       },
-//     });
-//     if (response.ok) {
-//       // Handle success response here
-//       console.log("Stations on line", lineNo, "freed successfully");
-//     } else {
-//       // Handle error response here
-//       console.error("Failed to free stations on line", lineNo);
-//     }
-//   } catch (error) {
-//     console.error("Error:", error);
-//   }
-// };
+  //   try {
+  //     const response = await fetch(fullLink, {
+  //       method: "POST",
+  //       body: JSON.stringify(lineStationsData),
+  //       headers: {
+  //         "Content-type": "application/json",
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
+  //     if (response.ok) {
+  //       // Handle success response here
+  //       console.log("Stations on line", lineNo, "freed successfully");
+  //     } else {
+  //       // Handle error response here
+  //       console.error("Failed to free stations on line", lineNo);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error:", error);
+  //   }
+  // };
 
-  
   function generateTimeOptions() {
     const options = [];
     for (let hour = 0; hour < 24; hour++) {
@@ -422,15 +422,17 @@ function Task() {
     }));
   };
 
-
   if (loading) {
-    return <div className="task_loading"><h3>Loading...</h3></div>;
+    return (
+      <div className="task_loading">
+        <h3>Loading...</h3>
+      </div>
+    );
   }
-
 
   return (
     <>
-    <ToastContainer />
+      <ToastContainer />
       <div>
         <DashBoardAbove />
       </div>
@@ -439,12 +441,18 @@ function Task() {
         <div className="task__head">
           <div className="task_left_head">
             <p className="task_left_view">View Running Task</p>
-            <button className="task_left_btn" onClick={assignTask}> View</button>
+            <button className="task_left_btn" onClick={assignTask}>
+              {" "}
+              View
+            </button>
           </div>
 
           <div className="task_right_head">
             <p className="task_right_view">Add Previous Task to Logs</p>
-            <button className="task_right_btn" onClick={()=>freeStation(lineNo)}>
+            <button
+              className="task_right_btn"
+              onClick={() => freeStation(lineNo)}
+            >
               Add
             </button>
           </div>
@@ -489,7 +497,9 @@ function Task() {
             />
             <p>Or</p> */}
             <button className="task_qty_btn">Fetch From Quantity</button>
-            <div ><button className="task_assign_btn">Assign Task</button></div>
+            <div>
+              <button className="task_assign_btn">Assign Task</button>
+            </div>
           </div>
 
           <div className="task_dropdown">
@@ -549,20 +559,20 @@ function Task() {
                 </div>
 
                 <div className="task_stations_right">
-                <input
-  className="task_station_input"
-  value={
-    // If the user has entered a value for the station, show it; otherwise, show the value from the API or default to 0
-    userEnteredValue[stationId] !== undefined
-      ? userEnteredValue[stationId]
-      : stationQuantities[stationId] !== undefined
-      ? stationQuantities[stationId]
-      : tasks.length > 0
-      ? tasks[0].total_assigned_task
-      : ""
-  }
-  onChange={(e) => handleInputChange(e, stationId)}
-/>
+                  <input
+                    className="task_station_input"
+                    value={
+                      // If the user has entered a value for the station, show it; otherwise, show the value from the API or default to 0
+                      userEnteredValue[stationId] !== undefined
+                        ? userEnteredValue[stationId]
+                        : stationQuantities[stationId] !== undefined
+                        ? stationQuantities[stationId]
+                        : tasks.length > 0
+                        ? tasks[0].total_assigned_task
+                        : ""
+                    }
+                    onChange={(e) => handleInputChange(e, stationId)}
+                  />
                   <div className="task_dropdown">
                     <select
                       onChange={(e) =>
@@ -608,9 +618,6 @@ function Task() {
               </div>
             ))}
         </div>
-
-
-       
       </div>
     </>
   );
