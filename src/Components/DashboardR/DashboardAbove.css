@@ -81,7 +81,7 @@
   align-items: center;
 }
 
-
+z
 .notification-item p span {
   flex-grow: 1; /* Allow the notification text to grow and fill available space */
   margin-right: 10px; /* Add spacing between the notification text and delete button */

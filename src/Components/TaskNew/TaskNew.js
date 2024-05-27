@@ -21,6 +21,9 @@ function TaskNew() {
   const [processName, setProcessName] = useState([]);
   const [previousData, setPreviousData] = useState({});
 
+  const [taskId, setTaskId] = useState("");
+  const [error, setError] = useState("");
+
   // Define state variables to store previous log data and running tasks
   const [runningTasks, setRunningTasks] = useState([]);
 
@@ -42,13 +45,22 @@ function TaskNew() {
   // Generate options for start and end times
   const currentHour = new Date().getHours();
   const currentMinute = new Date().getMinutes();
-
-  useEffect(() => {
+  
+  const updateOptions = () => {
+    const currentHour = new Date().getHours();
+    const currentMinute = new Date().getMinutes();
     const startOptions = generateTimeOptions(currentHour, currentMinute, 24);
     const endOptions = generateTimeOptions(currentHour, currentMinute, 48); // End time options for next 24 hours
-
     setStartTimeOptions(startOptions);
     setEndTimeOptions(endOptions);
+  };
+
+  useEffect(() => {
+    updateOptions();
+    const interval = setInterval(updateOptions, 60000); // Update every 60 seconds
+
+    // Clear interval on component unmount
+    return () => clearInterval(interval);
   }, []);
 
   function generateTimeOptions(currentHour, currentMinute, hours) {
@@ -72,8 +84,8 @@ function TaskNew() {
       options.push(<option key={timeString}>{timeString}</option>);
 
       // Increment minute by 30 (to represent each half-hour interval)
-      // minute += 30;
-      minute += 15;
+      minute += 30;
+      // minute += 15;
 
       // If minute exceeds 59, increment hour and reset minute to 0
       if (minute >= 60) {
@@ -81,9 +93,9 @@ function TaskNew() {
         minute %= 60;
       }
     }
-
     return options;
   }
+
 
   // function generateTimeOptions(currentHour, currentMinute, hours) {
   //   const options = [];
@@ -225,7 +237,7 @@ function TaskNew() {
   };
 
   const [selectedSkill, setSelectedSkill] = useState({});
-  const [selectPrecedency, setSelectPrecedency]=useState({});
+  const [selectPrecedency, setSelectPrecedency] = useState({});
   const handleProcessChange = (e, stationId) => {
     const selectedProcessNo = e.target.value;
     const selectedProcess = processes[stationId].find(
@@ -390,9 +402,6 @@ function TaskNew() {
     }
   };
 
-  const [taskId, setTaskId] = useState("");
-  const [error, setError] = useState("");
-
   const handleChange = (event) => {
     const { value } = event.target;
     setTaskId(value);
@@ -417,7 +426,7 @@ function TaskNew() {
       return;
     }
 
-    if(taskId===""){
+    if (taskId === "") {
       toast.warning("Please Enter Task Id", { autoClose: 5000 });
       return;
     }
@@ -450,9 +459,10 @@ function TaskNew() {
     }
 
     selectedLineStations.forEach((station) => {
-      
       if (runningTaskInitially.includes(station)) {
-        console.log(`Skipping station ${station} as it already has a running task`);
+        console.log(
+          `Skipping station ${station} as it already has a running task`
+        );
         return;
       }
 
@@ -488,10 +498,10 @@ function TaskNew() {
           part_no: selectedParts[station] || part || "", // Use user entered value if available, otherwise use value from previousData
           process_no: selectedProcesses[station] || process || "",
           shift: shift,
-          station_precedency:selectPrecedency[station] || 0,
+          station_precedency: selectPrecedency[station] || 0,
           start_shift_time: startShiftTime,
           end_shift_time: endShiftTime,
-          temp_task_id:taskId,
+          temp_task_id: taskId,
           assigned_by_owner: login.employee_id,
           total_assigned_task: Number(userEnteredValue[station]) || 0,
         };
@@ -514,23 +524,21 @@ function TaskNew() {
           Authorization: `Bearer ${token}`,
         },
       });
-      if (response){
-        if(response.ok){
+      if (response) {
+        if (response.ok) {
           {
             const data = await response.json();
-    
+
             if (Object.keys(data["assigned task to"]).length > 0) {
               // Tasks were assigned successfully to specific stations
-              const assignedStations = Object.keys(data["assigned task to"]).join(
-                ", "
-              );
+              const assignedStations = Object.keys(
+                data["assigned task to"]
+              ).join(", ");
               toast.success(
                 `Task assigned successfully to stations: ${assignedStations}`
               );
-    
-              
             }
-    
+
             if (Object.keys(data["operator_assigned_to_stations"]).length > 0) {
               // Operator(s) is already assigned to stations
               const operatorKeys = Object.keys(
@@ -545,36 +553,74 @@ function TaskNew() {
                 );
               });
             }
-    
+
             if (
               Object.keys(data["assigned task to"]).length === 0 &&
               Object.keys(data["operator_assigned_to_stations"]).length === 0
             ) {
               // No tasks were assigned and no operator assigned to stations
-              toast.info("Please free all the tasks First", { autoClose: 10000 });
+              toast.info("Please free all the tasks First", {
+                autoClose: 10000,
+              });
             }
-    
+
             // if (Object.keys(data["last_shift_on_these_stations"]).length > 0) {
             //   toast.info("Please select Another Shift", { autoClose: 10000 });
             // }
-          
-            freeStation();
+
+            // freeStation();
           }
-        }
-        else{
+        } else {
           const data = await response.json();
-        if (Object.keys(data["last_shift_on_these_stations"]).length > 0) {
-          toast.info("Please select Another Shift", { autoClose: 10000 });
+          const errorMessage = data.Message;
+          toast.error(errorMessage);
+          if (Object.keys(data["last_shift_on_these_stations"]).length > 0) {
+            toast.info(
+              "This Shift is already over. First Delete Task then select Another Shift",
+              { autoClose: 20000 }
+            );
+          }
+          
         }
-        else{
-        const errorData = await response.json();
-      const errorMessage = errorData.Message || "Failed to assign tasks";
-      toast.error(errorMessage);
-        }
-        }
-      } 
+      }
     } catch (error) {
-      toast.error("Error:", error);
+      console.error("Error on assigning Task:", error);
+    }
+  };
+
+  const deleteTask = async (e) => {
+    if (!taskId) {
+      toast.error("First Enter Task ID");
+      return;
+    }
+
+    const link = process.env.REACT_APP_BASE_URL;
+    const endPoint = "/floorincharge/delete_task";
+    const fullLink = link + endPoint;
+
+    try {
+      const params = new URLSearchParams();
+      params.append("task_id", taskId);
+
+      const response = await fetch(fullLink, {
+        method: "POST",
+        body: params,
+        headers: {
+          "Content-type": "application/x-www-form-urlencoded",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response) {
+        const data = await response.json();
+        if (response.ok) {
+          toast.success(`Task Deleted Successfully`);
+        } else {
+          toast.error(data.Message);
+        }
+      }
+    } catch (error) {
+      console.error("Error :", error);
     }
   };
 
@@ -788,6 +834,7 @@ function TaskNew() {
                 <option value="C">C</option>
               </select>
             </div>
+
             <div>
               <input
                 className="task_id"
@@ -802,10 +849,17 @@ function TaskNew() {
             </div>
 
             {/* <button className="task_qty_btn">Fetch From Quantity</button> */}
-            <div>
-              <button className="task_assign_btn" onClick={assignTask}>
-                Assign Task
-              </button>
+            <div className="task_btnss">
+              <div>
+                <button className="task_assign_btn" onClick={deleteTask}>
+                  Delete Task
+                </button>
+              </div>
+              <div>
+                <button className="task_assign_btn" onClick={assignTask}>
+                  Assign Task
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -952,7 +1006,7 @@ function TaskNew() {
                                 // }
                                 disabled={isRunning || runningOnLogs}
                               />
-                              
+
                               <input
                                 className="task_station_input"
                                 value={

@@ -284,3 +284,16 @@
 
 
 
+@media screen and (min-width: 768px) and (max-width: 1024px) {
+    
+.update_dropdown select{
+    width: 2rem;
+    height: 2rem;
+    border-radius: 10px;
+    padding-left: 1rem;
+    font-size:15px;
+    font-weight: 700;
+    border: 2px solid #ECECEC;
+    color:#4f4d4d,
+}
+}

@@ -124,9 +124,9 @@ export default function Navbar() {
                   GENERATE CHART
                 </HashLink>
               </li>
-              <li>
+              {/* <li>
                 <HashLink className="dashboard_items">ACCOUNT</HashLink>
-              </li>
+              </li> */}
               <hr style={{ width: "100%" }} />
               <li onClick={handleLogout}>
                 <HashLink className="dashboard_items">LOG OUT</HashLink>

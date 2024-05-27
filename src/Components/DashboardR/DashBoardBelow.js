@@ -2,9 +2,15 @@ import React from "react";
 // import { useUser } from '../../UserContext'
 
 export default function DashBoardBelow() {
+  
+// Parse the stored station data from localStorage
+const stationData = JSON.parse(localStorage.getItem("stationData"));
 
-  const userDataString = localStorage.getItem("Login");
-  const userData = userDataString ? JSON.parse(userDataString) : null;
+// Calculate total lines
+const totalLines = Object.keys(stationData.stations).length;
+
+// Calculate total stations
+const totalStations = Object.values(stationData.stations).reduce((sum, stations) => sum + stations.length, 0);
 
 
   return (
@@ -14,8 +20,8 @@ export default function DashBoardBelow() {
           <div>
             <div>
               <p className="dashboard_content">
-                Total Lines:{userData?.total_lines}
-                {/* <h4>{lines}</h4> */}
+                Total Lines:&nbsp;
+                <h4>{totalLines}</h4>
               </p>
             </div>
             <div className="dashboard_content_leftline"></div>
@@ -24,22 +30,22 @@ export default function DashBoardBelow() {
           <div>
             <div>
               <p className="dashboard_content">
-                Total Stations:{userData?.total_stations}
-                {/* <h4>{totalStations} </h4> */}
+                Total Stations:&nbsp;
+                <h4>{totalStations} </h4>
               </p>
             </div>
             <div className="dashboard_content_leftline"></div>
           </div>
 
-          <div>
+          {/* <div>
             <div>
               <p className="dashboard_content">
                 Active Stations:
-                {/* <h4>{activeStations} </h4> */}
+                
               </p>
             </div>
             <div className="dashboard_content_leftline"></div>
-          </div>
+          </div> */}
         </div>
 
         <div className="dasboard_container_rightside">
@@ -55,7 +61,7 @@ export default function DashBoardBelow() {
             <p className="dashboard_content">
               <h4>
                 {/* {passVal} */}
-                passed
+                {/* passed */}
               </h4>
             </p>
           </div>
@@ -63,7 +69,7 @@ export default function DashBoardBelow() {
             <p className="dashboard_content">
               <h4>
                 {/* {failVal} */}
-                failed
+                {/* failed */}
               </h4>
             </p>
           </div>
@@ -71,7 +77,7 @@ export default function DashBoardBelow() {
             <p className="dashboard_content">
               <h4>
                 {/* {passVal+failVal}  */}
-                Done
+                {/* Done */}
               </h4>
             </p>
           </div>

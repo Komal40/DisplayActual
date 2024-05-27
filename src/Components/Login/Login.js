@@ -137,12 +137,12 @@ export default function Login() {
                       {msg && <div className="success_message">{msg}</div>}
                     </div>
                   </div>
-                  <div style={{ marginTop: "2%" }}>
+                  {/* <div style={{ marginTop: "2%" }}>
                     <h4>
                       Don't have an account{"  "}?{"      "}
                       <Link to="">Sign Up</Link>
                     </h4>
-                  </div>
+                  </div> */}
                   <div></div>
                 </form>
               </div>

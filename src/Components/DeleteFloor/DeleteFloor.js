@@ -218,7 +218,7 @@ export default function DeleteFloor() {
         toast.error("No Process Found");
         return;
     }
-    
+
     const link = process.env.REACT_APP_BASE_URL;
     const endPoint = "/floorincharge/delete_processes";
     const fullLink = link + endPoint;
@@ -251,6 +251,7 @@ export default function DeleteFloor() {
     }
   };
 
+  
   const handleDeleteParameterNo = async (para) => {
     
     const link = process.env.REACT_APP_BASE_URL;

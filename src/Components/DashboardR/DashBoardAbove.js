@@ -112,12 +112,12 @@ const DashBoardAbove = () => {
       <div className="dashboard_navbar">
         <div>
           <p className="dashboard_content">
-            Name: <h4>{userData ? `${userData.fName} ${userData.lName}` : "Loading..."}</h4>
+            Name: &nbsp;<h4>{userData ? `${userData.fName} ${userData.lName}` : "Loading..."}</h4>
           </p>
         </div>
         <div>
           <p className="dashboard_content">
-            User Id: <h4>{userData ? userData.employee_id : ""}</h4>
+            User Id:&nbsp; <h4>{userData ? userData.employee_id : ""}</h4>
           </p>
         </div>
         <div className="date_time">

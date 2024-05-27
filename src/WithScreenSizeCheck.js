@@ -12,7 +12,7 @@ const withScreenSizeCheck = (WrappedComponent) => {
     }
 
     checkScreenSize = () => {
-      const minWidth = 1024; // Minimum width for laptops
+      const minWidth = 768; 
       if (window.innerWidth < minWidth) {
         // You can redirect or show a message here
         document.body.innerHTML = '<h1>Access restricted. Please use a laptop to view this website.</h1>';

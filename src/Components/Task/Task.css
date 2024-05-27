@@ -48,9 +48,9 @@
     cursor: pointer;
 }
 
-.task_qty_section{
+/* .task_qty_section{
     display: flex;
-    /* justify-content: space-around; */
+    
     align-items: center;
     margin: 2rem;
 
@@ -66,7 +66,28 @@
 
 .task__qty > * {
     margin-right: 1rem; 
-  }
+  } */
+
+  .task_qty_section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 2rem;
+}
+
+/* Base styles for the task quantity container */
+.task__qty {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Ensure each child element has some margin */
+.task__qty > * {
+    margin-right: 1rem; 
+    margin-bottom: 1rem;
+}
 
 .task_dropdown{
     display: flex;
@@ -278,4 +299,35 @@ padding: 20px;
     padding: 5px;
     border: 1px solid #ccc;
     outline: none;
+}
+.task_btnss{
+    display: flex;
+}
+
+/* Media query for tablets (768px to 1024px) */
+@media screen and (min-width: 768px) and (max-width: 1024px) {
+    .date_picker{
+        width: 6rem;
+    }
+}
+
+/* Media query for laptops (1025px and above) */
+@media screen and (min-width: 1025px) {
+    .task_qty_section {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+    .task__qty {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .task__qty > * {
+        margin-right: 1rem;
+        margin-bottom: 0;
+    }
+    .task_btnss {
+        display: flex;
+        justify-content: flex-start;
+    }
 }
