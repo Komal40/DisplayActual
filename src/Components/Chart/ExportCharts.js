@@ -58,28 +58,38 @@ const ExportCharts = ({
 
         if (readingData[date] && readingData[date][selectedStationId]) {
           const shiftData = readingData[date][selectedStationId][selectedShift];
-          if (shiftData && shiftData.length === 5) {
-            //   shiftData.forEach((value) => {
-            //       if (value !== null && !isNaN(Number(value))) {
-            //           total += Number(value);
-            //           count++;
-            //       }
-            //   });
-            // Check if all values are greater than 0 and not null
+        //   if (shiftData && shiftData.length === 5) {
+            
+        //     const isValid = shiftData.every(
+        //         (value) => value !== null
+        //       );
+        //       if (isValid) {
+        //         shiftData.forEach((value) => {
+        //           total += Number(value);
+        //           count++;
+        //         });
+        //       }
+        //   }    
+        // }
+
+        // // const average = total / 5;
+        // const average = count > 0 ? total / count : 0; // Set average to 0 if count is 0
+        // averages.push(average.toFixed(2));
+
+        if (shiftData && shiftData.length === 5) {
             const isValid = shiftData.every(
-                (value) => value !== null
-              );
-              if (isValid) {
-                shiftData.forEach((value) => {
-                  total += Number(value);
-                  count++;
-                });
-              }
-          }    
+              (value) => value !== null && value > 0
+            );
+            if (isValid) {
+              shiftData.forEach((value) => {
+                total += Number(value);
+                count++;
+              });
+            }
+          }
         }
 
-        // const average = total / 5;
-        const average = count > 0 ? total / count : 0; // Set average to 0 if count is 0
+        const average = count === 5 ? total / count : 0; // Set average to 0 if count is not 5
         averages.push(average.toFixed(2));
       });
 
@@ -125,13 +135,24 @@ const ExportCharts = ({
 
       const ranges = labels.map((date) => {
         const dayData = readingData[date]?.[selectedStationId]?.[selectedShift];
-        if (Array.isArray(dayData) && dayData.length > 0) {
-          const max = Math.max(...dayData);
-          const min = Math.min(...dayData);
-          return max - min;
-        }
-        return 0;
-      });
+    //     if (Array.isArray(dayData) && dayData.length > 0) {
+    //       const max = Math.max(...dayData);
+    //       const min = Math.min(...dayData);
+    //       return max - min;
+    //     }
+    //     return 0;
+    //   });
+    if (
+        Array.isArray(dayData) &&
+        dayData.length === 5 &&
+        dayData.every((value) => value !== null && value > 0)
+      ) {
+        const max = Math.max(...dayData);
+        const min = Math.min(...dayData);
+        return max - min;
+      }
+      return 0;
+    });
 
       setRangeValues(ranges);
       setDates(labels);
@@ -233,7 +254,23 @@ const ExportCharts = ({
           color: "black",
         },
       },
+      tooltip: {
+        enabled: true, // Enable tooltips
+        callbacks: {
+          label: function (context) {
+            let label = context.dataset.label || "";
+            if (label) {
+              label += ": ";
+            }
+            if (context.parsed.y !== null) {
+              label += context.parsed.y;
+            }
+            return label;
+          },
+        },
+      },
     },
+    
     scales: {
       y: {
         type: "linear",
@@ -293,6 +330,21 @@ const ExportCharts = ({
               });
             });
             return labels;
+          },
+        },
+      },
+      tooltip: {
+        enabled: true, // Enable tooltips
+        callbacks: {
+          label: function (context) {
+            let label = context.dataset.label || "";
+            if (label) {
+              label += ": ";
+            }
+            if (context.parsed.y !== null) {
+              label += context.parsed.y;
+            }
+            return label;
           },
         },
       },

@@ -22,6 +22,7 @@ export default function Navbar() {
     localStorage.removeItem("Token");
     localStorage.removeItem("floor_no");
     localStorage.removeItem("TotalLines");
+    localStorage.removeItem("stationData")
     // Navigate to the login page
     navigate("/");
   };

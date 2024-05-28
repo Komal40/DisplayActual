@@ -159,9 +159,9 @@ export default function Dashboard() {
     });
   };
 
-
+// websocket
   useEffect(() => {
-    const link = "ws://192.168.1.18:5000";
+    const link = "ws://192.168.1.20:5000";
 
     // Get the current date
     const currentDate = new Date();

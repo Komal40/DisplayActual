@@ -235,13 +235,18 @@ export default function Chart() {
         },
       });
 
-      if (response.ok) {
+      if (response) {
         const data = await response.json();
+        if(response.ok){
         setReading(data.result);
         // Extract available dates from the response
         const dates = Object.keys(data.result);
         setAvailableDates(dates);
         extractStationIds(data.result);
+        }
+        else{
+          toast.info(data.Message)
+        }
       } else {
         console.error("Failed to fetch parts", response.error);
       }
