@@ -98,6 +98,11 @@ export default function Navbar() {
                         PARAMETERS
                       </HashLink>
                     </li>
+                    <li>
+                      <HashLink to="/assignopt" className="dashboard_items">
+                        ASSIGN OPERATOR
+                      </HashLink>
+                    </li>
                   </div>
                 )}
               </li>

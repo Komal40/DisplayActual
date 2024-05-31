@@ -14,6 +14,7 @@ import TaskNew from './Components/TaskNew/TaskNew';
 import Chart from './Components/Chart/Chart';
 import withScreenSizeCheck from './WithScreenSizeCheck';
 import DeleteFloor from './Components/DeleteFloor/DeleteFloor';
+import AssignOperator from './Components/AssignOperator/AssignOperator';
 
 
 
@@ -33,6 +34,7 @@ function App() {
       <Route path='/task' element={<ProtectedRoute Component={TaskNew}/>}/>
       <Route path='/chart' element={<ProtectedRoute Component={Chart}/>}/>
       <Route path='/delete' element={<ProtectedRoute Component={DeleteFloor}/>}/>
+      <Route path='/assignopt' element={<ProtectedRoute Component={AssignOperator}/>}/>
     </Routes>
     </BrowserRouter>
     </>
