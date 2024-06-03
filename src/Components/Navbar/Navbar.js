@@ -98,11 +98,7 @@ export default function Navbar() {
                         PARAMETERS
                       </HashLink>
                     </li>
-                    <li>
-                      <HashLink to="/assignopt" className="dashboard_items">
-                        ASSIGN OPERATOR
-                      </HashLink>
-                    </li>
+                   
                   </div>
                 )}
               </li>
@@ -113,7 +109,7 @@ export default function Navbar() {
                   DELETE FLOOR
                 </HashLink>
               </li>
-
+              
               <li>
                 <HashLink to="/register" className="dashboard_items">
                   ADD OPERATOR
@@ -124,7 +120,11 @@ export default function Navbar() {
                   TASK
                 </HashLink>
               </li>
-
+              <li>
+                      <HashLink to="/assignopt" className="dashboard_items">
+                        UPDATE OPERATOR
+                      </HashLink>
+                    </li>
               <li>
                 <HashLink className="dashboard_items" to="/chart">
                   GENERATE CHART

@@ -7,7 +7,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function AssignOperator() {
-    const navigate=useNavigate()
+  const navigate = useNavigate();
   const stationData = JSON.parse(localStorage.getItem("stationData"));
   const stations = stationData.stations;
 
@@ -33,25 +33,25 @@ export default function AssignOperator() {
   };
 
   const updateOperator = async () => {
-   
+    if(shift=="" || stationId=="" || employeeId==""){
+        toast.info("Please Select all Details")
+        return;
+    }
     const link = process.env.REACT_APP_BASE_URL;
     const endPoint = "/floorincharge/operator/update";
     const fullLink = link + endPoint;
 
     try {
-
-        const shiftA = shift === "A" ? 1 : 0;
-        const shiftB = shift === "B" ? 1 : 0;
-        const shiftC = shift === "C" ? 1 : 0;
-
+      const shiftA = shift === "A" ? 1 : 0;
+      const shiftB = shift === "B" ? 1 : 0;
+      const shiftC = shift === "C" ? 1 : 0;
 
       const params = new URLSearchParams();
-      params.append("shift_A",shiftA)
-      params.append("shift_B",shiftB)
-      params.append("shift_C",shiftC)
-      params.append("employee_id",employeeId)
-      params.append("station_id",stationId)
-
+      params.append("shift_A", shiftA);
+      params.append("shift_B", shiftB);
+      params.append("shift_C", shiftC);
+      params.append("employee_id", employeeId);
+      params.append("station_id", stationId);
 
       const response = await fetch(fullLink, {
         method: "POST",
@@ -64,14 +64,14 @@ export default function AssignOperator() {
 
       if (response.ok) {
         const data = await response.json();
-        toast.success(data.Response)  
-        setShift("")
-        setEmployeeId("")
-        setStationId("")      
+        toast.success(data.Response);
+        setShift("");
+        setEmployeeId("");
+        setStationId("");
       } else {
         const errorData = await response.json();
         const errorMessage = errorData.Response;
-        toast.error(errorMessage)
+        toast.error(errorMessage);
       }
     } catch (error) {
       console.error("Error:", error);
@@ -80,7 +80,7 @@ export default function AssignOperator() {
 
   return (
     <>
-    <ToastContainer/>
+      <ToastContainer />
       <div>
         <DashboardR />
       </div>
@@ -109,7 +109,7 @@ export default function AssignOperator() {
                   value={stationId}
                   onChange={(e) => setStationId(e.target.value)}
                 >
-                  <option value="">Station id</option>
+                  <option value="">Station</option>
                   {stationIds.map((id) => (
                     <option key={id} value={id}>
                       {id}
@@ -131,7 +131,7 @@ export default function AssignOperator() {
           </div>
 
           <div className="parts_add">
-            <button onClick={updateOperator}>ADD</button>
+            <button onClick={updateOperator}>UPDATE</button>
           </div>
         </div>
       </div>

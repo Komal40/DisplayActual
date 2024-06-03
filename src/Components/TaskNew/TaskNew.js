@@ -809,6 +809,16 @@ function TaskNew() {
 
         <div className="task_qty_section">
           <div className="task__qty">
+            <p>Select Shift</p>
+          <div className="update_dropdown">
+              <select onChange={(e) => setShift(e.target.value)}>
+                <option value="">Shift</option>
+                <option value="A">A</option>
+                <option value="B">B</option>
+                <option value="C">C</option>
+              </select>
+            </div>
+
             <p>Select Shift Timings</p>
 
             <div className="update_dropdown">
@@ -825,16 +835,7 @@ function TaskNew() {
                 {endTimeOptions}
               </select>
             </div>
-
-            <div className="update_dropdown">
-              <select onChange={(e) => setShift(e.target.value)}>
-                <option value="">Shift</option>
-                <option value="A">A</option>
-                <option value="B">B</option>
-                <option value="C">C</option>
-              </select>
-            </div>
-
+            
             <div>
               <input
                 className="task_id"
