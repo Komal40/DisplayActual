@@ -379,7 +379,7 @@ function Parameters() {
               Enter LSL:
               <input placeholder="LSL" ref={lsl} required />
             </p>
-            <p>
+            {/* <p>
               Enter A2:
               <input placeholder="A2" ref={A2} required />
             </p>
@@ -394,7 +394,7 @@ function Parameters() {
             <p>
               Enter D4:
               <input placeholder="D4" ref={D4} required />
-            </p>
+            </p> */}
           </div>
         )}
 

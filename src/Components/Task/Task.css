@@ -304,6 +304,23 @@ padding: 20px;
     display: flex;
 }
 
+.task_whole_part{
+    display: flex;
+    flex-direction: row;
+    margin-left: 1rem;
+}
+
+.task_whole_part select{
+    margin-left: 1rem;
+}
+
+.global_input{
+    margin-left: 2rem;
+    border: 2px solid grey;
+    border-radius: 8px;
+    padding-left: 10px;
+}
+
 /* Media query for tablets (768px to 1024px) */
 @media screen and (min-width: 768px) and (max-width: 1024px) {
     .date_picker{

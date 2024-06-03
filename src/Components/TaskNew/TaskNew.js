@@ -18,6 +18,7 @@ function TaskNew() {
   const [selectedLine, setSelectedLine] = useState(1);
   const [parts, setParts] = useState([]);
   const [processes, setProcesses] = useState({});
+  // const [wholeProcess, setWholeProcess]=useState([])
   const [processName, setProcessName] = useState([]);
   const [previousData, setPreviousData] = useState({});
 
@@ -45,7 +46,7 @@ function TaskNew() {
   // Generate options for start and end times
   const currentHour = new Date().getHours();
   const currentMinute = new Date().getMinutes();
-  
+
   const updateOptions = () => {
     const currentHour = new Date().getHours();
     const currentMinute = new Date().getMinutes();
@@ -95,7 +96,6 @@ function TaskNew() {
     }
     return options;
   }
-
 
   // function generateTimeOptions(currentHour, currentMinute, hours) {
   //   const options = [];
@@ -236,6 +236,76 @@ function TaskNew() {
     //   setSelectedProcesses(prevProcesses => ({ ...prevProcesses, [stationId]: "" })); // Reset corresponding process information
   };
 
+
+  const [wholePart, setWholePart]=useState("")
+  const [wholeQty, setWholeQty]=useState("")
+
+  // const handleWholePartChange=(e)=>{
+  //   setWholePart(e)
+  // }
+
+  const handleWholePartChange = (selectedPartNo) => {
+    setWholePart(selectedPartNo);
+    getWholeProcesses(selectedPartNo);
+    // Update processes for all stations
+    Object.entries(stationData.stations).forEach(([line, stations]) => {
+        stations.forEach((station, i) => {          
+            if (processName) {
+                setSelectedProcesses((prevProcesses) => ({
+                    ...prevProcesses,
+                    [station]: processName.process_no,
+                }));
+                setSelectedSkill((prevSkill) => ({
+                    ...prevSkill,
+                    [station]: processName.skill_level,
+                }));
+                setSelectPrecedency((prevPrec) => ({
+                    ...prevPrec,
+                    [station]: processName.process_precedency,
+                }));
+            }
+        });
+    });    
+};
+
+
+// function handleWholePartChange
+  // const minPrecedency = Math.min(
+            //     ...processName
+            //         .filter((process) => process.process_no === selectedPartNo)
+            //         .map((process) => process.process_precedency)
+            // );
+            // const maxPrecedency = Math.max(
+            //     ...processName
+            //         .filter((process) => process.process_no === selectedPartNo)
+            //         .map((process) => process.process_precedency)
+            // );
+            // const stationId = parseInt(station.split("S")[2]);
+            // // Adjust stationPrecedency based on station id format
+            // const stationPrecedency = stationId - 1;
+            // if (stationPrecedency >= minPrecedency && stationPrecedency <= maxPrecedency) {
+            //     const process = processName.find(
+            //         (process) => process.process_precedency === stationPrecedency
+            //     );
+            //     if (process) {
+            //         setSelectedParts((prevParts) => ({
+            //             ...prevParts,
+            //             [station]: selectedPartNo,
+            //         }));
+            //         setSelectedProcesses((prevProcesses) => ({
+            //             ...prevProcesses,
+            //             [station]: process.process_no,
+            //         }));
+            //         setSelectedSkill((prevSkill) => ({
+            //             ...prevSkill,
+            //             [station]: process.skill_level,
+            //         }));
+            //         setSelectPrecedency((prevPrec) => ({
+            //             ...prevPrec,
+            //             [station]: process.process_precedency,
+            //         }));
+            //     }
+            // }
   const [selectedSkill, setSelectedSkill] = useState({});
   const [selectPrecedency, setSelectPrecedency] = useState({});
   const handleProcessChange = (e, stationId) => {
@@ -258,7 +328,6 @@ function TaskNew() {
         [stationId]: selectedProcess.process_precedency,
       }));
     }
-
     console.log("selectedProcesses", selectedProcesses);
   };
 
@@ -290,7 +359,6 @@ function TaskNew() {
         // setProcessName(data.data);
         const processesData = data.data;
         setProcesses({ ...processes, [stationId]: processesData });
-        // setProcessName(processesData);
         console.log("object processName", processesData);
       } else {
         console.error("Failed to fetch parts", response.error);
@@ -300,11 +368,52 @@ function TaskNew() {
     }
   };
 
+  const getWholeProcesses=async(partNo)=>{
+    const link = process.env.REACT_APP_BASE_URL;
+    const endPoint = "/floorincharge/get_processes";
+    const fullLink = link + endPoint;
+
+    try {
+      const params = new URLSearchParams();
+      params.append("part_no", partNo);
+      const response = await fetch(fullLink, {
+        method: "POST",
+        body: params,
+        headers: {
+          "Content-type": "application/x-www-form-urlencoded",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response) {
+        const data = await response.json();
+
+        if(response.ok){
+          // setProcessName(data.data);
+          const processesData = data.data;
+          setProcessName(processesData);
+          console.log("object whole processName", processesData);
+        }
+        else{
+          toast.info(data.Message)
+        }
+        
+      } else {
+        console.error("Failed to fetch parts", response.error);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  }
+
   useEffect(() => {
     if (selectedPartNo) {
       getProcesses(selectedPartNo);
     }
-  }, [selectedPartNo]);
+    if(wholePart){
+      getWholeProcesses(wholePart)
+    }
+  }, [selectedPartNo,wholePart]);
 
   const handleLineClick = async (line) => {
     // line=G01 F02 L01
@@ -480,7 +589,7 @@ function TaskNew() {
 
       // Check if the user has entered values for part, process, and employee ID for the current station
       if (
-        (selectedParts[station] &&
+        (selectedParts[station] || wholePart&&
           selectedProcesses[station] &&
           selectedEmployees[station] &&
           userEnteredValue[station]) ||
@@ -580,7 +689,6 @@ function TaskNew() {
               { autoClose: 20000 }
             );
           }
-          
         }
       }
     } catch (error) {
@@ -633,6 +741,22 @@ function TaskNew() {
       ...prevState,
       [stationId]: value,
     }));
+  };
+
+  const [globalInputValue, setGlobalInputValue] = useState("");
+  const handleWholeInputChange = (e) => {
+    const { value } = e.target;
+    setGlobalInputValue(value);
+
+    // Update all stations with the global input value
+    Object.entries(stationData.stations).forEach(([line, stations]) => {
+      stations.forEach((station) => {
+        setUserEnteredValue((prevState) => ({
+          ...prevState,
+          [station]: value,
+        }));
+      });
+    });
   };
 
   // const [userEnteredPrecValue, setUserEnteredPrecValue] = useState({});
@@ -810,7 +934,7 @@ function TaskNew() {
         <div className="task_qty_section">
           <div className="task__qty">
             <p>Select Shift</p>
-          <div className="update_dropdown">
+            <div className="update_dropdown">
               <select onChange={(e) => setShift(e.target.value)}>
                 <option value="">Shift</option>
                 <option value="A">A</option>
@@ -835,7 +959,7 @@ function TaskNew() {
                 {endTimeOptions}
               </select>
             </div>
-            
+
             <div>
               <input
                 className="task_id"
@@ -865,6 +989,30 @@ function TaskNew() {
           </div>
         </div>
 
+        <div className="update_dropdown">
+          <div className="task_whole_part">
+            <p>Select Part:</p>
+            <select onChange={(e)=>handleWholePartChange(e.target.value)}>
+              <option value="">Select</option>
+              {parts &&
+                parts.map((data, idx) => (
+                  <option key={idx} value={data.part_no}>
+                    {data.part_no}
+                  </option>
+                ))}
+            </select>
+            <input
+          className="global_input"
+          value={globalInputValue}
+          placeholder="Enter global qty"
+          onChange={handleWholeInputChange}
+          
+        />
+          </div>
+         
+        </div>
+
+       
         <div>
           {stationData.stations &&
             Object.entries(stationData.stations).map(
@@ -944,7 +1092,7 @@ function TaskNew() {
                               <h4>{station}</h4>
                               <div className="task_stations_part">
                                 <p>
-                                  Part: {selectedParts[station] || partInfo}
+                                  Part: {selectedParts[station] || partInfo || wholePart}
                                 </p>
                               </div>
                               <div className="task_stations_part">

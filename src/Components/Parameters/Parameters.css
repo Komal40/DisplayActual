@@ -18,9 +18,9 @@
 }
 
 .parameter_value p{
-    /* margin-right: 2%; */
-    display: flex;
-    flex-wrap: wrap;
+    margin-right: 2%;
+    /* display: flex; */
+    /* flex-wrap: wrap; */
 }
 
 
