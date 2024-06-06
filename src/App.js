@@ -15,6 +15,9 @@ import Chart from './Components/Chart/Chart';
 import withScreenSizeCheck from './WithScreenSizeCheck';
 import DeleteFloor from './Components/DeleteFloor/DeleteFloor';
 import AssignOperator from './Components/AssignOperator/AssignOperator';
+import TaskPrac from './Components/TaskPrac/TaskPrac';
+import StationList from './Components/TaskPrac/StationList';
+
 
 
 
@@ -31,7 +34,10 @@ function App() {
       <Route path='/parts' element={<ProtectedRoute Component={Parts}/>}/>
       <Route path='/process' element={<ProtectedRoute Component={Process}/>}/>
       <Route path='/para' element={<ProtectedRoute Component={Parameters}/>}/>
-      <Route path='/task' element={<ProtectedRoute Component={TaskNew}/>}/>
+      {/* <Route path='/task' element={<ProtectedRoute Component={TaskPrac}/>}/> */}
+      <Route path='/task' element={<ProtectedRoute Component={StationList}/>}/>
+
+      {/* <Route path='/task' element={<ProtectedRoute Component={TaskNew}/>}/> */}
       <Route path='/chart' element={<ProtectedRoute Component={Chart}/>}/>
       <Route path='/delete' element={<ProtectedRoute Component={DeleteFloor}/>}/>
       <Route path='/assignopt' element={<ProtectedRoute Component={AssignOperator}/>}/>
@@ -42,4 +48,3 @@ function App() {
 }
 
 export default withScreenSizeCheck(App);
-

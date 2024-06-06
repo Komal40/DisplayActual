@@ -8,7 +8,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-function TaskNew() {
+function TaskPrac() {
   const [stationData, setStationData] = useState({});
   const navigate = useNavigate();
   const token = JSON.parse(localStorage.getItem("Token"));
@@ -97,35 +97,6 @@ function TaskNew() {
     return options;
   }
 
-  // function generateTimeOptions(currentHour, currentMinute, hours) {
-  //   const options = [];
-  //   for (let hour = currentHour; hour < currentHour + hours; hour++) {
-  //     const adjustedHour = hour % 24; // Ensure hour stays within 24-hour format
-  //     for (let minute = 0; minute < 60; minute += 30) {
-  //       const time = `${
-  //         adjustedHour < 10 ? "0" + adjustedHour : adjustedHour
-  //       }:${minute === 0 ? "00" : minute}:00`;
-  //       options.push(<option key={time}>{time}</option>);
-  //     }
-  //   }
-  //   return options;
-  // }
-
-  //   function generateTimeOptions(startHour, startMinute, numberOfHours) {
-  //     const options = [];
-  //     for (let hour = startHour; hour < startHour + numberOfHours; hour++) {
-  //       for (let minute = 0; minute < 60; minute += 30) {
-  //         if (hour === startHour && minute < startMinute) {
-  //           continue; // Skip past times for the start dropdown
-  //         }
-  //         const formattedHour = hour < 10 ? "0" + hour : hour;
-  //         const formattedMinute = minute < 10 ? "0" + minute : minute;
-  //         const time = `${formattedHour}:${formattedMinute}:00`;
-  //         options.push(<option key={time}>{time}</option>);
-  //       }
-  //     }
-  //   }
-
   const handleDateChange = (date) => {
     setSelectedDate(date);
   };
@@ -172,14 +143,14 @@ function TaskNew() {
           const lines = JSON.parse(linesString);
           // Parse totalLines
           const totalLines = parseInt(responseData.totalLines);
-
+          initializeArray(totalLines)
           setStationData({
             stations: stations,
             lines: lines,
             totalLines: totalLines,
           });
 
-          console.log("object set station data on Task page", setStationData);
+         
         } else {
           const errorData = await response.text();
           console.error("API Error:", errorData);
@@ -191,6 +162,8 @@ function TaskNew() {
 
     fetchData();
   }, [navigate, token]);
+
+  console.log("object stationdaggta",stationData)
 
   const getParts = async (e) => {
     const link = process.env.REACT_APP_BASE_URL;
@@ -236,76 +209,8 @@ function TaskNew() {
     //   setSelectedProcesses(prevProcesses => ({ ...prevProcesses, [stationId]: "" })); // Reset corresponding process information
   };
 
+  const [wholePart, setWholePart] = useState("");
 
-  const [wholePart, setWholePart]=useState("")
-  const [wholeQty, setWholeQty]=useState("")
-
-  // const handleWholePartChange=(e)=>{
-  //   setWholePart(e)
-  // }
-
-  const handleWholePartChange = (selectedPartNo) => {
-    setWholePart(selectedPartNo);
-    getWholeProcesses(selectedPartNo);
-    // Update processes for all stations
-    Object.entries(stationData.stations).forEach(([line, stations]) => {
-        stations.forEach((station, i) => {          
-            if (processName) {
-                setSelectedProcesses((prevProcesses) => ({
-                    ...prevProcesses,
-                    [station]: processName.process_no,
-                }));
-                setSelectedSkill((prevSkill) => ({
-                    ...prevSkill,
-                    [station]: processName.skill_level,
-                }));
-                setSelectPrecedency((prevPrec) => ({
-                    ...prevPrec,
-                    [station]: processName.process_precedency,
-                }));
-            }
-        });
-    });    
-};
-
-
-// function handleWholePartChange
-  // const minPrecedency = Math.min(
-            //     ...processName
-            //         .filter((process) => process.process_no === selectedPartNo)
-            //         .map((process) => process.process_precedency)
-            // );
-            // const maxPrecedency = Math.max(
-            //     ...processName
-            //         .filter((process) => process.process_no === selectedPartNo)
-            //         .map((process) => process.process_precedency)
-            // );
-            // const stationId = parseInt(station.split("S")[2]);
-            // // Adjust stationPrecedency based on station id format
-            // const stationPrecedency = stationId - 1;
-            // if (stationPrecedency >= minPrecedency && stationPrecedency <= maxPrecedency) {
-            //     const process = processName.find(
-            //         (process) => process.process_precedency === stationPrecedency
-            //     );
-            //     if (process) {
-            //         setSelectedParts((prevParts) => ({
-            //             ...prevParts,
-            //             [station]: selectedPartNo,
-            //         }));
-            //         setSelectedProcesses((prevProcesses) => ({
-            //             ...prevProcesses,
-            //             [station]: process.process_no,
-            //         }));
-            //         setSelectedSkill((prevSkill) => ({
-            //             ...prevSkill,
-            //             [station]: process.skill_level,
-            //         }));
-            //         setSelectPrecedency((prevPrec) => ({
-            //             ...prevPrec,
-            //             [station]: process.process_precedency,
-            //         }));
-            //     }
-            // }
   const [selectedSkill, setSelectedSkill] = useState({});
   const [selectPrecedency, setSelectPrecedency] = useState({});
   const handleProcessChange = (e, stationId) => {
@@ -368,7 +273,7 @@ function TaskNew() {
     }
   };
 
-  const getWholeProcesses=async(partNo)=>{
+  const getWholeProcesses = async (partNo) => {
     const link = process.env.REACT_APP_BASE_URL;
     const endPoint = "/floorincharge/get_processes";
     const fullLink = link + endPoint;
@@ -388,57 +293,30 @@ function TaskNew() {
       if (response) {
         const data = await response.json();
 
-        if(response.ok){
+        if (response.ok) {
           // setProcessName(data.data);
           const processesData = data.data;
           setProcessName(processesData);
           console.log("object whole processName", processesData);
+        } else {
+          toast.info(data.Message);
         }
-        else{
-          toast.info(data.Message)
-        }
-        
       } else {
         console.error("Failed to fetch parts", response.error);
       }
     } catch (error) {
       console.error("Error:", error);
     }
-  }
+  };
 
   useEffect(() => {
     if (selectedPartNo) {
       getProcesses(selectedPartNo);
     }
-    if(wholePart){
-      getWholeProcesses(wholePart)
+    if (wholePart) {
+      getWholeProcesses(wholePart);
     }
-  }, [selectedPartNo,wholePart]);
-
-  const handleLineClick = async (line) => {
-    // line=G01 F02 L01
-    const data = parseInt(line.split("L")[1]);
-    setSelectedLine(data);
-
-    // Parse the stations data from the state
-    const allStations = stationData.stations;
-    // Find stations corresponding to the selected line
-    const stationsForSelectedLine = allStations[line] || [];
-    console.log("stationsForSelectedLine", stationsForSelectedLine);
-  };
-
-  //   function generateTimeOptions() {
-  //     const options = [];
-  //     for (let hour = 0; hour < 24; hour++) {
-  //       for (let minute = 0; minute < 60; minute += 30) {
-  //         const time = `${hour < 10 ? "0" + hour : hour}:${
-  //           minute === 0 ? "00" : minute
-  //         }:00`;
-  //         options.push(<option key={time}>{time}</option>);
-  //       }
-  //     }
-  //     return options;
-  //   }
+  }, [selectedPartNo, wholePart]);
 
   // Function to handle change in start shift time
   const handleStartShiftChange = (e) => {
@@ -589,7 +467,8 @@ function TaskNew() {
 
       // Check if the user has entered values for part, process, and employee ID for the current station
       if (
-        (selectedParts[station] || wholePart&&
+        selectedParts[station] ||
+        (wholePart &&
           selectedProcesses[station] &&
           selectedEmployees[station] &&
           userEnteredValue[station]) ||
@@ -734,41 +613,30 @@ function TaskNew() {
 
   const [userEnteredValue, setUserEnteredValue] = useState({});
   // Modify handleInputChange to update the entered value for the corresponding station
-  const handleInputChange = (e, stationId) => {
-    const { value } = e.target;
-    // Update the state with the entered value for the station
-    setUserEnteredValue((prevState) => ({
-      ...prevState,
-      [stationId]: value,
+
+  const [globalInputValue, setGlobalInputValue] = useState([]);
+
+console.log("globalInputValue array",globalInputValue)
+
+
+  const initializeArray = (size) => {
+    const initialArray = Array(size).fill(null).map(() => ({
+      part: '',
+      inputValue: ''
     }));
+    setGlobalInputValue(initialArray);
   };
 
-  const [globalInputValue, setGlobalInputValue] = useState("");
-  const handleWholeInputChange = (e) => {
-    const { value } = e.target;
-    setGlobalInputValue(value);
-
-    // Update all stations with the global input value
-    Object.entries(stationData.stations).forEach(([line, stations]) => {
-      stations.forEach((station) => {
-        setUserEnteredValue((prevState) => ({
-          ...prevState,
-          [station]: value,
-        }));
-      });
+  const updateElementAtIndex = (index, field, newValue) => {
+    setGlobalInputValue(prev => {
+      const newArray = [...prev];
+      newArray[index] = {
+        ...newArray[index],
+        [field]: newValue
+      };
+      return newArray;
     });
   };
-
-  // const [userEnteredPrecValue, setUserEnteredPrecValue] = useState({});
-  // // Modify handleInputChange to update the entered value for the corresponding station
-  // const handlePrecedenceVal = (e, stationId) => {
-  //   const { value } = e.target;
-  //   // Update the state with the entered value for the station
-  //   setUserEnteredPrecValue((prevState) => ({
-  //     ...prevState,
-  //     [stationId]: value,
-  //   }));
-  // };
 
   const [runningTaskInitially, setRunningTaskInitially] = useState([]);
   useEffect(() => {
@@ -809,36 +677,8 @@ function TaskNew() {
     }
   };
 
-  const [employeeDetails, setEmployeeDetails] = useState(null);
-
-  const handleEmployeeCodeChange = (event) => {
-    setEmployeeCode(event.target.value);
-  };
-
-  const renderEmployeeDetails = () => {
-    if (employeeDetails) {
-      return (
-        <div className="task_stations_part">
-          <p className="employee-name">
-            Employee: {employeeDetails["First Name"]}{" "}
-            {employeeDetails["Last Name"]}
-          </p>
-          <p style={{ fontSize: "12px" }}>
-            Skill: {employeeDetails["Skill Level"]}
-          </p>
-        </div>
-      );
-    }
-    return null;
-  };
-
   //   particular employee details from employee code
   const [selectedEmployees, setSelectedEmployees] = useState({});
-  // Function to handle employee selection for each station
-  const handleEmployeeChange = (employee, stationId) => {
-    setSelectedEmployees({ ...selectedEmployees, [stationId]: employee });
-  };
-
   // select employee name and skill from employee code
   const [employeeCode, setEmployeeCode] = useState("");
 
@@ -881,47 +721,76 @@ function TaskNew() {
 
   const [shift, setShift] = useState("");
 
+  //   const [selectedLine, setSelectedLine] = useState(null);
+  const [userEnteredValues, setUserEnteredValues] = useState({});
+  //   const [globalInputValue, setGlobalInputValue] = useState('');
+  const [globalPart, setGlobalPart] = useState("");
+  //   const [shift, setShift] = useState('');
+  const [shiftTimings, setShiftTimings] = useState({});
+
+
+  const handleShiftChangeForLine = (shiftType, value) => {
+    setShiftTimings((prev) => ({
+      ...prev,
+      [selectedLine]: {
+        ...prev[selectedLine],
+        [shiftType]: value,
+      },
+    }));
+  };
+
+  const handleLineClick = (line) => {
+    // G01 F02 L02
+    const l = parseInt(line.split("L")[1]);
+    console.log("l", l);
+    setSelectedLine(l);
+  };
+
+
+  useEffect(() => {
+    const newValues = { ...userEnteredValues };
+    console.log("sttaions", stationData.stations);
+    setUserEnteredValues(newValues);
+  }, [selectedLine, globalInputValue]);
+
+  const handleInputChange = (e, station) => {
+    setUserEnteredValues({
+      ...userEnteredValues,
+      [station]: e.target.value,
+    });
+  };
+
+  const handleGlobalInputChange = (e,field,selectedLine) => {
+    const input = e.target.value;
+    console.log("input",input)
+    console.log("input selected line",selectedLine)
+    updateElementAtIndex(selectedLine,field,input)
+  };
+
+  const handleWholePartChange = (value,field, selectedLine) => {
+    setGlobalPart(value);    
+    updateElementAtIndex(selectedLine,field,value)
+  };
+
+
+  function extractValue(str) {
+    const regex = /L(\d+)/;
+    const match = str.match(regex);
+    if (match && match[1]) {
+        return parseInt(match[1]);
+    }
+    return null; 
+}
+
   return (
     <>
-      <ToastContainer />
-      <div>
-        <DashBoardAbove />
-      </div>
-
-      <div className="task__main">
-        <div className="previous_task">
-          <div className="previous_task_date">
-            <p>Select Date:</p>
-            <DatePicker
-              className="date_picker"
-              selected={selectedDate}
-              onChange={handleDateChange}
-              dateFormat="yyyy-MM-dd"
-            />
-          </div>
-          <div className="previous_task_date">
-            <p>Select Time:</p>
-            <input
-              type="time"
-              value={selectedTime}
-              onChange={handleTimeChange}
-              //   step="1"
-            />
-          </div>
-          <button className="task_qty_btn" onClick={getPartAndProcessInfo}>
-            See Previous Logs
-          </button>
-        </div>
-        <hr />
-
+      <div style={{ marginLeft: "15rem" }}>
         <div className="task_buttons">
           {stationData.lines &&
             stationData.lines
               .sort((a, b) => {
-                // Extract the line numbers from the line names
                 const lineA = parseInt(a.split("L")[1]);
                 const lineB = parseInt(b.split("L")[1]);
-                // Compare the line numbers
                 return lineA - lineB;
               })
               .map((line, index) => (
@@ -930,69 +799,79 @@ function TaskNew() {
                 </button>
               ))}
         </div>
+        {selectedLine && (
+          <>
+            <div className="task_qty_section">
+              <div className="task__qty">
+                <p>Select Shift</p>
+                <div className="update_dropdown">
+                  <select onChange={(e) => setShift(e.target.value)}>
+                    <option value="">Shift</option>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                  </select>
+                </div>
 
-        <div className="task_qty_section">
-          <div className="task__qty">
-            <p>Select Shift</p>
-            <div className="update_dropdown">
-              <select onChange={(e) => setShift(e.target.value)}>
-                <option value="">Shift</option>
-                <option value="A">A</option>
-                <option value="B">B</option>
-                <option value="C">C</option>
-              </select>
-            </div>
+                <p>Select Shift Timings</p>
 
-            <p>Select Shift Timings</p>
+                <div className="update_dropdown">
+                  <select
+                    onChange={(e) =>
+                      handleShiftChangeForLine("start", e.target.value)
+                    }
+                  >
+                    <option>Start </option>
+                    {startTimeOptions}
+                  </select>
+                </div>
 
-            <div className="update_dropdown">
-              <select onChange={handleStartShiftChange}>
-                <option>Start </option>
-                {/* {generateTimeOptions()} */}
-                {startTimeOptions}
-              </select>
-            </div>
+                <div className="update_dropdown">
+                  <select
+                    onChange={(e) =>
+                      handleShiftChangeForLine("end", e.target.value)
+                    }
+                  >
+                    <option>End </option>
+                    {endTimeOptions}
+                  </select>
+                </div>
 
-            <div className="update_dropdown">
-              <select onChange={handleEndShiftChange}>
-                <option>End </option>
-                {endTimeOptions}
-              </select>
-            </div>
+                <div>
+                  <input
+                    className="task_id"
+                    placeholder="TaskId"
+                    pattern="[0-9]{4}"
+                    title="Please enter exactly 4 numeric characters"
+                    minLength={4}
+                    value={taskId}
+                    onChange={handleChange}
+                  />
+                  {error && <p style={{ color: "red" }}>{error}</p>}
+                </div>
 
-            <div>
-              <input
-                className="task_id"
-                placeholder="TaskId"
-                pattern="[0-9]{4}" // This pattern allows only 4 numeric characters
-                title="Please enter exactly 4 numeric characters"
-                minLength={4}
-                value={taskId}
-                onChange={handleChange}
-              />
-              {error && <p style={{ color: "red" }}>{error}</p>}
-            </div>
-
-            {/* <button className="task_qty_btn">Fetch From Quantity</button> */}
-            <div className="task_btnss">
-              <div>
-                <button className="task_assign_btn" onClick={deleteTask}>
-                  Delete Task
-                </button>
+                <div className="task_btnss">
+                  <div>
+                    <button className="task_assign_btn" onClick={deleteTask}>
+                      Delete Task
+                    </button>
+                  </div>
+                  <div>
+                    <button className="task_assign_btn" onClick={assignTask}>
+                      Assign Task
+                    </button>
+                  </div>
+                </div>
               </div>
-              <div>
-                <button className="task_assign_btn" onClick={assignTask}>
-                  Assign Task
-                </button>
-              </div>
             </div>
-          </div>
-        </div>
+          </>
+        )}
+
 
         <div className="update_dropdown">
-          <div className="task_whole_part">
+          <div className="task_whole_qty">
             <p>Select Part:</p>
-            <select onChange={(e)=>handleWholePartChange(e.target.value)}>
+            <select onChange={(e) => handleWholePartChange(e.target.value,'part', selectedLine)}>
               <option value="">Select</option>
               {parts &&
                 parts.map((data, idx) => (
@@ -1001,16 +880,18 @@ function TaskNew() {
                   </option>
                 ))}
             </select>
-            <input
-          className="global_input"
-          value={globalInputValue}
-          placeholder="Enter global qty"
-          onChange={handleWholeInputChange}          
-        />
-          </div>
 
-        </div>    
-           
+            <input
+              className="global_input"
+              value={globalInputValue[selectedLine]?.inputValue || ''}
+              placeholder="Enter global qty"
+              onChange={
+                (e)=>handleGlobalInputChange(e,'inputValue',selectedLine)
+            }
+            />
+          </div>
+        </div>
+
         <div>
           {stationData.stations &&
             Object.entries(stationData.stations).map(
@@ -1024,209 +905,31 @@ function TaskNew() {
                         : "none",
                   }}
                 >
-                  
                   <div className="task_stations_container">
                     {stations.map((station, index) => {
-                      //   const partInfo = previousData[station]
-                      //     ? previousData[station][3]
-                      //     : "";
-                      const [
-                        operatorfname,
-                        operatorlname,
-                        empSkill,
-                        partInfo,
-                        processInfo,
-                        skillRequired,
-                        empId,
-                      ] = previousData[station] ?? ["", "", "", "", "", "", ""];
-
-                      // Check if the current station is in the runningTasks array
-                      const runningOnLogs = runningTasks.some(
-                        (task) => task[0] === station
-                      );
-                      const freeStationApirunningTask =
-                        runningTaskInitially.includes(station);
-
-                      const isRunning = runningTaskInitially.some(
-                        (task) => task[0] === station
-                      );
-
-                      let stationId,
-                        employeeId,
-                        firstName,
-                        lastName,
-                        runempSkill,
-                        empprocessInfo,
-                        runprocessSkill;
-                      if (isRunning || runningOnLogs) {
-                        // Extract details from the running task
-                        const runningTask =
-                          runningTaskInitially.find(
-                            (task) => task[0] === station
-                          ) || runningTasks.find((task) => task[0] === station);
-
-                        [
-                          stationId,
-                          employeeId,
-                          firstName,
-                          lastName,
-                          runempSkill,
-                          empprocessInfo,
-                          runprocessSkill,
-                        ] = runningTask;
-                      }
-
+                      let valueForLine = "";
+                        const line=extractValue(station)
+                    
                       return (
-                        <>
-                          <div key={station} className="task_stations">
-                            <div className="task_stations_left">
-                              <div>
-                                {(isRunning || runningOnLogs) && (
-                                  <u className="task-running">
-                                    Task is running..
-                                  </u>
-                                )}
-                              </div>
-                              <h4>{station}</h4>
-                              <div className="task_stations_part">
+                        <div key={station} className="task_stations">
+                          <div className="task_stations_left">{station}
+                          <div className="task_stations_part">
                                 <p>
-                                  Part: {selectedParts[station] || partInfo || wholePart}
+                                  Part: {globalInputValue[selectedLine]?.part || ''}
                                 </p>
                               </div>
-                              <div className="task_stations_part">
-                                <p>
-                                  Process:{" "}
-                                  {isRunning || runningOnLogs
-                                    ? empprocessInfo
-                                    : selectedProcesses[station] || processInfo}
-                                </p>
-                                <p style={{ fontSize: "12px" }}>
-                                  Skill Required:&nbsp;
-                                  {isRunning || runningOnLogs
-                                    ? runprocessSkill
-                                    : selectedSkill[station]
-                                    ? `${selectedSkill[station]} Or Above`
-                                    : skillRequired
-                                    ? `${skillRequired} Or Above`
-                                    : ""}
-                                </p>
                               </div>
-
-                              {selectedEmployees[station] ? (
-                                <div className="task_stations_part">
-                                  <p className="employee-name">
-                                    Employee:{" "}
-                                    {selectedEmployees[station]["First Name"]}{" "}
-                                    {selectedEmployees[station]["Last Name"]}
-                                  </p>
-                                  <p style={{ fontSize: "12px" }}>
-                                    Skill:{" "}
-                                    {selectedEmployees[station]["Skill Level"]}
-                                  </p>
-                                </div>
-                              ) : (
-                                <div className="task_stations_part">
-                                  <p className="employee-name">
-                                    Employee:{" "}
-                                    {isRunning || runningOnLogs
-                                      ? employeeId
-                                      : operatorfname +
-                                        " " +
-                                        operatorlname}{" "}
-                                  </p>
-                                  <p style={{ fontSize: "12px" }}>
-                                    Skill :&nbsp;
-                                    {isRunning || runningOnLogs
-                                      ? runempSkill
-                                      : empSkill}
-                                  </p>
-                                </div>
-                              )}
-                            </div>
-
-                            <div className="task_stations_right">
-                              <input
-                                className="task_station_input"
-                                value={selectPrecedency[station]}
-                                // onChange={(e) =>
-                                //   handlePrecedenceVal(e, station)
-                                // }
-                                disabled={isRunning || runningOnLogs}
-                              />
-
-                              <input
-                                className="task_station_input"
-                                value={
-                                  // If the user has entered a value for the station, show it; otherwise, show the value from the API or default to 0
-                                  userEnteredValue[station]
-                                }
-                                placeholder="qty"
-                                onChange={(e) => handleInputChange(e, station)}
-                                disabled={isRunning || runningOnLogs}
-                              />
-
-                              <div className="task_dropdown">
-                                <select
-                                  onChange={(e) =>
-                                    handlePartChange(e.target.value, station)
-                                  }
-                                  disabled={isRunning || runningOnLogs}
-                                >
-                                  <option value="">Select</option>
-                                  {parts &&
-                                    parts.map((data, idx) => (
-                                      <option key={idx} value={data.part_no}>
-                                        {data.part_no}
-                                      </option>
-                                    ))}
-                                </select>
-                              </div>
-
-                              <div className="task_dropdown">
-                                <select
-                                  onChange={(e) =>
-                                    handleProcessChange(e, station)
-                                  }
-                                  disabled={isRunning || runningOnLogs}
-                                >
-                                  <option>Select</option>
-                                  {processes[station] &&
-                                    processes[station].map((process, index) => (
-                                      <option
-                                        key={index}
-                                        value={process.process_no}
-                                      >
-                                        {process.process_no}
-                                      </option>
-                                    ))}
-                                </select>
-                              </div>
-
-                              <div className="task_dropdown">
-                                <input
-                                  className="task_station_input"
-                                  type="text"
-                                  placeholder="Id"
-                                  disabled={isRunning || runningOnLogs}
-                                  value={
-                                    employeeCode[station]
-                                      ? employeeCode[station]
-                                      : empId
-                                  }
-                                  onChange={(e) => employeeChange(e, station)}
-                                />
-                              </div>
-
-                              {/* Show a message if part and process are selected but employee ID is missing */}
-                              {selectedProcesses[station] &&
-                                !employeeCode[station] && (
-                                  <p style={{ color: "red", fontSize: "12px" }}>
-                                    Employee ID is required
-                                  </p>
-                                )}
-                            </div>
+                          <div className="task_stations_right">
+                            <input
+                              className="task_station_input"
+                              value={globalInputValue[selectedLine]?.inputValue || ''}
+                              placeholder="qty"
+                              onChange={(e) =>                                 
+                                handleInputChange(e, station)                            
+                            }
+                            />
                           </div>
-                        </>
+                        </div>
                       );
                     })}
                   </div>
@@ -1239,4 +942,5 @@ function TaskNew() {
   );
 }
 
-export default TaskNew;
+
+export default TaskPrac;
