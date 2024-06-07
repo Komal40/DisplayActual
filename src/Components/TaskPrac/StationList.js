@@ -19,7 +19,7 @@ function TaskPrac() {
   const [parts, setParts] = useState([]);
   const [processes, setProcesses] = useState({});
   // const [wholeProcess, setWholeProcess]=useState([])
-  const [processName, setProcessName] = useState([]);
+  const [processName, setProcessName] = useState({});
   const [previousData, setPreviousData] = useState({});
 
   const [taskId, setTaskId] = useState("");
@@ -112,6 +112,7 @@ function TaskPrac() {
   }-${selectedDate.getDate()}`;
 
   const formattedTime = `${selectedTime}:00`;
+ 
 
   useEffect(() => {
     const fetchData = async () => {
@@ -149,7 +150,6 @@ function TaskPrac() {
             lines: lines,
             totalLines: totalLines,
           });
-
          
         } else {
           const errorData = await response.text();
@@ -164,6 +164,7 @@ function TaskPrac() {
   }, [navigate, token]);
 
   console.log("object stationdaggta",stationData)
+  
 
   const getParts = async (e) => {
     const link = process.env.REACT_APP_BASE_URL;
@@ -213,6 +214,7 @@ function TaskPrac() {
 
   const [selectedSkill, setSelectedSkill] = useState({});
   const [selectPrecedency, setSelectPrecedency] = useState({});
+
   const handleProcessChange = (e, stationId) => {
     const selectedProcessNo = e.target.value;
     const selectedProcess = processes[stationId].find(
@@ -273,7 +275,17 @@ function TaskPrac() {
     }
   };
 
-  const getWholeProcesses = async (partNo) => {
+
+    // Function to convert the fetched data into a 2D array
+    const convertTo2DArray = (data, innerSize) => {
+        const result = [];
+        for (let i = 0; i < data.length; i += innerSize) {
+          result.push(data.slice(i, i + innerSize));
+        }
+        return result;
+      };
+    
+  const getWholeProcesses = async (partNo,line) => {
     const link = process.env.REACT_APP_BASE_URL;
     const endPoint = "/floorincharge/get_processes";
     const fullLink = link + endPoint;
@@ -296,8 +308,17 @@ function TaskPrac() {
         if (response.ok) {
           // setProcessName(data.data);
           const processesData = data.data;
-          setProcessName(processesData);
-          console.log("object whole processName", processesData);
+        //   setProcessName(processesData);
+        // const innerSize = processesData.length; // Example size for inner arrays
+        // const processes2DArray = convertTo2DArray(processesData, innerSize);
+        // setProcessName(processes2DArray);
+        const processesDataa = processesData.sort((a, b) => a.process_precedency - b.process_precedency);
+        setProcessName((prevProcessName) => ({
+            ...prevProcessName,
+            [line]: processesDataa,
+          }));
+          console.log("object processDataa",processesDataa)
+     
         } else {
           toast.info(data.Message);
         }
@@ -309,14 +330,13 @@ function TaskPrac() {
     }
   };
 
+  console.log("processName",processName)
+
   useEffect(() => {
     if (selectedPartNo) {
       getProcesses(selectedPartNo);
     }
-    if (wholePart) {
-      getWholeProcesses(wholePart);
-    }
-  }, [selectedPartNo, wholePart]);
+  }, [selectedPartNo]);
 
   // Function to handle change in start shift time
   const handleStartShiftChange = (e) => {
@@ -616,7 +636,7 @@ function TaskPrac() {
 
   const [globalInputValue, setGlobalInputValue] = useState([]);
 
-console.log("globalInputValue array",globalInputValue)
+  console.log("globalInputValue array",globalInputValue)
 
 
   const initializeArray = (size) => {
@@ -626,6 +646,7 @@ console.log("globalInputValue array",globalInputValue)
     }));
     setGlobalInputValue(initialArray);
   };
+
 
   const updateElementAtIndex = (index, field, newValue) => {
     setGlobalInputValue(prev => {
@@ -767,9 +788,29 @@ console.log("globalInputValue array",globalInputValue)
     updateElementAtIndex(selectedLine,field,input)
   };
 
-  const handleWholePartChange = (value,field, selectedLine) => {
-    setGlobalPart(value);    
-    updateElementAtIndex(selectedLine,field,value)
+//   const handleWholePartChange = (value,field, selectedLine) => {
+//     setGlobalPart(value); 
+//     getWholeProcesses(value, selectedLine);   
+//     updateElementAtIndex(selectedLine,field,value)
+//   };
+
+const handleWholePartChange = async (value, field, selectedLine) => {
+    setSelectedParts((prevSelectedParts) => ({
+      ...prevSelectedParts,
+      [selectedLine]: value,
+    }));
+    // await getWholeProcesses(value, selectedLine);
+    if (!value) {
+        // If part is empty, clear the processes for this line
+        setProcessName((prevProcessName) => ({
+          ...prevProcessName,
+          [selectedLine]: [],
+        }));
+      } else {
+        await getWholeProcesses(value, selectedLine);
+      }
+
+    updateElementAtIndex(selectedLine, field, value);
   };
 
 
@@ -781,6 +822,16 @@ console.log("globalInputValue array",globalInputValue)
     }
     return null; 
 }
+
+const extractStation = (identifier) => {
+    const regex = /S(\d+)/;
+    const match = identifier.match(regex);
+
+    if (match && match[1]) {
+        return parseInt(match[1]);
+      }
+      return null;
+  };
 
   return (
     <>
@@ -799,6 +850,7 @@ console.log("globalInputValue array",globalInputValue)
                 </button>
               ))}
         </div>
+
         {selectedLine && (
           <>
             <div className="task_qty_section">
@@ -871,7 +923,9 @@ console.log("globalInputValue array",globalInputValue)
         <div className="update_dropdown">
           <div className="task_whole_qty">
             <p>Select Part:</p>
-            <select onChange={(e) => handleWholePartChange(e.target.value,'part', selectedLine)}>
+            <select 
+            value={globalInputValue[selectedLine]?.part || ''}
+            onChange={(e) => handleWholePartChange(e.target.value,'part', selectedLine)}>
               <option value="">Select</option>
               {parts &&
                 parts.map((data, idx) => (
@@ -909,6 +963,8 @@ console.log("globalInputValue array",globalInputValue)
                     {stations.map((station, index) => {
                       let valueForLine = "";
                         const line=extractValue(station)
+                        const st=extractStation(station)
+                        console.log("line stationlist ",line, selectedLine, st,processName)
                     
                       return (
                         <div key={station} className="task_stations">
@@ -917,9 +973,17 @@ console.log("globalInputValue array",globalInputValue)
                                 <p>
                                   Part: {globalInputValue[selectedLine]?.part || ''}
                                 </p>
+                                <p>
+                                  Process:{processName[selectedLine]?.[st-1]?.process_no || ''}
+                                  {/* {processName[st]?.process_no || ''} */}
+                                  </p>
                               </div>
                               </div>
                           <div className="task_stations_right">
+                          <input
+                                className="task_station_input"
+                                value={processName[selectedLine]?.[st-1]?.process_precedency || 0}                                                            
+                              />
                             <input
                               className="task_station_input"
                               value={globalInputValue[selectedLine]?.inputValue || ''}

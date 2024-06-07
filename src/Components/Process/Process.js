@@ -14,7 +14,7 @@ function Process() {
   const [partName, setPartName] = useState("");
   const [processName, setProcessName] = useState("");
   const [processId, setProcessId] = useState("");
-  const [processVal, setProcessVal]=useState("")
+  const [processVal, setProcessVal] = useState("");
   const { popUpRef } = useRef();
   const [parts, setParts] = useState([]);
   const token = JSON.parse(localStorage.getItem("Token"));
@@ -89,7 +89,7 @@ function Process() {
       toast.error("Please Select Images");
     }
 
-    if (!processId || !processName ||!processVal) {
+    if (!processId || !processName || !processVal) {
       setErrorMessage("Please fill all the fields.");
       setShowErrPopup(true); // Show the pop-up if validation fails
       return;
@@ -108,7 +108,7 @@ function Process() {
       formData.append("process_id", processId);
       formData.append("belongs_to_part", partName);
       formData.append("added_by_owner", login.employee_id);
-      formData.append("process_precedency", processVal)
+      formData.append("process_precedency", processVal);
       // params.append("file", " ");
 
       // Append all selected image files as an array under the 'file' key
@@ -132,9 +132,8 @@ function Process() {
         setShowMsg(data.Message);
         setProcessName("");
         setProcessId("");
-        setProcessVal("")
-        
-      } else{
+        setProcessVal("");
+      } else {
         const errorData = await response.json();
         const errorMessage = errorData.Message;
         toast.error(errorMessage);
@@ -166,6 +165,15 @@ function Process() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showErrPopup, showPopup]);
+
+  const handlePrecedenceChange = (e) => {
+    const value = e.target.value;
+    if (value === "") {
+      setProcessVal("");
+    } else {
+      setProcessVal(Math.max(1, parseInt(value)));
+    }
+  };
 
   return (
     <div>
@@ -213,7 +221,9 @@ function Process() {
           </div>
         </div>
 
-        <div></div>
+        <div>
+          
+        </div>
         <div className="parts_details">
           <p>
             Enter Process Name:
@@ -237,11 +247,12 @@ function Process() {
           <p>
             Process Precedence
             <input
-            type="number"
+              type="number"
               value={processVal}
-              onChange={(e) => setProcessVal(e.target.value)}
+              onChange={handlePrecedenceChange}
               placeholder="Precedence"
               required
+              min="1"
             />
           </p>
         </div>
