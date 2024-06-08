@@ -509,7 +509,7 @@ function TaskNew() {
           // process_no: selectedProcesses[station] ||process?process:"" , // Use user entered value if available, otherwise use value from previousData
           employee_id:
             (selectedEmployees[station] ? employeeCode[station] : employeeid) ||
-            employeeResponse?.[station]?.[shift][0] ||
+            (selectedEmployee[station]?selectedEmployee[station] : employeeResponse?.[station]?.[shift][0])||
             "", // Use user entered value if available, otherwise use value from previousData
           part_no:
             selectedParts[station] ||
@@ -779,6 +779,8 @@ function TaskNew() {
 
   //   particular employee details from employee code
   const [selectedEmployees, setSelectedEmployees] = useState({});
+  const [selectedEmployee, setSelectedEmployee] = useState({});
+
   // Function to handle employee selection for each station
   //   const handleEmployeeChange = (employee, stationId) => {
   //     setSelectedEmployees({ ...selectedEmployees, [stationId]: employee });
@@ -915,7 +917,6 @@ function TaskNew() {
   //           employeeChange(null, station, employeeList[0]);
   //         }
   //       });
-
   //     }
   //   }, [employeeResponse]);
 
@@ -1305,13 +1306,17 @@ function TaskNew() {
                                 {employeeResponse[station]?.[shift]?.length >
                                 1 ? (
                                   <select
-                                    value={
-                                      selectedEmployees[station] 
-                                      ||
-                                      employeeResponse[station]?.[shift][0]
-                                    }
-                                    onChange={(e) => employeeChange(e, station)}
-                                  >
+                                //     value={
+                                //       selectedEmployees[station] || employeeResponse[station]?.[shift][0]
+                                //     }
+                                //     onChange={(e) => employeeChange(e, station)}
+                                //   >
+                                value={selectedEmployee[station] || employeeResponse[station]?.[shift][0]}
+                                onChange={(e) => {
+                                    setSelectedEmployee({...selectedEmployee, [station]: e.target.value}); // Update selectedEmployees state
+                                    employeeChange(e, station); // Call employeeChange function
+                                  }}
+                              >
                                     {employeeResponse[station]?.[shift].map(
                                       (employee) => (
                                         <option key={employee} value={employee}>
