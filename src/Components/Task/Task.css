@@ -300,6 +300,7 @@ padding: 20px;
     border: 1px solid #ccc;
     outline: none;
 }
+
 .task_btnss{
     display: flex;
 }
@@ -321,12 +322,35 @@ padding: 20px;
     padding-left: 10px;
 }
 
+.global_task_qty{
+    display: flex;
+}
+
 /* Media query for tablets (768px to 1024px) */
-@media screen and (min-width: 768px) and (max-width: 1024px) {
+@media screen and (min-width: 768px) and (max-width: 1440px) {
     .date_picker{
         width: 6rem;
     }
+    .task_btnss{
+        margin-top: 1rem;
+    }
 }
+
+@media screen and (min-width: 768px) and (max-width: 1440px){
+    .global_task_qty{
+        display: flex;
+        width: max-content;
+        margin-top: 1rem;
+    }
+    .task_whole_part{
+        display: flex;
+    }
+    .global_task{
+        display: flex;
+        flex-wrap: wrap;
+    }
+}
+
 
 /* Media query for laptops (1025px and above) */
 @media screen and (min-width: 1025px) {
@@ -347,4 +371,9 @@ padding: 20px;
         display: flex;
         justify-content: flex-start;
     }
+    .global_task{
+       display: flex; 
+        flex-direction: row;
+    }
 }
+

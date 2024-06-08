@@ -161,7 +161,7 @@ export default function Dashboard() {
 
 // websocket
   useEffect(() => {
-    const link = "ws://192.168.1.2:5000";
+    const link = "ws://192.168.1.56:5000";
 
     // Get the current date
     const currentDate = new Date();
@@ -419,6 +419,7 @@ export default function Dashboard() {
   //     }
   //   };
 
+  
   useEffect(() => {
     console.log("employeeDatahgbhvhv hghghghb bhhjbjhb ", employeeData);
   }, [employeeData]);

@@ -42,6 +42,8 @@ const useTokenExpirationCheck = (token, navigate) => {
       localStorage.removeItem("TotalLines");
       localStorage.removeItem("Login");
       localStorage.removeItem("floor_no");
+    localStorage.removeItem("approvedNotifications")
+
       navigate("/");
     }
   }, [tokenExpired, navigate]);

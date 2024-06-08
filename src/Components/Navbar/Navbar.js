@@ -23,6 +23,7 @@ export default function Navbar() {
     localStorage.removeItem("floor_no");
     localStorage.removeItem("TotalLines");
     localStorage.removeItem("stationData")
+    localStorage.removeItem("approvedNotifications")
     // Navigate to the login page
     navigate("/");
   };

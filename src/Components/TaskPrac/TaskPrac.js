@@ -333,7 +333,6 @@ function TaskNew() {
     console.log("object initially selcted line", line);
     const data = parseInt(line.split("L")[1]);
     setSelectedLine(data);
-
     // Parse the stations data from the state
     const allStations = stationData.stations;
     // Find stations corresponding to the selected line
@@ -344,6 +343,7 @@ function TaskNew() {
 
   // Function to handle change in start shift time
   const handleStartShiftChange = (e) => {
+    console.log("sshift tim", e.target.value, startTimeOptions);
     setStartShiftTime(e.target.value);
   };
 
@@ -461,7 +461,11 @@ function TaskNew() {
     const selectedLineStations =
       stationData.stations[`${floor_no} ${lineCode}`];
 
-    console.log("object selectedLineStations", selectedLineStations);
+    console.log(
+      "object selectedLineStations on assigntask func",
+      selectedLineStations
+    );
+    // ['G01 F02 L01 S01', 'G01 F02 L01 S03', 'G01 F02 L01 S04', 'G01 F02 L01 S05', 'G01 F02 L01 S06', 'G01 F02 L01 S07']
 
     // Check if selectedLineStations is defined and iterable
     if (!selectedLineStations || !Array.isArray(selectedLineStations)) {
@@ -469,13 +473,15 @@ function TaskNew() {
       return;
     }
 
-    selectedLineStations.forEach((station) => {
+    selectedLineStations.forEach((station, index) => {
       if (runningTaskInitially.includes(station)) {
         console.log(
           `Skipping station ${station} as it already has a running task`
         );
         return;
       }
+
+      //   console.log(processName?.[selectedLine]?.[index ]?.Cycle_Time_secs ? (timingDiff/processName?.[selectedLine]?.[index]?.Cycle_Time_secs):'')
 
       // if (previousData.hasOwnProperty(station)) {
       // Extract required data from previousData for the current station
@@ -494,11 +500,16 @@ function TaskNew() {
         ((selectedParts[station] ||
           wholePart ||
           globalInputValue[selectedLine]?.part) &&
-          (selectedProcesses[station] || processName[station]?.process_no) &&
+          (selectedProcesses[station] ||
+            processName[selectedLine]?.[index]?.process_no) &&
           (selectedEmployees[station] ||
             employeeResponse?.[station]?.[shift][0]) &&
           (userEnteredValue[station] ||
-            globalInputValue[selectedLine]?.inputValue)) ||
+            globalInputValue[selectedLine]?.inputValue ||
+            (processName?.[selectedLine]?.[index].Cycle_Time_secs
+              ? timingDiff /
+                processName?.[selectedLine]?.[index].Cycle_Time_secs
+              : ""))) ||
         (part && process && employeeid)
       ) {
         // Create a new task object for the station
@@ -509,7 +520,9 @@ function TaskNew() {
           // process_no: selectedProcesses[station] ||process?process:"" , // Use user entered value if available, otherwise use value from previousData
           employee_id:
             (selectedEmployees[station] ? employeeCode[station] : employeeid) ||
-            (selectedEmployee[station]?selectedEmployee[station] : employeeResponse?.[station]?.[shift][0])||
+            (selectedEmployee[station]
+              ? selectedEmployee[station]
+              : employeeResponse?.[station]?.[shift][0]) ||
             "", // Use user entered value if available, otherwise use value from previousData
           part_no:
             selectedParts[station] ||
@@ -519,12 +532,13 @@ function TaskNew() {
           process_no:
             selectedProcesses[station] ||
             process ||
-            processName[station]?.process_no ||
+            processName[selectedLine]?.[index]?.process_no ||
             "",
           shift: shift,
           station_precedency:
             selectPrecedency[station] ||
-            processName[station]?.process_precedency ||
+            processName[selectedLine]?.[index]?.process_precedency ||
+            // processName[station]?.process_precedency
             0,
           start_shift_time: startShiftTime,
           end_shift_time: endShiftTime,
@@ -533,6 +547,12 @@ function TaskNew() {
           total_assigned_task:
             Number(userEnteredValue[station]) ||
             globalInputValue[selectedLine]?.inputValue ||
+           (processName?.[selectedLine]?.[index].Cycle_Time_secs
+            ? Math.floor(
+                timingDiff / processName[selectedLine][index].Cycle_Time_secs
+              )
+            : "")
+              ||
             0,
         };
 
@@ -796,8 +816,11 @@ function TaskNew() {
   // select employee name and skill from employee code
   const [employeeCode, setEmployeeCode] = useState("");
 
-  const employeeChange = async (event, stationId) => {
-    const { value } = event.target;
+  const employeeChange = async (e, stationId) => {
+    // const { value } = event.target;
+
+    const value = e.target ? e.target.value : e;
+    console.log(`Employee changed for station ${stationId}: ${value}`)
     // setEmployeeCode(value); // Update the employee code state
     setEmployeeCode({ ...employeeCode, [stationId]: value });
 
@@ -870,8 +893,8 @@ function TaskNew() {
 
         if (response.ok) {
           // Replace single quotes with double quotes
-            const fixedDataString = data.Data.replace(/'/g, '"');
-        //   const fixedDataString = data.Data;
+          const fixedDataString = data.Data.replace(/'/g, '"');
+          //   const fixedDataString = data.Data;
 
           console.log("object fixedDataString", fixedDataString);
           // Replace double quotes with single quotes
@@ -907,7 +930,40 @@ function TaskNew() {
     }
   };
 
-  console.log("object employeeResponse", employeeResponse);
+  const [timingDiff, setTimingDiff] = useState(0);
+
+  const fetchQty = async () => {
+    // Check if shift timings are selected
+    if (!startShiftTime || !endShiftTime) {
+      toast.warning("Please select shift Timings", { autoClose: 5000 });
+      return; // Exit the function early
+    }
+
+    // Check if a part is selected for the current selectedLine
+    if (!selectedParts[selectedLine]) {
+      toast.warning("Please Select Part", { autoClose: 5000 });
+      return;
+    }
+
+    // Extract hours and minutes from the start and end shift times
+    const [startHours, startMinutes] = startShiftTime.split(":").map(Number);
+    const [endHours, endMinutes] = endShiftTime.split(":").map(Number);
+
+    // Convert start and end times to total seconds
+    const startInSeconds = startHours * 3600 + startMinutes * 60;
+    const endInSeconds = endHours * 3600 + endMinutes * 60;
+
+    // Calculate the difference in seconds
+    const diffInSeconds = endInSeconds - startInSeconds;
+
+    // Handle potential negative difference (if end time is before start time)
+    const adjustedDiffInSeconds =
+      diffInSeconds < 0 ? 24 * 3600 + diffInSeconds : diffInSeconds;
+
+    // Log or use the calculated difference in seconds
+    console.log("Time difference in seconds:", adjustedDiffInSeconds);
+    setTimingDiff(adjustedDiffInSeconds);
+  };
 
   //   useEffect(() => {
   //     if (Object.keys(employeeResponse).length > 0) {
@@ -919,6 +975,25 @@ function TaskNew() {
   //       });
   //     }
   //   }, [employeeResponse]);
+
+  // useEffect to call employeeChange when employeeResponse or selectedEmployee updates
+// useEffect(() => {
+//     Object.keys(employeeResponse).forEach((station) => {
+//       const shiftData = employeeResponse[station]?.[shift];
+//       if (shiftData && shiftData.length > 0) {
+//         const initialEmployee = shiftData[0];
+//         console.log("objecselectedEmployee[station] !== initialEmployeet",selectedEmployee[station] ,initialEmployee)
+//         if (selectedEmployee[station] !== initialEmployee) {
+//           setSelectedEmployee((prev) => ({
+//             ...prev,
+//             [station]: initialEmployee,
+//           }));
+//           employeeChange(initialEmployee, station);
+//         }
+//       }
+//     });
+//   }, [employeeResponse, selectedEmployee]);
+
 
   return (
     <>
@@ -985,7 +1060,20 @@ function TaskNew() {
             <p>Select Shift Timings</p>
 
             <div className="update_dropdown">
-              <select onChange={handleStartShiftChange}>
+              {/* <select
+                value={startShiftTime} // Set the value attribute to the startShiftTime state
+                onChange={handleStartShiftChange}
+              >
+                <option value="">Start</option>
+                {startTimeOptions.map((timeOption, index) => (
+                  <option key={index} value={timeOption.key}>
+                    {timeOption}
+                  </option>
+                ))}
+              </select> */}
+              <select 
+              value={startShiftTime}
+              onChange={handleStartShiftChange}>
                 <option>Start </option>
                 {/* {generateTimeOptions()} */}
                 {startTimeOptions}
@@ -993,7 +1081,7 @@ function TaskNew() {
             </div>
 
             <div className="update_dropdown">
-              <select onChange={handleEndShiftChange}>
+              <select value={endShiftTime} onChange={handleEndShiftChange}>
                 <option>End </option>
                 {endTimeOptions}
               </select>
@@ -1029,35 +1117,45 @@ function TaskNew() {
         </div>
 
         <div className="update_dropdown">
-          <div className="task_whole_part">
-            <p>Select Part:</p>
-            <select
-              value={globalInputValue[selectedLine]?.part || ""}
-              onChange={(e) =>
-                handleWholePartChange(e.target.value, "part", selectedLine)
-              }
-            >
-              <option value="">Select</option>
-              {parts &&
-                parts.map((data, idx) => (
-                  <option key={idx} value={data.part_no}>
-                    {data.part_no}
-                  </option>
-                ))}
-            </select>
-            <input
-              className="global_input"
-              value={globalInputValue[selectedLine]?.inputValue || ""}
-              placeholder="Enter global qty"
-              onChange={(e) =>
-                handleGlobalInputChange(e, "inputValue", selectedLine)
-              }
-            />
+          <div className="global_task">
+            <div className="task_whole_part">
+              <p>Select Part:</p>
+              <select
+                value={globalInputValue[selectedLine]?.part || ""}
+                onChange={(e) =>
+                  handleWholePartChange(e.target.value, "part", selectedLine)
+                }
+              >
+                <option value="">Select</option>
+                {parts &&
+                  parts.map((data, idx) => (
+                    <option key={idx} value={data.part_no}>
+                      {data.part_no}
+                    </option>
+                  ))}
+              </select>
 
-            <div>
-              <button className="task_assign_btn" onClick={assignEmployee}>
-                Assign Employee
-              </button>
+              <input
+                className="global_input"
+                value={globalInputValue[selectedLine]?.inputValue || ""}
+                placeholder="Enter global qty"
+                onChange={(e) =>
+                  handleGlobalInputChange(e, "inputValue", selectedLine)
+                }
+              />
+            </div>
+
+            <div className="global_task_qty">
+              <div>
+                <button className="task_assign_btn" onClick={assignEmployee}>
+                  Assign Employee
+                </button>
+              </div>
+              <div>
+                <button className="task_assign_btn" onClick={fetchQty}>
+                  Fetch From Quantity
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -1222,11 +1320,14 @@ function TaskNew() {
                             <div className="task_stations_right">
                               <input
                                 className="task_station_input"
+                                placeholder="prec."
                                 value={
                                   selectPrecedency[station] ||
-                                  processName[selectedLine]?.[s - 1]
-                                    ?.process_precedency ||
-                                  ""
+                                  (processName[selectedLine]?.[s - 1]
+                                    ?.process_precedency !== undefined
+                                    ? processName[selectedLine][s - 1]
+                                        .process_precedency
+                                    : "")
                                 }
                                 // onChange={(e) =>
                                 //   handlePrecedenceVal(e, station)
@@ -1240,6 +1341,20 @@ function TaskNew() {
                                   // If the user has entered a value for the station, show it; otherwise, show the value from the API or default to 0
                                   userEnteredValue[station] ||
                                   globalInputValue[selectedLine]?.inputValue ||
+                                //   (processName?.[selectedLine]?.[s - 1]
+                                //     .Cycle_Time_secs
+                                //     ? timingDiff /
+                                //       processName?.[selectedLine]?.[s - 1]
+                                //         .Cycle_Time_secs
+                                //     : "")
+                                (
+                                    processName?.[selectedLine]?.[s - 1].Cycle_Time_secs
+    ? Math.floor(
+        timingDiff / processName[selectedLine][s - 1].Cycle_Time_secs
+      )
+    : ""
+                                )
+                                     ||
                                   ""
                                 }
                                 placeholder="qty"
@@ -1300,23 +1415,33 @@ function TaskNew() {
                                       ][0]) ||
                                     ""
                                   }
-                                  onChange={(e) => employeeChange(e, station)}
+                                //   onChange={(e) => employeeChange(e, station)}
+                                onChange={(e) => {
+                                    const newValue = e.target.value;
+                                    console.log("New value:", newValue); // Add console.log to verify newValue
+                                    // Call employeeChange only if newValue is not empty
+                                    if (newValue.trim() !== "") {
+                                      console.log("Calling employeeChange with value:", newValue); // Log that employeeChange is called
+                                      employeeChange(newValue, station);
+                                    }
+                                  }}
                                 />
 
                                 {employeeResponse[station]?.[shift]?.length >
                                 1 ? (
                                   <select
-                                //     value={
-                                //       selectedEmployees[station] || employeeResponse[station]?.[shift][0]
-                                //     }
-                                //     onChange={(e) => employeeChange(e, station)}
-                                //   >
-                                value={selectedEmployee[station] || employeeResponse[station]?.[shift][0]}
-                                onChange={(e) => {
-                                    setSelectedEmployee({...selectedEmployee, [station]: e.target.value}); // Update selectedEmployees state
-                                    employeeChange(e, station); // Call employeeChange function
-                                  }}
-                              >
+                                    value={
+                                      selectedEmployee[station] ||
+                                      employeeResponse[station]?.[shift][0]
+                                    }
+                                    onChange={(e) => {
+                                      setSelectedEmployee({
+                                        ...selectedEmployee,
+                                        [station]: e.target.value,
+                                      }); // Update selectedEmployees state
+                                      employeeChange(e, station); // Call employeeChange function
+                                    }}
+                                  >
                                     {employeeResponse[station]?.[shift].map(
                                       (employee) => (
                                         <option key={employee} value={employee}>
@@ -1328,7 +1453,6 @@ function TaskNew() {
                                 ) : (
                                   ""
                                 )}
-
                               </div>
                               {/* Show a message if part and process are selected but employee ID is missing */}
                               {selectedProcesses[station] &&
