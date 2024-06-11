@@ -547,12 +547,11 @@ function TaskNew() {
           total_assigned_task:
             Number(userEnteredValue[station]) ||
             globalInputValue[selectedLine]?.inputValue ||
-           (processName?.[selectedLine]?.[index].Cycle_Time_secs
-            ? Math.floor(
-                timingDiff / processName[selectedLine][index].Cycle_Time_secs
-              )
-            : "")
-              ||
+            (processName?.[selectedLine]?.[index].Cycle_Time_secs
+              ? Math.floor(
+                  timingDiff / processName[selectedLine][index].Cycle_Time_secs
+                )
+              : "") ||
             0,
         };
 
@@ -574,6 +573,7 @@ function TaskNew() {
           Authorization: `Bearer ${token}`,
         },
       });
+
       if (response) {
         if (response.ok) {
           {
@@ -763,7 +763,7 @@ function TaskNew() {
     const fullLink = link + endPoint;
 
     try {
-      const allStationsData = Object.values(stationData.stations); // Extract all stations from stationData
+      const allStationsData = Object.values(stationData?.stations); // Extract all stations from stationData
 
       // Flatten the array of arrays to get a single array of all station IDs
       const stationIds = allStationsData.flat();
@@ -820,9 +820,15 @@ function TaskNew() {
     // const { value } = event.target;
 
     const value = e.target ? e.target.value : e;
-    console.log(`Employee changed for station ${stationId}: ${value}`)
+    console.log(`Employee changed for station ${stationId}: ${value}`);
     // setEmployeeCode(value); // Update the employee code state
     setEmployeeCode({ ...employeeCode, [stationId]: value });
+    console.log(`PRINTED VALUES IN ONCHANGE` , employeeCode ,{[stationId]: value});
+
+    // setSelectedEmployees(prevState => ({
+    //     ...prevState,
+    //     [stationId]: value
+    // }));
 
     const link = process.env.REACT_APP_BASE_URL;
     const endPoint = "/floorincharge/operator/details";
@@ -848,16 +854,15 @@ function TaskNew() {
       } else {
         console.error("Failed to fetch employee details");
         // Clear the selected employee details state if fetching fails
-        setSelectedEmployees({ ...selectedEmployees, [stationId]: null });
+        // setSelectedEmployees({ ...selectedEmployees, [stationId]: null });
       }
     } catch (error) {
       console.error("Error:", error);
-      setSelectedEmployees({ ...selectedEmployees, [stationId]: null });
+      //   setSelectedEmployees({ ...selectedEmployees, [stationId]: null });
     }
   };
 
   const [shift, setShift] = useState("");
-
   console.log("object globalInputValue", globalInputValue);
 
   //   setting employee automatically
@@ -918,6 +923,20 @@ function TaskNew() {
             return;
           } else {
             setEmployeeResponse(parsedData);
+
+            // Function to process stations and employees sequentially
+            const processStationsAndEmployees = async () => {
+              for (const stationId of Object.keys(parsedData)) {
+                const employees = parsedData[stationId]?.[shift];
+                for (const employeeId of employees) {
+                  await employeeChange(employeeId, stationId);
+                  console.log("Employee ID IS " + employeeId, " STATTION ID IS " + stationId )
+                }
+              }
+            };
+
+            // Call the function
+            processStationsAndEmployees();
           }
         } else {
           toast.info(data.Message);
@@ -977,23 +996,22 @@ function TaskNew() {
   //   }, [employeeResponse]);
 
   // useEffect to call employeeChange when employeeResponse or selectedEmployee updates
-// useEffect(() => {
-//     Object.keys(employeeResponse).forEach((station) => {
-//       const shiftData = employeeResponse[station]?.[shift];
-//       if (shiftData && shiftData.length > 0) {
-//         const initialEmployee = shiftData[0];
-//         console.log("objecselectedEmployee[station] !== initialEmployeet",selectedEmployee[station] ,initialEmployee)
-//         if (selectedEmployee[station] !== initialEmployee) {
-//           setSelectedEmployee((prev) => ({
-//             ...prev,
-//             [station]: initialEmployee,
-//           }));
-//           employeeChange(initialEmployee, station);
-//         }
-//       }
-//     });
-//   }, [employeeResponse, selectedEmployee]);
-
+  // useEffect(() => {
+  //     Object.keys(employeeResponse).forEach((station) => {
+  //       const shiftData = employeeResponse[station]?.[shift];
+  //       if (shiftData && shiftData.length > 0) {
+  //         const initialEmployee = shiftData[0];
+  //         console.log("objecselectedEmployee[station] !== initialEmployeet",selectedEmployee[station] ,initialEmployee)
+  //         if (selectedEmployee[station] !== initialEmployee) {
+  //           setSelectedEmployee((prev) => ({
+  //             ...prev,
+  //             [station]: initialEmployee,
+  //           }));
+  //           employeeChange(initialEmployee, station);
+  //         }
+  //       }
+  //     });
+  //   }, [employeeResponse, selectedEmployee]);
 
   return (
     <>
@@ -1071,9 +1089,7 @@ function TaskNew() {
                   </option>
                 ))}
               </select> */}
-              <select 
-              value={startShiftTime}
-              onChange={handleStartShiftChange}>
+              <select value={startShiftTime} onChange={handleStartShiftChange}>
                 <option>Start </option>
                 {/* {generateTimeOptions()} */}
                 {startTimeOptions}
@@ -1341,20 +1357,20 @@ function TaskNew() {
                                   // If the user has entered a value for the station, show it; otherwise, show the value from the API or default to 0
                                   userEnteredValue[station] ||
                                   globalInputValue[selectedLine]?.inputValue ||
-                                //   (processName?.[selectedLine]?.[s - 1]
-                                //     .Cycle_Time_secs
-                                //     ? timingDiff /
-                                //       processName?.[selectedLine]?.[s - 1]
-                                //         .Cycle_Time_secs
-                                //     : "")
-                                (
-                                    processName?.[selectedLine]?.[s - 1].Cycle_Time_secs
-    ? Math.floor(
-        timingDiff / processName[selectedLine][s - 1].Cycle_Time_secs
-      )
-    : ""
-                                )
-                                     ||
+                                  //   (processName?.[selectedLine]?.[s - 1]
+                                  //     .Cycle_Time_secs
+                                  //     ? timingDiff /
+                                  //       processName?.[selectedLine]?.[s - 1]
+                                  //         .Cycle_Time_secs
+                                  //     : "")
+                                  (processName?.[selectedLine]?.[s - 1]
+                                    ?.Cycle_Time_secs
+                                    ? Math.floor(
+                                        timingDiff /
+                                          processName[selectedLine][s - 1]
+                                            .Cycle_Time_secs
+                                      )
+                                    : "") ||
                                   ""
                                 }
                                 placeholder="qty"
@@ -1415,16 +1431,16 @@ function TaskNew() {
                                       ][0]) ||
                                     ""
                                   }
-                                //   onChange={(e) => employeeChange(e, station)}
-                                onChange={(e) => {
-                                    const newValue = e.target.value;
-                                    console.log("New value:", newValue); // Add console.log to verify newValue
-                                    // Call employeeChange only if newValue is not empty
-                                    if (newValue.trim() !== "") {
-                                      console.log("Calling employeeChange with value:", newValue); // Log that employeeChange is called
-                                      employeeChange(newValue, station);
-                                    }
-                                  }}
+                                  onChange={(e) => employeeChange(e, station)}
+                                  //   onChange={(e) => {
+                                  //       const newValue = e.target.value;
+                                  //       console.log("New value:", newValue); // Add console.log to verify newValue
+                                  //       // Call employeeChange only if newValue is not empty
+                                  //       if (newValue.trim() !== "") {
+                                  //         console.log("Calling employeeChange with value:", newValue); // Log that employeeChange is called
+                                  //         employeeChange(newValue, station);
+                                  //       }
+                                  //     }}
                                 />
 
                                 {employeeResponse[station]?.[shift]?.length >
