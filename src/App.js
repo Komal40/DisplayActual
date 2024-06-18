@@ -35,8 +35,10 @@ function App() {
       <Route path='/process' element={<ProtectedRoute Component={Process}/>}/>
       <Route path='/para' element={<ProtectedRoute Component={Parameters}/>}/>
       <Route path='/task' element={<ProtectedRoute Component={TaskPrac}/>}/>
+
       {/* <Route path='/task' element={<ProtectedRoute Component={StationList}/>}/> */}
       {/* <Route path='/task' element={<ProtectedRoute Component={TaskNew}/>}/> */}
+      {/* <Route path='/task' element={<TaskNew/>}/>  */}
       <Route path='/chart' element={<ProtectedRoute Component={Chart}/>}/>
       <Route path='/delete' element={<ProtectedRoute Component={DeleteFloor}/>}/>
       <Route path='/assignopt' element={<ProtectedRoute Component={AssignOperator}/>}/>
@@ -45,5 +47,6 @@ function App() {
     </>
   );
 }
+
 
 export default withScreenSizeCheck(App);

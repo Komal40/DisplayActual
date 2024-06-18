@@ -67,12 +67,20 @@ function TaskNew() {
   function generateTimeOptions(currentHour, currentMinute, hours) {
     const options = [];
 
-    // Start generating options from the current hour and minute
+    // Round up to the next 15-minute interval
+    const roundedMinute = Math.ceil(currentMinute / 15) * 15;
     let hour = currentHour;
-    let minute = currentMinute;
+    let minute = roundedMinute;
 
-    for (let i = 0; i < hours; i++) {
+    if (minute >= 60) {
+      hour++;
+      minute = 0;
+    }
+
+    for (let i = 0; i < hours * 4; i++) {
+      // 4 intervals per hour
       const adjustedHour = hour % 24; // Ensure hour stays within 24-hour format
+      const dayOffset = Math.floor(hour / 24); // Calculate day offset
 
       // Format hour and minute as string with leading zeros
       const formattedHour = adjustedHour.toString().padStart(2, "0");
@@ -81,12 +89,18 @@ function TaskNew() {
       // Construct the time string (e.g., "HH:mm")
       const timeString = `${formattedHour}:${formattedMinute}:00`;
 
-      // Push the option element with the time string as key and value
-      options.push(<option key={timeString}>{timeString}</option>);
+      // Construct a unique key by combining the dayOffset and timeString
+      const uniqueKey = `${dayOffset}-${timeString}`;
 
-      // Increment minute by 30 (to represent each half-hour interval)
-      minute += 30;
-      // minute += 15;
+      // Push the option element with the unique key and time string as value
+      options.push(
+        <option key={uniqueKey} value={timeString}>
+          {timeString}
+        </option>
+      );
+
+      // Increment minute by 15 (to represent each 15-minute interval)
+      minute += 15;
 
       // If minute exceeds 59, increment hour and reset minute to 0
       if (minute >= 60) {
@@ -297,12 +311,12 @@ function TaskNew() {
           // setProcessName(data.data);
           const processesData = data.data;
           //   setProcessName(processesData);
-          const processesDataa = processesData.sort(
-            (a, b) => a.process_precedency - b.process_precedency
-          );
+          // const processesDataa = processesData.sort(
+          //   (a, b) => a.process_precedency - b.process_precedency
+          // );
           setProcessName((prevProcessName) => ({
             ...prevProcessName,
-            [line]: processesDataa,
+            [line]: processesData,
           }));
         } else {
           toast.info(data.Message);
@@ -537,8 +551,7 @@ function TaskNew() {
           shift: shift,
           station_precedency:
             selectPrecedency[station] ||
-            processName[selectedLine]?.[index]?.process_precedency ||
-            // processName[station]?.process_precedency
+            index+1 ||
             0,
           start_shift_time: startShiftTime,
           end_shift_time: endShiftTime,
@@ -674,9 +687,20 @@ function TaskNew() {
   };
 
   const [userEnteredValue, setUserEnteredValue] = useState({});
+  const [showPopUpProcess, setSHowPopUpProcess]=useState(false)
   // Modify handleInputChange to update the entered value for the corresponding station
   const handleInputChange = (e, stationId) => {
     const { value } = e.target;
+
+    const station=extractStation(stationId)
+    const limit = Math.floor(timingDiff / (processName?.[selectedLine]?.[station - 1]?.Cycle_Time_secs || 1));
+
+    // Check if the entered value exceeds the calculated limit
+    if (value > limit) {
+      setSHowPopUpProcess(true); // Show popup or alert
+      return; // Exit function to prevent setting invalid value
+    }
+
     // Update the state with the entered value for the station
     setUserEnteredValue((prevState) => ({
       ...prevState,
@@ -823,7 +847,9 @@ function TaskNew() {
     console.log(`Employee changed for station ${stationId}: ${value}`);
     // setEmployeeCode(value); // Update the employee code state
     setEmployeeCode({ ...employeeCode, [stationId]: value });
-    console.log(`PRINTED VALUES IN ONCHANGE` , employeeCode ,{[stationId]: value});
+    console.log(`PRINTED VALUES IN ONCHANGE`, employeeCode, {
+      [stationId]: value,
+    });
 
     // setSelectedEmployees(prevState => ({
     //     ...prevState,
@@ -930,7 +956,10 @@ function TaskNew() {
                 const employees = parsedData[stationId]?.[shift];
                 for (const employeeId of employees) {
                   await employeeChange(employeeId, stationId);
-                  console.log("Employee ID IS " + employeeId, " STATTION ID IS " + stationId )
+                  console.log(
+                    "Employee ID IS " + employeeId,
+                    " STATTION ID IS " + stationId
+                  );
                 }
               }
             };
@@ -1013,6 +1042,43 @@ function TaskNew() {
   //     });
   //   }, [employeeResponse, selectedEmployee]);
 
+  const shiftTimings = {
+    A: { start: "07:00:00", end: "12:00:00" },
+    B: { start: "13:00:00", end: "17:00:00" },
+    C: { start: "17:00:00", end: "22:00:00" },
+  };
+
+  const setShifts = (shift) => {
+    setShift(shift);
+    if (shiftTimings[shift]) {
+      setStartShiftTime(shiftTimings[shift].start);
+      setEndShiftTime(shiftTimings[shift].end);
+    } else {
+      setStartShiftTime("");
+      setEndShiftTime("");
+    }
+  };
+
+
+  const [showStation, setShowStation] = useState({});
+// Handle checkbox change for showing stations
+// const handleCheckboxChange = (index, checked, station) => {
+//   setShowStation(prevState => ({
+//     ...prevState,
+//     [station]: { checked: !showStation[station]?.checked  }
+//   }));
+// };
+
+ // Handle checkbox change for showing stations
+ const handleCheckboxChange = (station) => {
+  setShowStation(prevState => ({
+    ...prevState,
+    [station]: !prevState[station]
+  }));
+};
+
+console.log("object",showStation)
+
   return (
     <>
       <ToastContainer />
@@ -1067,7 +1133,7 @@ function TaskNew() {
           <div className="task__qty">
             <p>Select Shift</p>
             <div className="update_dropdown">
-              <select onChange={(e) => setShift(e.target.value)}>
+              <select onChange={(e) => setShifts(e.target.value)}>
                 <option value="">Shift</option>
                 <option value="A">A</option>
                 <option value="B">B</option>
@@ -1078,27 +1144,14 @@ function TaskNew() {
             <p>Select Shift Timings</p>
 
             <div className="update_dropdown">
-              {/* <select
-                value={startShiftTime} // Set the value attribute to the startShiftTime state
-                onChange={handleStartShiftChange}
-              >
-                <option value="">Start</option>
-                {startTimeOptions.map((timeOption, index) => (
-                  <option key={index} value={timeOption.key}>
-                    {timeOption}
-                  </option>
-                ))}
-              </select> */}
-              <select value={startShiftTime} onChange={handleStartShiftChange}>
-                <option>Start </option>
-                {/* {generateTimeOptions()} */}
+              <select onChange={handleStartShiftChange} value={startShiftTime}>
+                <option>Start</option>
                 {startTimeOptions}
               </select>
             </div>
-
             <div className="update_dropdown">
-              <select value={endShiftTime} onChange={handleEndShiftChange}>
-                <option>End </option>
+              <select onChange={handleEndShiftChange} value={endShiftTime}>
+                <option>End</option>
                 {endTimeOptions}
               </select>
             </div>
@@ -1151,14 +1204,14 @@ function TaskNew() {
                   ))}
               </select>
 
-              <input
+              {/* <input
                 className="global_input"
                 value={globalInputValue[selectedLine]?.inputValue || ""}
                 placeholder="Enter global qty"
                 onChange={(e) =>
                   handleGlobalInputChange(e, "inputValue", selectedLine)
                 }
-              />
+              /> */}
             </div>
 
             <div className="global_task_qty">
@@ -1262,7 +1315,21 @@ function TaskNew() {
                                   </u>
                                 )}
                               </div>
-                              <h4>{station}</h4>
+
+                              <h4>
+                                <span style={{marginRight:'10px'}}>
+                                  <label>
+                                    <input
+                                      type="checkbox"
+                                      className="input_checkbox"
+                                      checked={showStation[station]}
+                                      onChange={(e) => handleCheckboxChange( station)}
+                                    />
+                                  </label>
+                                </span>
+                                {station}
+                              </h4>
+
                               <div className="task_stations_part">
                                 <p>
                                   Part:{" "}
@@ -1273,6 +1340,7 @@ function TaskNew() {
                                     ""}
                                 </p>
                               </div>
+
                               <div className="task_stations_part">
                                 <p>
                                   Process:{" "}
@@ -1338,25 +1406,25 @@ function TaskNew() {
                                 className="task_station_input"
                                 placeholder="prec."
                                 value={
-                                  selectPrecedency[station] ||
-                                  (processName[selectedLine]?.[s - 1]
-                                    ?.process_precedency !== undefined
-                                    ? processName[selectedLine][s - 1]
-                                        .process_precedency
-                                    : "")
+                                  `${s}`
+                                  // (processName[selectedLine]?.[s - 1]
+                                  //   ?.process_precedency !== undefined
+                                  //   ? processName[selectedLine][s - 1]
+                                  //       .process_precedency
+                                  //   : "")
                                 }
                                 // onChange={(e) =>
                                 //   handlePrecedenceVal(e, station)
                                 // }
-                                disabled={isRunning || runningOnLogs}
+                                disabled={!showStation[station] || isRunning || runningOnLogs}
                               />
 
                               <input
                                 className="task_station_input"
                                 value={
                                   // If the user has entered a value for the station, show it; otherwise, show the value from the API or default to 0
-                                  userEnteredValue[station] ||
-                                  globalInputValue[selectedLine]?.inputValue ||
+                                  userEnteredValue[station] ||""||
+                                  // globalInputValue[selectedLine]?.inputValue ||
                                   //   (processName?.[selectedLine]?.[s - 1]
                                   //     .Cycle_Time_secs
                                   //     ? timingDiff /
@@ -1370,12 +1438,12 @@ function TaskNew() {
                                           processName[selectedLine][s - 1]
                                             .Cycle_Time_secs
                                       )
-                                    : "") ||
-                                  ""
+                                    : "") 
+                                  
                                 }
                                 placeholder="qty"
                                 onChange={(e) => handleInputChange(e, station)}
-                                disabled={isRunning || runningOnLogs}
+                                disabled={!showStation[station]||isRunning || runningOnLogs}
                               />
 
                               <div className="task_dropdown">
@@ -1383,7 +1451,7 @@ function TaskNew() {
                                   onChange={(e) =>
                                     handlePartChange(e.target.value, station)
                                   }
-                                  disabled={isRunning || runningOnLogs}
+                                  disabled={!showStation[station]|| isRunning || runningOnLogs}
                                 >
                                   <option value="">Select</option>
                                   {parts &&
@@ -1400,7 +1468,7 @@ function TaskNew() {
                                   onChange={(e) =>
                                     handleProcessChange(e, station)
                                   }
-                                  disabled={isRunning || runningOnLogs}
+                                  disabled={!showStation[station] || isRunning || runningOnLogs}
                                 >
                                   <option>Select</option>
                                   {processes[station] &&
@@ -1420,7 +1488,7 @@ function TaskNew() {
                                   className="task_station_input"
                                   type="text"
                                   placeholder="Id"
-                                  disabled={isRunning || runningOnLogs}
+                                  disabled={!showStation[station] || isRunning || runningOnLogs}
                                   value={
                                     (employeeCode[station]
                                       ? employeeCode[station]

@@ -326,6 +326,11 @@ padding: 20px;
     display: flex;
 }
 
+.input_checkbox{
+    height: 1.3rem;
+    width: 1.3rem;
+}
+
 /* Media query for tablets (768px to 1024px) */
 @media screen and (min-width: 768px) and (max-width: 1440px) {
     .date_picker{
