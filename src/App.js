@@ -17,6 +17,8 @@ import DeleteFloor from './Components/DeleteFloor/DeleteFloor';
 import AssignOperator from './Components/AssignOperator/AssignOperator';
 import TaskPrac from './Components/TaskPrac/TaskPrac';
 import StationList from './Components/TaskPrac/StationList';
+import UpdatedTask from './Components/UpdatedTask/UpdatedTask';
+import History from './Components/History/History';
 
 
 
@@ -38,8 +40,10 @@ function App() {
 
       {/* <Route path='/task' element={<ProtectedRoute Component={StationList}/>}/> */}
       {/* <Route path='/task' element={<ProtectedRoute Component={TaskNew}/>}/> */}
-      {/* <Route path='/task' element={<TaskNew/>}/>  */}
+      {/* <Route path='/updateTask' element={<UpdatedTask/>}/>  */}
       <Route path='/chart' element={<ProtectedRoute Component={Chart}/>}/>
+      <Route path='/history' element={<ProtectedRoute Component={History}/>}/>
+
       <Route path='/delete' element={<ProtectedRoute Component={DeleteFloor}/>}/>
       <Route path='/assignopt' element={<ProtectedRoute Component={AssignOperator}/>}/>
     </Routes>
@@ -47,6 +51,7 @@ function App() {
     </>
   );
 }
+
 
 
 export default withScreenSizeCheck(App);

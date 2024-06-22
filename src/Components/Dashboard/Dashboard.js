@@ -121,8 +121,11 @@ export default function Dashboard() {
             totalLines: totalLines,
           });
           localStorage.setItem('stationData', JSON.stringify({
-            stations: stations
+            stations: stations,
+            lines: lines,
+            totalLines: totalLines,
           }));
+          
           console.log("object set station data", setStationData);
         } else {
           const errorData = await response.text();

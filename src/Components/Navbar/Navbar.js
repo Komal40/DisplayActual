@@ -118,9 +118,17 @@ export default function Navbar() {
               </li>
               <li>
                 <HashLink to="/task" className="dashboard_items">
-                  TASK
+                 TASK
                 </HashLink>
               </li>
+
+              {/* <li>
+                <HashLink to="/updateTask" className="dashboard_items">
+                 UPDATES TASK
+                </HashLink>
+              </li> */}
+
+
               <li>
                       <HashLink to="/assignopt" className="dashboard_items">
                         UPDATE OPERATOR
@@ -129,6 +137,12 @@ export default function Navbar() {
               <li>
                 <HashLink className="dashboard_items" to="/chart">
                   GENERATE CHART
+                </HashLink>
+              </li>
+
+              <li>
+                <HashLink className="dashboard_items" to="/history">
+                  HISTORY
                 </HashLink>
               </li>
               {/* <li>

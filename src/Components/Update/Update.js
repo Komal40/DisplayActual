@@ -31,7 +31,6 @@ export default function Update() {
   const [stationData, setStationData] = useState({});
   const token = JSON.parse(localStorage.getItem("Token"))
   const floor_no = JSON.parse(localStorage.getItem("floor_no"));
-  ;
   const tokenExpired = useTokenExpirationCheck(token, navigate);
 
 

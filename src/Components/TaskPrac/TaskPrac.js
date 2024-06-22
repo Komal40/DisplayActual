@@ -8,7 +8,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-function TaskNew() {
+export default function TaskNew() {
   const [stationData, setStationData] = useState({});
   const navigate = useNavigate();
   const token = JSON.parse(localStorage.getItem("Token"));
@@ -42,6 +42,28 @@ function TaskNew() {
 
   const [startTimeOptions, setStartTimeOptions] = useState([]);
   const [endTimeOptions, setEndTimeOptions] = useState([]);
+
+  const [timingDiff, setTimingDiff] = useState(0);
+
+  const [wholePart, setWholePart] = useState("");
+  const [wholeQty, setWholeQty] = useState("");
+  const [selectedSkill, setSelectedSkill] = useState({});
+  const [lineStations, setLineStations] = useState([]);
+  const [userEnteredValue, setUserEnteredValue] = useState({});
+  const [showPopUpProcess, setSHowPopUpProcess] = useState(false);
+  const [apiValue, setApiValue] = useState({});
+  const [globalInputValue, setGlobalInputValue] = useState([]);
+  const [globalPart, setGlobalPart] = useState("");
+  const [runningTaskInitially, setRunningTaskInitially] = useState([]);
+  const [employeeDetails, setEmployeeDetails] = useState(null);
+  //   particular employee details from employee code
+  const [selectedEmployees, setSelectedEmployees] = useState({});
+  const [selectedEmployee, setSelectedEmployee] = useState({});
+  const [employeeCode, setEmployeeCode] = useState("");
+  const [shift, setShift] = useState("");
+  //   setting employee automatically
+  const [employeeResponse, setEmployeeResponse] = useState({});
+  const [employeeDataString, setEmployeeDataString] = useState([]);
 
   // Generate options for start and end times
   const currentHour = new Date().getHours();
@@ -157,7 +179,7 @@ function TaskNew() {
           const lines = JSON.parse(linesString);
           // Parse totalLines
           const totalLines = parseInt(responseData.totalLines);
-          initializeArray(totalLines);
+          initializeArray(totalLines + 1);
           setStationData({
             stations: stations,
             lines: lines,
@@ -221,12 +243,6 @@ function TaskNew() {
     //   setSelectedProcesses(prevProcesses => ({ ...prevProcesses, [stationId]: "" })); // Reset corresponding process information
   };
 
-  const [wholePart, setWholePart] = useState("");
-  const [wholeQty, setWholeQty] = useState("");
-
-  const [selectedSkill, setSelectedSkill] = useState({});
-  const [selectPrecedency, setSelectPrecedency] = useState({});
-
   const handleProcessChange = (e, stationId) => {
     const selectedProcessNo = e.target.value;
     const selectedProcess = processes[stationId].find(
@@ -242,12 +258,13 @@ function TaskNew() {
         ...prevSkill,
         [stationId]: selectedProcess.skill_level,
       }));
-      setSelectPrecedency((prevPrec) => ({
-        ...prevPrec,
-        [stationId]: selectedProcess.process_precedency,
-      }));
+      //   setSelectPrecedency((prevPrec) => ({
+      //     ...prevPrec,
+      //     [stationId]: selectedProcess.process_precedency,
+      //   }));
+      // }
+      console.log("selectedProcesses", selectedProcesses);
     }
-    console.log("selectedProcesses", selectedProcesses);
   };
 
   useEffect(() => {
@@ -341,7 +358,6 @@ function TaskNew() {
     }
   }, [stationData]);
 
-  const [lineStations, setLineStations] = useState([]);
   const handleLineClick = async (line) => {
     // line=G01 F02 L01
     console.log("object initially selcted line", line);
@@ -512,14 +528,12 @@ function TaskNew() {
       // Check if the user has entered values for part, process, and employee ID for the current station
       if (
         ((selectedParts[station] ||
-          wholePart ||
           globalInputValue[selectedLine]?.part) &&
           (selectedProcesses[station] ||
             processName[selectedLine]?.[index]?.process_no) &&
           (selectedEmployees[station] ||
             employeeResponse?.[station]?.[shift][0]) &&
           (userEnteredValue[station] ||
-            globalInputValue[selectedLine]?.inputValue ||
             (processName?.[selectedLine]?.[index].Cycle_Time_secs
               ? timingDiff /
                 processName?.[selectedLine]?.[index].Cycle_Time_secs
@@ -549,22 +563,19 @@ function TaskNew() {
             processName[selectedLine]?.[index]?.process_no ||
             "",
           shift: shift,
-          station_precedency:
-            selectPrecedency[station] ||
-            index+1 ||
-            0,
+          station_precedency: index + 1,
           start_shift_time: startShiftTime,
           end_shift_time: endShiftTime,
           temp_task_id: taskId,
           assigned_by_owner: login.employee_id,
           total_assigned_task:
             Number(userEnteredValue[station]) ||
-            globalInputValue[selectedLine]?.inputValue ||
             (processName?.[selectedLine]?.[index].Cycle_Time_secs
               ? Math.floor(
                   timingDiff / processName[selectedLine][index].Cycle_Time_secs
                 )
               : "") ||
+           
             0,
         };
 
@@ -631,7 +642,7 @@ function TaskNew() {
             //   toast.info("Please select Another Shift", { autoClose: 10000 });
             // }
 
-            // freeStation();
+            freeStation();
           }
         } else {
           const data = await response.json();
@@ -686,30 +697,37 @@ function TaskNew() {
     }
   };
 
-  const [userEnteredValue, setUserEnteredValue] = useState({});
-  const [showPopUpProcess, setSHowPopUpProcess]=useState(false)
   // Modify handleInputChange to update the entered value for the corresponding station
   const handleInputChange = (e, stationId) => {
     const { value } = e.target;
 
-    const station=extractStation(stationId)
-    const limit = Math.floor(timingDiff / (processName?.[selectedLine]?.[station - 1]?.Cycle_Time_secs || 1));
+    // const station=extractStation(stationId)
+    // const limit = Math.floor(timingDiff / (processName?.[selectedLine]?.[station - 1]?.Cycle_Time_secs || 1));
 
     // Check if the entered value exceeds the calculated limit
-    if (value > limit) {
-      setSHowPopUpProcess(true); // Show popup or alert
-      return; // Exit function to prevent setting invalid value
+    // if (value > limit) {
+    //   setSHowPopUpProcess(true); // Show popup or alert
+    //   return; // Exit function to prevent setting invalid value
+    // }
+    const s = extractStation(stationId);
+    const apiCycleTime =
+      processName && processName?.[selectedLine]?.[s - 1]?.Cycle_Time_secs;
+    if (apiCycleTime) {
+      // setApiValue(Math.floor(timingDiff / apiCycleTime));
+      // Compare the entered value with the API value
+      if (parseInt(value) > Math.floor(timingDiff / apiCycleTime)) {
+        toast.error("Limit exceeded", { autoClose: 1000 });
+        return;
+      }
     }
 
-    // Update the state with the entered value for the station
+    // // Update the state with the entered value for the station
     setUserEnteredValue((prevState) => ({
       ...prevState,
       [stationId]: value,
     }));
   };
 
-  const [globalInputValue, setGlobalInputValue] = useState([]);
-  const [globalPart, setGlobalPart] = useState("");
   const initializeArray = (size) => {
     const initialArray = Array(size)
       .fill(null)
@@ -739,6 +757,10 @@ function TaskNew() {
   };
 
   const handleWholePartChange = async (value, field, selectedLine) => {
+    if (value == undefined) {
+      // Handle undefined case appropriately
+      return;
+    }
     setSelectedParts((prevSelectedParts) => ({
       ...prevSelectedParts,
       [selectedLine]: value,
@@ -776,7 +798,6 @@ function TaskNew() {
     return null;
   };
 
-  const [runningTaskInitially, setRunningTaskInitially] = useState([]);
   useEffect(() => {
     freeStation();
   }, [stationData]);
@@ -815,15 +836,9 @@ function TaskNew() {
     }
   };
 
-  const [employeeDetails, setEmployeeDetails] = useState(null);
-
   const handleEmployeeCodeChange = (event) => {
     setEmployeeCode(event.target.value);
   };
-
-  //   particular employee details from employee code
-  const [selectedEmployees, setSelectedEmployees] = useState({});
-  const [selectedEmployee, setSelectedEmployee] = useState({});
 
   // Function to handle employee selection for each station
   //   const handleEmployeeChange = (employee, stationId) => {
@@ -838,7 +853,6 @@ function TaskNew() {
   };
 
   // select employee name and skill from employee code
-  const [employeeCode, setEmployeeCode] = useState("");
 
   const employeeChange = async (e, stationId) => {
     // const { value } = event.target;
@@ -847,6 +861,7 @@ function TaskNew() {
     console.log(`Employee changed for station ${stationId}: ${value}`);
     // setEmployeeCode(value); // Update the employee code state
     setEmployeeCode({ ...employeeCode, [stationId]: value });
+
     console.log(`PRINTED VALUES IN ONCHANGE`, employeeCode, {
       [stationId]: value,
     });
@@ -888,11 +903,6 @@ function TaskNew() {
     }
   };
 
-  const [shift, setShift] = useState("");
-  console.log("object globalInputValue", globalInputValue);
-
-  //   setting employee automatically
-  const [employeeResponse, setEmployeeResponse] = useState({});
   const assignEmployee = async () => {
     if (shift === "") {
       toast.error("Please Select Shift", { autoClose: 3000 });
@@ -921,10 +931,11 @@ function TaskNew() {
 
       if (response) {
         const data = await response.json();
-
+       
         if (response.ok) {
           // Replace single quotes with double quotes
           const fixedDataString = data.Data.replace(/'/g, '"');
+          const employeeDetails = data.Employees_data.replace(/'/g, '"');
           //   const fixedDataString = data.Data;
 
           console.log("object fixedDataString", fixedDataString);
@@ -933,9 +944,11 @@ function TaskNew() {
 
           // Parse the 'Data' property
           let parsedData;
+          let employeeInfo;
           try {
             // parsedData = fixedDataString;
             parsedData = JSON.parse(fixedDataString);
+            employeeInfo = JSON.parse(employeeDetails);
           } catch (error) {
             console.error("Error parsing employee data:", error);
             return; // Exit the function early if parsing fails
@@ -949,23 +962,7 @@ function TaskNew() {
             return;
           } else {
             setEmployeeResponse(parsedData);
-
-            // Function to process stations and employees sequentially
-            const processStationsAndEmployees = async () => {
-              for (const stationId of Object.keys(parsedData)) {
-                const employees = parsedData[stationId]?.[shift];
-                for (const employeeId of employees) {
-                  await employeeChange(employeeId, stationId);
-                  console.log(
-                    "Employee ID IS " + employeeId,
-                    " STATTION ID IS " + stationId
-                  );
-                }
-              }
-            };
-
-            // Call the function
-            processStationsAndEmployees();
+            setEmployeeDataString(employeeInfo);
           }
         } else {
           toast.info(data.Message);
@@ -978,18 +975,35 @@ function TaskNew() {
     }
   };
 
-  const [timingDiff, setTimingDiff] = useState(0);
+  // let station
+  //////////////////////////////////////////////////////////////////////////////////for skills//////////////////////
+  //   const getEmployeeNameAndSkill = () => {
+  //     if (employeeResponse && employeeResponse[station] && employeeResponse[station][shift]) {
+  //       const employeeCode = employeeResponse[station][shift][0];
+  //       if (employeeCode && employeeDataString[employeeCode]) {
+  //         const employeeInfo = employeeDataString[employeeCode].split(',');
+  //         // const name = employeeInfo[0].trim();
+  //         const skill = employeeInfo[1] ? employeeInfo[1].trim() : '';
+  //         return {skill};
+  //       }
+  //     }
+  //     return {skill:''};
+  //   };
 
+  //   const {skill} = getEmployeeNameAndSkill();
+  // //////////////////////////////////////////////////////////////////////////////////////////////
+
+  console.log("object employeeResponse", employeeResponse);
   const fetchQty = async () => {
     // Check if shift timings are selected
     if (!startShiftTime || !endShiftTime) {
-      toast.warning("Please select shift Timings", { autoClose: 5000 });
+      toast.warning("Please select shift Timings", { autoClose: 3000 });
       return; // Exit the function early
     }
 
     // Check if a part is selected for the current selectedLine
     if (!selectedParts[selectedLine]) {
-      toast.warning("Please Select Part", { autoClose: 5000 });
+      toast.warning("Please Select Part", { autoClose: 3000 });
       return;
     }
 
@@ -1013,34 +1027,6 @@ function TaskNew() {
     setTimingDiff(adjustedDiffInSeconds);
   };
 
-  //   useEffect(() => {
-  //     if (Object.keys(employeeResponse).length > 0) {
-  //       Object.keys(employeeResponse).forEach((station) => {
-  //         const employeeList = employeeResponse[station]?.B;
-  //         if (employeeList && employeeList.length > 0) {
-  //           employeeChange(null, station, employeeList[0]);
-  //         }
-  //       });
-  //     }
-  //   }, [employeeResponse]);
-
-  // useEffect to call employeeChange when employeeResponse or selectedEmployee updates
-  // useEffect(() => {
-  //     Object.keys(employeeResponse).forEach((station) => {
-  //       const shiftData = employeeResponse[station]?.[shift];
-  //       if (shiftData && shiftData.length > 0) {
-  //         const initialEmployee = shiftData[0];
-  //         console.log("objecselectedEmployee[station] !== initialEmployeet",selectedEmployee[station] ,initialEmployee)
-  //         if (selectedEmployee[station] !== initialEmployee) {
-  //           setSelectedEmployee((prev) => ({
-  //             ...prev,
-  //             [station]: initialEmployee,
-  //           }));
-  //           employeeChange(initialEmployee, station);
-  //         }
-  //       }
-  //     });
-  //   }, [employeeResponse, selectedEmployee]);
 
   const shiftTimings = {
     A: { start: "07:00:00", end: "12:00:00" },
@@ -1059,25 +1045,23 @@ function TaskNew() {
     }
   };
 
+  // const [showStation, setShowStation] = useState({});
+  // Handle checkbox change for showing stations
+  // const handleCheckboxChange = (index, checked, station) => {
+  //   setShowStation(prevState => ({
+  //     ...prevState,
+  //     [station]: { checked: !showStation[station]?.checked  }
+  //   }));
+  // };
 
-  const [showStation, setShowStation] = useState({});
-// Handle checkbox change for showing stations
-// const handleCheckboxChange = (index, checked, station) => {
-//   setShowStation(prevState => ({
-//     ...prevState,
-//     [station]: { checked: !showStation[station]?.checked  }
-//   }));
-// };
+  //  const handleCheckboxChange = (station) => {
+  //   setShowStation(prevState => ({
+  //     ...prevState,
+  //     [station]: !prevState[station]
+  //   }));
+  // };
 
- // Handle checkbox change for showing stations
- const handleCheckboxChange = (station) => {
-  setShowStation(prevState => ({
-    ...prevState,
-    [station]: !prevState[station]
-  }));
-};
-
-console.log("object",showStation)
+  
 
   return (
     <>
@@ -1317,16 +1301,17 @@ console.log("object",showStation)
                               </div>
 
                               <h4>
-                                <span style={{marginRight:'10px'}}>
+                                {/* <span style={{marginRight:'10px'}}>
                                   <label>
                                     <input
                                       type="checkbox"
                                       className="input_checkbox"
                                       checked={showStation[station]}
                                       onChange={(e) => handleCheckboxChange( station)}
+                                      
                                     />
                                   </label>
-                                </span>
+                                </span> */}
                                 {station}
                               </h4>
 
@@ -1335,7 +1320,7 @@ console.log("object",showStation)
                                   Part:{" "}
                                   {selectedParts[station] ||
                                     partInfo ||
-                                    wholePart ||
+                                    
                                     globalInputValue[selectedLine]?.part ||
                                     ""}
                                 </p>
@@ -1347,10 +1332,15 @@ console.log("object",showStation)
                                   {isRunning || runningOnLogs
                                     ? empprocessInfo
                                     : selectedProcesses[station] ||
-                                      processInfo ||
-                                      processName[selectedLine]?.[s - 1]
-                                        ?.process_no ||
-                                      ""}
+
+                                      // processInfo ||
+                                      // processName[selectedLine]?.[s - 1]
+                                      //   ?.process_no ||
+                                      // ""
+                                      (globalInputValue[selectedLine]?.part
+                                        ? processName[selectedLine]?.[s - 1]?.process_no
+                                        : "")
+                                      }
                                 </p>
                                 <p style={{ fontSize: "12px" }}>
                                   Skill Required:&nbsp;
@@ -1361,11 +1351,10 @@ console.log("object",showStation)
                                     : skillRequired
                                     ? `${skillRequired} Or Above`
                                     : "" ||
-                                      processName[selectedLine]?.[s - 1]
-                                        ?.process_no
-                                    ? processName[selectedLine]?.[s - 1]
-                                        ?.skill_level
-                                    : ""}
+                                    (globalInputValue[selectedLine]?.part ?
+                                       processName[selectedLine]?.[s - 1]?.skill_level
+                                    : '')
+                                  }
                                 </p>
                               </div>
 
@@ -1385,17 +1374,51 @@ console.log("object",showStation)
                                 <div className="task_stations_part">
                                   <p className="employee-name">
                                     Employee:{" "}
-                                    {isRunning || runningOnLogs
+                                    {(isRunning || runningOnLogs
                                       ? employeeId
-                                      : operatorfname +
-                                        " " +
-                                        operatorlname}{" "}
+                                      : operatorfname && operatorlname
+                                      ? `${operatorfname} ${operatorlname}`
+                                      : "") ||
+                                      // ( operatorfname +
+                                      //   " " +
+                                      //   operatorlname))
+                                      // || ((employeeResponse?.[station]?.[shift] && employeeDataString[employeeResponse[station][shift][0]]) ?
+                                      // employeeDataString[employeeResponse[station][shift][0]].split(',')[0].trim()
+                                      // : '')
+
+                                      (employeeResponse?.[station]?.[shift] &&
+                                      employeeResponse?.[station]?.[shift]?.[0]
+                                        ? (() => {
+                                            const name = employeeDataString[
+                                              employeeResponse[station][
+                                                shift
+                                              ][0]
+                                            ]
+                                              .split(",")[0]
+                                              .trim();
+
+                                            return name;
+                                          })()
+                                        : "")}
                                   </p>
                                   <p style={{ fontSize: "12px" }}>
                                     Skill :&nbsp;
                                     {isRunning || runningOnLogs
                                       ? runempSkill
-                                      : empSkill}
+                                      : empSkill ||
+                                        (employeeResponse?.[station]?.[shift] &&
+                                        employeeResponse[station][shift][0]
+                                          ? (() => {
+                                              const skill = employeeDataString[
+                                                employeeResponse[station][
+                                                  shift
+                                                ][0]
+                                              ]
+                                                .split(",")[1]
+                                                .trim();
+                                              return skill;
+                                            })()
+                                          : "")}
                                   </p>
                                 </div>
                               )}
@@ -1416,14 +1439,15 @@ console.log("object",showStation)
                                 // onChange={(e) =>
                                 //   handlePrecedenceVal(e, station)
                                 // }
-                                disabled={!showStation[station] || isRunning || runningOnLogs}
+                                disabled
                               />
 
                               <input
                                 className="task_station_input"
                                 value={
                                   // If the user has entered a value for the station, show it; otherwise, show the value from the API or default to 0
-                                  userEnteredValue[station] ||""||
+                                  userEnteredValue[station] ||
+                                  
                                   // globalInputValue[selectedLine]?.inputValue ||
                                   //   (processName?.[selectedLine]?.[s - 1]
                                   //     .Cycle_Time_secs
@@ -1438,12 +1462,12 @@ console.log("object",showStation)
                                           processName[selectedLine][s - 1]
                                             .Cycle_Time_secs
                                       )
-                                    : "") 
-                                  
+                                    : "") ||
+                                  ""
                                 }
                                 placeholder="qty"
                                 onChange={(e) => handleInputChange(e, station)}
-                                disabled={!showStation[station]||isRunning || runningOnLogs}
+                                disabled={isRunning || runningOnLogs}
                               />
 
                               <div className="task_dropdown">
@@ -1451,7 +1475,7 @@ console.log("object",showStation)
                                   onChange={(e) =>
                                     handlePartChange(e.target.value, station)
                                   }
-                                  disabled={!showStation[station]|| isRunning || runningOnLogs}
+                                  disabled={isRunning || runningOnLogs}
                                 >
                                   <option value="">Select</option>
                                   {parts &&
@@ -1468,7 +1492,7 @@ console.log("object",showStation)
                                   onChange={(e) =>
                                     handleProcessChange(e, station)
                                   }
-                                  disabled={!showStation[station] || isRunning || runningOnLogs}
+                                  disabled={isRunning || runningOnLogs}
                                 >
                                   <option>Select</option>
                                   {processes[station] &&
@@ -1488,7 +1512,7 @@ console.log("object",showStation)
                                   className="task_station_input"
                                   type="text"
                                   placeholder="Id"
-                                  disabled={!showStation[station] || isRunning || runningOnLogs}
+                                  disabled={isRunning || runningOnLogs}
                                   value={
                                     (employeeCode[station]
                                       ? employeeCode[station]
@@ -1500,18 +1524,9 @@ console.log("object",showStation)
                                     ""
                                   }
                                   onChange={(e) => employeeChange(e, station)}
-                                  //   onChange={(e) => {
-                                  //       const newValue = e.target.value;
-                                  //       console.log("New value:", newValue); // Add console.log to verify newValue
-                                  //       // Call employeeChange only if newValue is not empty
-                                  //       if (newValue.trim() !== "") {
-                                  //         console.log("Calling employeeChange with value:", newValue); // Log that employeeChange is called
-                                  //         employeeChange(newValue, station);
-                                  //       }
-                                  //     }}
                                 />
 
-                                {employeeResponse[station]?.[shift]?.length >
+                                {employeeResponse?.[station] && employeeResponse[station]?.[shift]?.length >
                                 1 ? (
                                   <select
                                     value={
@@ -1523,7 +1538,11 @@ console.log("object",showStation)
                                         ...selectedEmployee,
                                         [station]: e.target.value,
                                       }); // Update selectedEmployees state
-                                      employeeChange(e, station); // Call employeeChange function
+                                     
+                                      employeeChange(
+                                         e,
+                                        station
+                                      );
                                     }}
                                   >
                                     {employeeResponse[station]?.[shift].map(
@@ -1538,13 +1557,17 @@ console.log("object",showStation)
                                   ""
                                 )}
                               </div>
-                              {/* Show a message if part and process are selected but employee ID is missing */}
+
+                              {/* Show a message if part and process are selected but employee ID is missing
                               {selectedProcesses[station] &&
-                                !employeeCode[station] && (
+                                !employeeCode[station] && (employeeResponse?.[station]?.[shift] &&
+                                  employeeResponse?.[station]?.[
+                                    shift
+                                  ][0])&&(
                                   <p style={{ color: "red", fontSize: "12px" }}>
                                     Employee ID is required
                                   </p>
-                                )}
+                                )} */}
                             </div>
                           </div>
                         </>
@@ -1559,5 +1582,3 @@ console.log("object",showStation)
     </>
   );
 }
-
-export default TaskNew;

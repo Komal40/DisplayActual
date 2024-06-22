@@ -244,7 +244,7 @@ function Process() {
             />
           </p>
 
-          <p>
+          {/* <p>
             Process Precedence
             <input
               type="number"
@@ -254,7 +254,7 @@ function Process() {
               required
               min="1"
             />
-          </p>
+          </p> */}
         </div>
 
         <div className="parts_add">

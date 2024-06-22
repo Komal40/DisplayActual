@@ -1,0 +1,107 @@
+
+.history__main{
+    margin-left: 15rem;
+}
+
+
+.history__contain{
+    display: flex;
+}
+
+.history__contain p{
+    margin-right: 1rem;
+}
+
+.history_line{
+    display: flex;
+}
+
+.history_line p{
+    margin-right: 1rem;
+}
+
+.history__above_data{
+    display: flex;
+    margin-top: 3rem;
+    justify-content: space-around;
+    align-items: center;
+}
+
+
+
+
+.station-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  
+  .station-table th, .station-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+  }
+  
+  .station-table th {
+    background-color: #f2f2f2;
+  }
+  
+  .station-table button {
+    padding: 8px 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .station-table button:hover {
+    background-color: #45a049;
+  }
+  
+  .modal_history-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .modal_history {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  }
+  
+  .modal_history-content {
+    border: 1px solid #ccc;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .modal_history h2 {
+    margin-bottom: 10px;
+  }
+  
+  .modal_history button {
+    padding: 8px 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .modal_history_history button:hover {
+    background-color: #45a049;
+  }
+
+  .history_station_table{
+    margin-top: 3rem;
+    margin-right: 2rem;
+  }
