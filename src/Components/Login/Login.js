@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import "./Login.css";
 import bg from "../Images/bg.png";
+import inter from "../Images/interface.png";
+
 import { json, useNavigate } from "react-router-dom";
 import { useUser } from "../../UserContext";
 import { Link } from "react-router-dom";
@@ -76,7 +78,9 @@ export default function Login() {
         <div className="login_left_sidebar">
           <div className="img_container">
             <img className="login_sidebar_img" src={bg} />
-            <div className="overlay_text">INTERFACE</div>
+            <div className="overlay_text">
+              <img className='interface_logo' src={inter}/>
+              </div>
             <div className="overlay_bottom_text">
               Developed By Cellus Tech India
             </div>
@@ -153,3 +157,7 @@ export default function Login() {
     </>
   );
 }
+
+
+
+

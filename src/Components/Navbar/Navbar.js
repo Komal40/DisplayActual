@@ -4,12 +4,15 @@ import { FaArrowRight } from "react-icons/fa";
 import { HashLink } from "react-router-hash-link";
 import "./Navbar.css";
 import { useNavigate } from "react-router-dom";
+import inter from '../Images/interface.png'
+
 
 export default function Navbar() {
   const [closeMenu, setCloseMenu] = useState(false);
   const [showFloorOptions, setShowFloorOptions] = useState(false);
   const [showUpdateOptions, setShowUpdateOptions] = useState(false);
 
+  
   const handleClick = () => {
     setCloseMenu(closeMenu);
   };
@@ -43,8 +46,11 @@ export default function Navbar() {
       <div>
         <nav className={closeMenu ? "nav_active" : "navbar"}>
           <div className={closeMenu ? "nav_arrow_active" : "nav_arrow"}>
+          <img className='interface_logo' src={inter}/>
+
             <h2>
-              INTERFACE
+
+              {/* INTERFACE */}
               {/* <span><FaArrowLeft onClick={()=>handleClick()}/></span> */}
             </h2>
           </div>

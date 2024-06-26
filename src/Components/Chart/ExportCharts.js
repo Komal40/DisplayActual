@@ -8,6 +8,7 @@ import {
   PointElement,
   Title,
   Legend,
+  Tooltip,
 } from "chart.js";
 import ExcelJS from "exceljs";
 import "chartjs-adapter-date-fns";
@@ -37,7 +38,7 @@ const ExportCharts = ({
       LineElement,
       PointElement,
       Title,
-      Legend
+      Legend,Tooltip,
     );
   }, []);
 

@@ -358,8 +358,11 @@ export default function TaskNew() {
     }
   }, [stationData]);
 
+  const [activeBtn , setActiveBtn]=useState("")
+
   const handleLineClick = async (line) => {
     // line=G01 F02 L01
+    setActiveBtn(line)
     console.log("object initially selcted line", line);
     const data = parseInt(line.split("L")[1]);
     setSelectedLine(data);
@@ -808,7 +811,7 @@ export default function TaskNew() {
     const fullLink = link + endPoint;
 
     try {
-      const allStationsData = Object.values(stationData?.stations); // Extract all stations from stationData
+      const allStationsData = stationData ? Object.values(stationData?.stations):[]; // Extract all stations from stationData
 
       // Flatten the array of arrays to get a single array of all station IDs
       const stationIds = allStationsData.flat();
@@ -839,7 +842,7 @@ export default function TaskNew() {
   const handleEmployeeCodeChange = (event) => {
     setEmployeeCode(event.target.value);
   };
-
+                                                                                                                                
   // Function to handle employee selection for each station
   //   const handleEmployeeChange = (employee, stationId) => {
   //     setSelectedEmployees({ ...selectedEmployees, [stationId]: employee });
@@ -856,7 +859,6 @@ export default function TaskNew() {
 
   const employeeChange = async (e, stationId) => {
     // const { value } = event.target;
-
     const value = e.target ? e.target.value : e;
     console.log(`Employee changed for station ${stationId}: ${value}`);
     // setEmployeeCode(value); // Update the employee code state
@@ -1107,7 +1109,10 @@ export default function TaskNew() {
                 return lineA - lineB;
               })
               .map((line, index) => (
-                <button key={index} onClick={() => handleLineClick(line)}>
+                <button 
+                className={`${activeBtn==line ? "act" :""}`}
+                key={index} onClick={() => handleLineClick(line)}  
+               >
                   {`Line ${parseInt(line.split("L")[1])}`}
                 </button>
               ))}
@@ -1124,7 +1129,7 @@ export default function TaskNew() {
                 <option value="C">C</option>
               </select>
             </div>
-
+ 
             <p>Select Shift Timings</p>
 
             <div className="update_dropdown">
@@ -1223,7 +1228,7 @@ export default function TaskNew() {
                     display:
                       selectedLine == `${parseInt(line.split("L")[1])}`
                         ? "block"
-                        : "none",
+                        : "none",                        
                   }}
                 >
                   <div className="task_stations_container">
@@ -1319,8 +1324,7 @@ export default function TaskNew() {
                                 <p>
                                   Part:{" "}
                                   {selectedParts[station] ||
-                                    partInfo ||
-                                    
+                                    partInfo ||                                    
                                     globalInputValue[selectedLine]?.part ||
                                     ""}
                                 </p>
@@ -1332,7 +1336,6 @@ export default function TaskNew() {
                                   {isRunning || runningOnLogs
                                     ? empprocessInfo
                                     : selectedProcesses[station] ||
-
                                       // processInfo ||
                                       // processName[selectedLine]?.[s - 1]
                                       //   ?.process_no ||
@@ -1455,14 +1458,14 @@ export default function TaskNew() {
                                   //       processName?.[selectedLine]?.[s - 1]
                                   //         .Cycle_Time_secs
                                   //     : "")
-                                  (processName?.[selectedLine]?.[s - 1]
+                                  (processName ? ( processName?.[selectedLine]?.[s - 1]
                                     ?.Cycle_Time_secs
                                     ? Math.floor(
                                         timingDiff /
                                           processName[selectedLine][s - 1]
                                             .Cycle_Time_secs
                                       )
-                                    : "") ||
+                                    : "") :'')||
                                   ""
                                 }
                                 placeholder="qty"

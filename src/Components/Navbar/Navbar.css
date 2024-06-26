@@ -46,11 +46,17 @@ nav{
 
 .dashboard_items:hover{
     color: #FF9209;
-}
+} 
 
 .dashboard_items:hover::after{
     color: #FF9209;
 }
+
+/*
+.dashboard_items.active{
+    color: #FF9209;
+}*/
+
 .navbar 
 ul{
     display: flex;

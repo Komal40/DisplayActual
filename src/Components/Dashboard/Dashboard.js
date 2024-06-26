@@ -164,7 +164,7 @@ export default function Dashboard() {
 
 // websocket
   useEffect(() => {
-    const link = "ws://192.168.1.56:5000";
+    const link = "ws://192.168.1.13:5000";
 
     // Get the current date
     const currentDate = new Date();
@@ -208,8 +208,10 @@ export default function Dashboard() {
   }, []);
 
 
+  const [activeBtn, setActiveBtn]=useState("")
   const handleLineClick = async (line) => {
     // line=G01 F02 L01
+    setActiveBtn(line)
     const data = parseInt(line.split("L")[1]);
     setSelectedLine(data);
 
@@ -451,7 +453,9 @@ export default function Dashboard() {
                 return lineA - lineB;
               })
               .map((line, index) => (
-                <button key={index} onClick={() => handleLineClick(line)}>
+                <button 
+                className={`${activeBtn==line ? "dashActBtn":''}`}
+                key={index} onClick={() => handleLineClick(line)}>
                   {`Line ${parseInt(line.split("L")[1])}`}
                 </button>
               ))}

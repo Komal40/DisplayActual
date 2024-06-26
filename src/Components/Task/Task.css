@@ -236,10 +236,13 @@ padding: 20px;
     border: none;
 }
 
-.task_buttons button.active {
+.task_buttons button.act{
     background-color: var(--color-skin);
     border: none;
+    color: black;
+    font-weight: bold;
 }
+
 
 .employee-name {
     /* width: 6rem;  */

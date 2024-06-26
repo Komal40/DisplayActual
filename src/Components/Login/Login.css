@@ -152,3 +152,9 @@ color: white ;
 .success_message{
     color: green;
 }
+
+
+.interface_logo{
+    max-width: 20vw;
+    height: 3.2rem;
+}
