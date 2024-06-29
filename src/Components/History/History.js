@@ -18,6 +18,8 @@ function History() {
   const floor_no = JSON.parse(localStorage.getItem("floor_no"));
   const [modalHisOpen, setmodalHisOpen] = useState(false);
   const [selectedStation, setSelectedStation] = useState(null);
+  const [shift, setShift] = useState("");
+
 
   const tokenExpired = useTokenExpirationCheck(token, navigate);
 
@@ -116,6 +118,11 @@ function History() {
         return;
     }
 
+    if(shift==""){
+      toast.error("Select Shift")
+      return;
+  }
+
     
       const formattedDate = `${selectedHisDate.getFullYear()}-${
         selectedHisDate.getMonth() + 1 < 10
@@ -131,7 +138,7 @@ function History() {
       const params = new URLSearchParams();
       params.append("line_no", selectedLine);
       params.append("date", formattedDate);
-      
+      params.append("shift", shift);
 
       const response = await fetch(fullLink, {
         method: "POST",
@@ -218,6 +225,19 @@ function History() {
              </div>
             </div>
 
+
+
+            <div className="task__qty">
+            <p>Select Shift</p>
+            <div className="update_dropdown">
+              <select onChange={(e) => setShift(e.target.value)}>
+                <option value="">Shift</option>
+                <option value="A">A</option>
+                <option value="B">B</option>
+                <option value="C">C</option>
+              </select>
+            </div>
+            </div>
             
         <div>
           <button className="task_assign_btn" onClick={fetchHistory}>Fetch Data</button>

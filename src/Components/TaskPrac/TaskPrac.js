@@ -8,7 +8,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-export default function TaskNew() {
+export default function TaskPrac() {
   const [stationData, setStationData] = useState({});
   const navigate = useNavigate();
   const token = JSON.parse(localStorage.getItem("Token"));
@@ -346,11 +346,11 @@ export default function TaskNew() {
     }
   };
 
-  useEffect(() => {
-    if (selectedPartNo) {
-      getProcesses(selectedPartNo);
-    }
-  }, [selectedPartNo]);
+  // useEffect(() => {
+  //   if (selectedPartNo) {
+  //     getProcesses(selectedPartNo);
+  //   }
+  // }, [selectedPartNo]);
 
   useEffect(() => {
     if (stationData.lines && stationData.lines.length > 0) {
@@ -358,11 +358,11 @@ export default function TaskNew() {
     }
   }, [stationData]);
 
-  const [activeBtn , setActiveBtn]=useState("")
+  const [activeBtn, setActiveBtn] = useState("");
 
   const handleLineClick = async (line) => {
     // line=G01 F02 L01
-    setActiveBtn(line)
+    setActiveBtn(line);
     console.log("object initially selcted line", line);
     const data = parseInt(line.split("L")[1]);
     setSelectedLine(data);
@@ -385,7 +385,7 @@ export default function TaskNew() {
     setEndShiftTime(e.target.value);
   };
 
-  //   get previous data on selected date and time
+  // get previous data on selected date and time
   const getPartAndProcessInfo = async () => {
     // Check if the selected time is empty
     if (selectedTime.trim() === "00:00") {
@@ -530,8 +530,7 @@ export default function TaskNew() {
 
       // Check if the user has entered values for part, process, and employee ID for the current station
       if (
-        ((selectedParts[station] ||
-          globalInputValue[selectedLine]?.part) &&
+        ((selectedParts[station] || globalInputValue[selectedLine]?.part) &&
           (selectedProcesses[station] ||
             processName[selectedLine]?.[index]?.process_no) &&
           (selectedEmployees[station] ||
@@ -578,7 +577,6 @@ export default function TaskNew() {
                   timingDiff / processName[selectedLine][index].Cycle_Time_secs
                 )
               : "") ||
-           
             0,
         };
 
@@ -759,12 +757,14 @@ export default function TaskNew() {
     updateElementAtIndex(selectedLine, field, input);
   };
 
+  const [selectedWholePart, setSelectedWholePart] = useState({});
   const handleWholePartChange = async (value, field, selectedLine) => {
     if (value == undefined) {
       // Handle undefined case appropriately
       return;
     }
-    setSelectedParts((prevSelectedParts) => ({
+
+    setSelectedWholePart((prevSelectedParts) => ({
       ...prevSelectedParts,
       [selectedLine]: value,
     }));
@@ -811,7 +811,9 @@ export default function TaskNew() {
     const fullLink = link + endPoint;
 
     try {
-      const allStationsData = stationData ? Object.values(stationData?.stations):[]; // Extract all stations from stationData
+      const allStationsData = stationData
+        ? Object.values(stationData?.stations)
+        : []; // Extract all stations from stationData
 
       // Flatten the array of arrays to get a single array of all station IDs
       const stationIds = allStationsData.flat();
@@ -842,7 +844,7 @@ export default function TaskNew() {
   const handleEmployeeCodeChange = (event) => {
     setEmployeeCode(event.target.value);
   };
-                                                                                                                                
+
   // Function to handle employee selection for each station
   //   const handleEmployeeChange = (employee, stationId) => {
   //     setSelectedEmployees({ ...selectedEmployees, [stationId]: employee });
@@ -856,7 +858,6 @@ export default function TaskNew() {
   };
 
   // select employee name and skill from employee code
-
   const employeeChange = async (e, stationId) => {
     // const { value } = event.target;
     const value = e.target ? e.target.value : e;
@@ -933,7 +934,7 @@ export default function TaskNew() {
 
       if (response) {
         const data = await response.json();
-       
+
         if (response.ok) {
           // Replace single quotes with double quotes
           const fixedDataString = data.Data.replace(/'/g, '"');
@@ -1004,7 +1005,7 @@ export default function TaskNew() {
     }
 
     // Check if a part is selected for the current selectedLine
-    if (!selectedParts[selectedLine]) {
+    if (!globalInputValue[selectedLine]?.part) {
       toast.warning("Please Select Part", { autoClose: 3000 });
       return;
     }
@@ -1028,7 +1029,6 @@ export default function TaskNew() {
     console.log("Time difference in seconds:", adjustedDiffInSeconds);
     setTimingDiff(adjustedDiffInSeconds);
   };
-
 
   const shiftTimings = {
     A: { start: "07:00:00", end: "12:00:00" },
@@ -1064,7 +1064,6 @@ export default function TaskNew() {
   // };
 
   
-
   return (
     <>
       <ToastContainer />
@@ -1098,6 +1097,7 @@ export default function TaskNew() {
         </div>
         <hr />
 
+
         <div className="task_buttons">
           {stationData.lines &&
             stationData.lines
@@ -1109,10 +1109,11 @@ export default function TaskNew() {
                 return lineA - lineB;
               })
               .map((line, index) => (
-                <button 
-                className={`${activeBtn==line ? "act" :""}`}
-                key={index} onClick={() => handleLineClick(line)}  
-               >
+                <button
+                  className={`${activeBtn == line ? "act" : ""}`}
+                  key={index}
+                  onClick={() => handleLineClick(line)}
+                >
                   {`Line ${parseInt(line.split("L")[1])}`}
                 </button>
               ))}
@@ -1129,7 +1130,7 @@ export default function TaskNew() {
                 <option value="C">C</option>
               </select>
             </div>
- 
+
             <p>Select Shift Timings</p>
 
             <div className="update_dropdown">
@@ -1174,7 +1175,7 @@ export default function TaskNew() {
           </div>
         </div>
 
-        <div className="update_dropdown">
+        {/* <div className="update_dropdown">
           <div className="global_task">
             <div className="task_whole_part">
               <p>Select Part:</p>
@@ -1192,15 +1193,6 @@ export default function TaskNew() {
                     </option>
                   ))}
               </select>
-
-              {/* <input
-                className="global_input"
-                value={globalInputValue[selectedLine]?.inputValue || ""}
-                placeholder="Enter global qty"
-                onChange={(e) =>
-                  handleGlobalInputChange(e, "inputValue", selectedLine)
-                }
-              /> */}
             </div>
 
             <div className="global_task_qty">
@@ -1216,7 +1208,7 @@ export default function TaskNew() {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
 
         <div>
           {stationData.stations &&
@@ -1228,7 +1220,7 @@ export default function TaskNew() {
                     display:
                       selectedLine == `${parseInt(line.split("L")[1])}`
                         ? "block"
-                        : "none",                        
+                        : "none",
                   }}
                 >
                   <div className="task_stations_container">
@@ -1324,7 +1316,7 @@ export default function TaskNew() {
                                 <p>
                                   Part:{" "}
                                   {selectedParts[station] ||
-                                    partInfo ||                                    
+                                    partInfo ||
                                     globalInputValue[selectedLine]?.part ||
                                     ""}
                                 </p>
@@ -1341,9 +1333,9 @@ export default function TaskNew() {
                                       //   ?.process_no ||
                                       // ""
                                       (globalInputValue[selectedLine]?.part
-                                        ? processName[selectedLine]?.[s - 1]?.process_no
-                                        : "")
-                                      }
+                                        ? processName[selectedLine]?.[s - 1]
+                                            ?.process_no
+                                        : "")}
                                 </p>
                                 <p style={{ fontSize: "12px" }}>
                                   Skill Required:&nbsp;
@@ -1354,10 +1346,10 @@ export default function TaskNew() {
                                     : skillRequired
                                     ? `${skillRequired} Or Above`
                                     : "" ||
-                                    (globalInputValue[selectedLine]?.part ?
-                                       processName[selectedLine]?.[s - 1]?.skill_level
-                                    : '')
-                                  }
+                                      (globalInputValue[selectedLine]?.part
+                                        ? processName[selectedLine]?.[s - 1]
+                                            ?.skill_level
+                                        : "")}
                                 </p>
                               </div>
 
@@ -1450,7 +1442,6 @@ export default function TaskNew() {
                                 value={
                                   // If the user has entered a value for the station, show it; otherwise, show the value from the API or default to 0
                                   userEnteredValue[station] ||
-                                  
                                   // globalInputValue[selectedLine]?.inputValue ||
                                   //   (processName?.[selectedLine]?.[s - 1]
                                   //     .Cycle_Time_secs
@@ -1458,14 +1449,16 @@ export default function TaskNew() {
                                   //       processName?.[selectedLine]?.[s - 1]
                                   //         .Cycle_Time_secs
                                   //     : "")
-                                  (processName ? ( processName?.[selectedLine]?.[s - 1]
-                                    ?.Cycle_Time_secs
-                                    ? Math.floor(
-                                        timingDiff /
-                                          processName[selectedLine][s - 1]
-                                            .Cycle_Time_secs
-                                      )
-                                    : "") :'')||
+                                  (processName
+                                    ? processName?.[selectedLine]?.[s - 1]
+                                        ?.Cycle_Time_secs
+                                      ? Math.floor(
+                                          timingDiff /
+                                            processName[selectedLine][s - 1]
+                                              .Cycle_Time_secs
+                                        )
+                                      : ""
+                                    : "") ||
                                   ""
                                 }
                                 placeholder="qty"
@@ -1529,8 +1522,9 @@ export default function TaskNew() {
                                   onChange={(e) => employeeChange(e, station)}
                                 />
 
-                                {employeeResponse?.[station] && employeeResponse[station]?.[shift]?.length >
-                                1 ? (
+                                {employeeResponse?.[station] &&
+                                employeeResponse[station]?.[shift]?.length >
+                                  1 ? (
                                   <select
                                     value={
                                       selectedEmployee[station] ||
@@ -1541,11 +1535,8 @@ export default function TaskNew() {
                                         ...selectedEmployee,
                                         [station]: e.target.value,
                                       }); // Update selectedEmployees state
-                                     
-                                      employeeChange(
-                                         e,
-                                        station
-                                      );
+
+                                      employeeChange(e, station);
                                     }}
                                   >
                                     {employeeResponse[station]?.[shift].map(

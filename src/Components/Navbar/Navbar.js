@@ -10,6 +10,8 @@ import inter from '../Images/interface.png'
 export default function Navbar() {
   const [closeMenu, setCloseMenu] = useState(false);
   const [showFloorOptions, setShowFloorOptions] = useState(false);
+  const [showHistoryOptions, setShowHistoryOptions] = useState(false);
+
   const [showUpdateOptions, setShowUpdateOptions] = useState(false);
 
   
@@ -35,6 +37,10 @@ export default function Navbar() {
     setShowFloorOptions(!showFloorOptions);
     setShowUpdateOptions(false); // Close the update options when clicking on floor
   };
+
+  const handleHistoryClick=()=>{
+    setShowHistoryOptions(!showHistoryOptions)
+  }
 
   const handleUpdateClick = () => {
     setShowUpdateOptions(!showUpdateOptions);
@@ -146,10 +152,29 @@ export default function Navbar() {
                 </HashLink>
               </li>
 
-              <li>
+              {/* <li>
                 <HashLink className="dashboard_items" to="/history">
                   HISTORY
                 </HashLink>
+              </li> */}
+                <li className="dropdown">
+                <span className="dashboard_items" onClick={handleHistoryClick}>
+                  HISTORY
+                </span>
+                {showHistoryOptions && (
+                  <div className="dropdown-menu">
+                    <li>
+                      <HashLink to="/history" className="dashboard_items">
+                        FPA Failed History 
+                      </HashLink>
+                    </li>
+                    <li>
+                      <HashLink to="/itemsHistory" className="dashboard_items">
+                        FPA Failed Items
+                      </HashLink>
+                    </li>
+                  </div>
+                )}
               </li>
               {/* <li>
                 <HashLink className="dashboard_items">ACCOUNT</HashLink>
