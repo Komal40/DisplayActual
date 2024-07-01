@@ -7,6 +7,9 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import useTokenExpirationCheck from "../useTokenExpirationCheck";
+import { saveAs } from "file-saver";
+import * as XLSX from "xlsx";
+
 
 function History() {
   const navigate = useNavigate();
@@ -186,10 +189,57 @@ function History() {
 
 
   const filteredData = fpaData && fpaData.filter(item => {
-    const itemDate = new Date(item[6]);
-    return item[0].includes(selectedLine) && itemDate.toDateString() === selectedHisDate.toDateString();
+    const itemDate = new Date(item[8]);
+    return item[2].includes(selectedLine) && itemDate.toDateString() === selectedHisDate.toDateString();
 });
 
+const mergedData = [];
+if (fpaData) {
+  const groupedByDate = {};
+  fpaData.forEach(item => {
+    const itemDate = new Date(item[8]).toDateString();
+    if (!groupedByDate[itemDate]) {
+      groupedByDate[itemDate] = [];
+    }
+    groupedByDate[itemDate].push(item);
+  });
+
+  Object.keys(groupedByDate).forEach(date => {
+    const items = groupedByDate[date];
+    items.forEach((item, index) => {
+      const rowData = {
+        date: index === 0 ? new Date(item[8]).toLocaleDateString() : "",
+        stationNo: item[2],
+        partId: item[0],
+        shift: item[5],
+        fpa: item[4],
+        time: item[6],
+      };
+      mergedData.push(rowData);
+    });
+  });
+}
+
+
+const exportToExcel = () => {
+  const ws = XLSX.utils.json_to_sheet(mergedData);
+
+  // Set column widths (example: increase width of first and third columns)
+  const wscols = [
+    { wch: 15 }, // Width of 15 for the first column
+    { wch: 20 }, // Width of 20 for the third column
+   
+  ];
+
+  ws['!cols'] = wscols; // Assign the column widths to the worksheet
+  
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "History Data");
+  const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+  const fileName = "history_data.xlsx";
+  const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
+  saveAs(blob, fileName);
+};
 
 
 
@@ -244,48 +294,77 @@ function History() {
         </div>
       </div>
 
-
-
       <div className="history__table">
-
       <div className="history_station_table">
-      
-    
-      {filteredData && 
+      {/* {filteredData && 
       filteredData.length > 0 ? (
                 <table className="station-table">
                     <thead>
                         <tr>
+                        <th>Date</th>
                             <th>Station No</th>
+                            <th>Part Id</th>
                             <th>Shift</th>
                             <th>FPA</th>
                             <th>Time</th>
-                            <th>Date</th>
-                            <th>Data</th>
                         </tr>
                     </thead>
                     <tbody>
                         {filteredData.map((item, index) => (
                             <tr key={index}>
-                                <td>{item[0]}</td>
-                                <td>{item[3]}</td>
+                                <td>{item[8]}</td>
                                 <td>{item[2]}</td>
+                                <td>{item[0]}</td>
+                                <td>{item[5]}</td>
                                 <td>{item[4]}</td>
                                 <td>{item[6]}</td>
-                                <td>
-                                    {/* Add any actions here, like buttons */}
-                                    <button onClick={() => handleClick(item)}>Data</button>
-                                </td>
+
+                               
                             </tr>
                         ))}
                     </tbody>
                 </table>
             ) : (
                 ""
-            )}
+            )} */}
       
       
-   
+      {mergedData && mergedData.length > 0 ? (
+        <>
+        <div style={{marginBottom:'1rem'}}>
+            <button onClick={exportToExcel} className="task_assign_btn">
+              Export to Excel
+            </button>
+          </div>
+              <table className="station-table small-font">
+                <thead >
+                  <tr>
+                    <th>Date</th>
+                    <th>Station No</th>
+                    <th>Part Id</th>
+                    <th>Shift</th>
+                    <th>FPA</th>
+                    <th>Time</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {mergedData.map((item, index) => (
+                    <tr key={index}>
+                      <td>{item.date}</td>
+                      <td>{item.stationNo}</td>
+                      <td>{item.partId}</td>
+                      <td>{item.shift}</td>
+                      <td>{item.fpa}</td>
+                      <td>{item.time}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              </> ) : (
+              ""
+            )
+
+          }
 
       {/* Modal Popup */}
       {modalHisOpen && (
@@ -293,8 +372,8 @@ function History() {
           <div className="modal_history">
             <div className="modal_history-content">
               <h2>Station Information</h2>
-              <p>Station No: {selectedStation ? selectedStation[0] : ''}</p>
-              <p>{selectedStation ? (selectedStation[5] === null ? 'None' : selectedStation[5]) : ''}</p>
+              <p>Station No: {selectedStation ? selectedStation[2] : ''}</p>
+              <p>{selectedStation ? (selectedStation[2] === null ? 'None' : selectedStation[2]) : ''}</p>
               <button style={{marginTop:'1rem'}} onClick={closeModal}>Close</button>
             </div>
           </div>

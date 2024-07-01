@@ -1,5 +1,4 @@
 import React, { startTransition, useEffect, useState } from "react";
-import DashBoardAbove from "../DashboardR/DashBoardAbove";
 import { json, useNavigate } from "react-router-dom";
 import useTokenExpirationCheck from "../useTokenExpirationCheck";
 import DatePicker from "react-datepicker";
@@ -130,33 +129,35 @@ function Fpa_FailedItems() {
 
   const exportToExcel = () => {
     const worksheetData = processedData.map(entry =>
-      entry.items.map((item, index) => ({
-        'Station ID': index === 0 ? item.station_id : '',
+      entry.items.map(item => ({
+        'Station ID': item.station_id,
         'Item ID': item.item_id,
         'Part No': item.part_no,
         'Reason': item.reason,
         'Reason ID': item.reason_id
       }))
     ).flat();
-
+  
     const worksheet = XLSX.utils.json_to_sheet(worksheetData, { skipHeader: false });
-
+  
     // Calculate column widths
     const columnWidths = worksheetData.reduce((acc, row) => {
       Object.keys(row).forEach((key, idx) => {
         const value = row[key] ? row[key].toString() : '';
-        const width = value.length;
+        const width = value.length + 2; // Adjust width as needed
         acc[idx] = acc[idx] > width ? acc[idx] : width;
       });
       return acc;
     }, []);
-
+  
+    // Set column widths in the worksheet
     worksheet['!cols'] = columnWidths.map(width => ({ wch: width }));
-
+  
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Failed Items");
     XLSX.writeFile(workbook, "FpaFailedItems.xlsx");
   };
+  
 
   
   return (
@@ -222,7 +223,7 @@ function Fpa_FailedItems() {
             </button>
           </div>
 
-<table className="station-table">
+<table className="station-table small-font">
               <thead>
                 <tr>
                   <th>Station ID</th>

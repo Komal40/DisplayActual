@@ -38,7 +38,7 @@
   
   .station-table th, .station-table td {
     border: 1px solid #ddd;
-    padding: 8px;
+    padding: 6px;
     text-align: center;
   }
   
@@ -105,3 +105,18 @@
     margin-top: 3rem;
     margin-right: 2rem;
   }
+
+  .history_date_above{
+    margin-top: 2rem;
+  }
+
+  .history_above_lineData{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+  }
+
+  .small-font {
+    font-size: 0.8em; /* Adjust the font size as needed */
+  }
+  

@@ -173,6 +173,11 @@ export default function Navbar() {
                         FPA Failed Items
                       </HashLink>
                     </li>
+                    <li>
+                      <HashLink to="/lineHistory" className="dashboard_items">
+                        Line History
+                      </HashLink>
+                    </li>
                   </div>
                 )}
               </li>

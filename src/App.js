@@ -1,5 +1,5 @@
 import "./App.css";
-import { BrowserRouter, Routes, Route ,useLocation} from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./Components/Navbar/Navbar";
 import Login from "./Components/Login/Login";
 import Dashboard from "./Components/Dashboard/Dashboard";
@@ -24,6 +24,7 @@ import { ErrorBoundary, useErrorBoundary } from "react-error-boundary";
 import { UserProvider } from "./UserContext";
 import TaskPrac2 from "./Components/TaskPrac/TaskPrac2";
 import Fpa_FailedItems from "./Components/History/Fpa_FailedItems";
+import LineHistory from "./Components/History/LineHistory";
 
 const FallbackComponent = ({ error, resetErrorBoundary }) => (
   <div style={{ marginLeft: "20rem", marginTop: "4rem" }}>
@@ -35,87 +36,99 @@ const FallbackComponent = ({ error, resetErrorBoundary }) => (
   </div>
 );
 
-
-function MainApp(){  
+function MainApp() {
   const location = useLocation();
-  // const shouldShowNavbar = !['/','register'].includes(location.pathname);
-  const shouldShowNavbar = location.pathname !== '/';
-
-  return(
-    <>
-     {shouldShowNavbar && <Navbar />}
-  <ErrorBoundary FallbackComponent={FallbackComponent}>
-    <UserProvider>
-      <Routes>
-        <Route path="/" element={<ProtectedRoute Component={Login} />} />
-        <Route
-          path="/register"
-          element={<ProtectedRoute Component={Register} />}
-        />
-        <Route
-          path="/app"
-          element={<ProtectedRoute Component={Dashboard} />}
-        />
-        <Route
-          path="/update"
-          element={<ProtectedRoute Component={Update} />}
-        />
-        <Route
-          path="/parts"
-          element={<ProtectedRoute Component={Parts} />}
-        />
-        <Route
-          path="/process"
-          element={<ProtectedRoute Component={Process} />}
-        />
-        <Route
-          path="/para"
-          element={<ProtectedRoute Component={Parameters} />}
-        />
-
-        {/* <Route
-          path="/task"
-          element={<ProtectedRoute Component={TaskPrac} />}
-        /> */}
-        <Route path='/task' element={<ProtectedRoute Component={StationList}/>}/>
-        <Route path="/customize" element={<ProtectedRoute Component={TaskPrac}/> } />
-        <Route path="/global" element={<ProtectedRoute Component={TaskPrac2}/>}/>
-        {/* <Route path='/task' element={<ProtectedRoute Component={TaskNew}/>}/> */}
-        {/* <Route path='/updateTask' element={<UpdatedTask/>}/>  */}
-        <Route
-          path="/chart"
-          element={<ProtectedRoute Component={Chart} />}
-        />
-        <Route
-          path="/history"
-          element={<ProtectedRoute Component={History} />}
-        />
-        
-        <Route
-          path="/itemsHistory"
-          element={<ProtectedRoute Component={Fpa_FailedItems} />}
-        />
-        <Route
-          path="/delete"
-          element={<ProtectedRoute Component={DeleteFloor} />}
-        />
-        <Route
-          path="/assignopt"
-          element={<ProtectedRoute Component={AssignOperator} />}
-        />
-      </Routes>
-    </UserProvider>
-  </ErrorBoundary>
-    </>
-  )
-}
-
-function App() {
+  const shouldShowNavbar = location.pathname !== "/";
 
   return (
     <>
+      {shouldShowNavbar && <Navbar />}
+      <ErrorBoundary FallbackComponent={FallbackComponent}>
+        <UserProvider>
+          <Routes>
+            <Route path="/" element={<ProtectedRoute Component={Login} />} />
+            <Route
+              path="/register"
+              element={<ProtectedRoute Component={Register} />}
+            />
+            <Route
+              path="/app"
+              element={<ProtectedRoute Component={Dashboard} />}
+            />
+            <Route
+              path="/update"
+              element={<ProtectedRoute Component={Update} />}
+            />
+            <Route
+              path="/parts"
+              element={<ProtectedRoute Component={Parts} />}
+            />
+            <Route
+              path="/process"
+              element={<ProtectedRoute Component={Process} />}
+            />
+            <Route
+              path="/para"
+              element={<ProtectedRoute Component={Parameters} />}
+            />
+
+            {/* <Route
+          path="/task"
+          element={<ProtectedRoute Component={TaskPrac} />}
+        /> */}
+            <Route
+              path="/task"
+              element={<ProtectedRoute Component={StationList} />}
+            />
+            <Route
+              path="/customize"
+              element={<ProtectedRoute Component={TaskPrac} />}
+            />
+            <Route
+              path="/global"
+              element={<ProtectedRoute Component={TaskPrac2} />}
+            />
+            {/* <Route path='/task' element={<ProtectedRoute Component={TaskNew}/>}/> */}
+            {/* <Route path='/updateTask' element={<UpdatedTask/>}/>  */}
+            <Route
+              path="/chart"
+              element={<ProtectedRoute Component={Chart} />}
+            />
+            <Route
+              path="/history"
+              element={<ProtectedRoute Component={History} />}
+            />
+
+            <Route
+              path="/itemsHistory"
+              element={<ProtectedRoute Component={Fpa_FailedItems} />}
+            />
+
+            <Route
+              path="/lineHistory"
+              element={<ProtectedRoute Component={LineHistory} />}
+            />
+
+            <Route
+              path="/delete"
+              element={<ProtectedRoute Component={DeleteFloor} />}
+            />
+            <Route
+              path="/assignopt"
+              element={<ProtectedRoute Component={AssignOperator} />}
+            />
+          </Routes>
+        </UserProvider>
+      </ErrorBoundary>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <>
       <BrowserRouter>
-        <MainApp/>
+        <MainApp />
       </BrowserRouter>
     </>
   );
