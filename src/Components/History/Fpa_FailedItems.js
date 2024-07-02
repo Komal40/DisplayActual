@@ -3,13 +3,28 @@ import { json, useNavigate } from "react-router-dom";
 import useTokenExpirationCheck from "../useTokenExpirationCheck";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import Modal from "../Modal/Modal";
 import DashboardAbove from "../DashboardR/DashBoardAbove";
 import * as XLSX from 'xlsx';
 
 
 function Fpa_FailedItems() {
+
+    
+  const [globalShowModal, setglobalShowModal] = useState(false);
+  const [globalmodalMessage, setglobalModalMessage] = useState("");
+  
+  
+  const handleglobalShowModal = (message) => {
+    setglobalModalMessage(message);
+    setglobalShowModal(true);
+  };
+  
+  const handleglobalCloseModal = () => {
+    setglobalShowModal(false);
+    setglobalModalMessage("");
+  };
+
 
   const [parts, setParts] = useState([]);
   const navigate = useNavigate();
@@ -53,7 +68,7 @@ function Fpa_FailedItems() {
     const fetchFpaFailedItems = async (e) => {
     
         if(selectedPart==""){
-            toast.error("Select Part No")
+            alert("Select Part No")
             return;
         }
         
@@ -94,7 +109,7 @@ function Fpa_FailedItems() {
           setFailedItems(sortedData);
                 
             } else {
-              toast.error(data.Message);
+              alert(data.Message);
             }
           }
         } catch (error) {
@@ -144,7 +159,7 @@ function Fpa_FailedItems() {
     const columnWidths = worksheetData.reduce((acc, row) => {
       Object.keys(row).forEach((key, idx) => {
         const value = row[key] ? row[key].toString() : '';
-        const width = value.length + 2; // Adjust width as needed
+        const width = value.length + 4; // Adjust width as needed
         acc[idx] = acc[idx] > width ? acc[idx] : width;
       });
       return acc;
@@ -162,7 +177,9 @@ function Fpa_FailedItems() {
   
   return (
     <>
-    <ToastContainer />
+    <div>
+      {globalShowModal && <Modal message={globalmodalMessage} onClose={handleglobalCloseModal} />}
+      </div>
     <div>
       <DashboardAbove />
     </div>

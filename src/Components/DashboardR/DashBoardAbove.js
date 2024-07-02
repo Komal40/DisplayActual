@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { IoNotificationsOutline } from "react-icons/io5";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import "./DashboardAbove.css";
 
 const DashboardAbove = () => {
@@ -183,7 +181,7 @@ const DashboardAbove = () => {
 
   return (
     <div className="dashboard_container">
-      <ToastContainer />
+    
       <div className="dashboard_navbar">
         <div>
           <p className="dashboard_content">

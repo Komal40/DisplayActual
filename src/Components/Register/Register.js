@@ -3,11 +3,25 @@ import bg from "../Images/bg.png";
 import "./Register.css";
 import { Link, useNavigate } from "react-router-dom";
 import useTokenExpirationCheck from "../useTokenExpirationCheck";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import Modal from "react-modal";
+import Modal from "../Modal/Modal";
 
 function Register() {
+
+  
+  const [globalShowModal, setglobalShowModal] = useState(false);
+const [globalmodalMessage, setglobalModalMessage] = useState("");
+
+
+const handleglobalShowModal = (message) => {
+  setglobalModalMessage(message);
+  setglobalShowModal(true);
+};
+
+const handleglobalCloseModal = () => {
+  setglobalShowModal(false);
+  setglobalModalMessage("");
+};
+
   const navigate = useNavigate();
 
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
@@ -94,7 +108,7 @@ function Register() {
       } else {
         const errorData = await response.json();
         const errorMessage = errorData.Message;
-        toast.error(errorMessage);
+        alert(errorMessage);
       }
     } catch (error) {
       console.error("Error:", error);
@@ -137,13 +151,13 @@ function Register() {
 
       if (response.ok) {
         const data = await response.json();
-        toast.success(data.Response);
+        handleglobalShowModal(data.Response);
         empId.current.value = "";
         empPass.current.value = "";
       } else {
         const errorData = await response.json();
         const errorMessage = errorData.Message;
-        toast.error(errorMessage);
+        alert(errorMessage);
       }
     } catch (error) {
       console.error("Error:", error);
@@ -156,7 +170,10 @@ function Register() {
 
   return (
     <>
-      <ToastContainer />
+    <div>
+      {globalShowModal && <Modal message={globalmodalMessage} onClose={handleglobalCloseModal} />}
+      </div>
+
       <div className="login_section">
         {/* <div className="login_left_sidebar">
         <div className="img_container">

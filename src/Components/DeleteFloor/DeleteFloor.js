@@ -3,10 +3,26 @@ import "./DeleteFloor.css";
 import DashBoardAbove from "../DashboardR/DashBoardAbove";
 import { useNavigate } from "react-router-dom";
 import useTokenExpirationCheck from "../useTokenExpirationCheck";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import Modal from "../Modal/Modal";
 
 export default function DeleteFloor() {
+
+  const [globalShowModal, setglobalShowModal] = useState(false);
+  const [globalmodalMessage, setglobalModalMessage] = useState("");
+  
+  
+  const handleglobalShowModal = (message) => {
+    setglobalModalMessage(message);
+    setglobalShowModal(true);
+  };
+  
+  const handleglobalCloseModal = () => {
+    setglobalShowModal(false);
+    setglobalModalMessage("");
+  };
+
+  
+
   const navigate = useNavigate();
 
   const [selectedPartNo, setSelectedPartNo] = useState("");
@@ -200,11 +216,11 @@ export default function DeleteFloor() {
       if (response) {
         const data=await response.json()
         if(response.ok){
-            toast.success(`Part ${part} Deleted Successfully`)
+          handleglobalShowModal(`Part ${part} Deleted Successfully`)
             setSelectedPartNo("")
         }
        else {
-        toast.error(data.Message);
+       alert(data.Message);
       }
     }
  } catch (error) {
@@ -215,7 +231,7 @@ export default function DeleteFloor() {
   const handleDeleteProcessNo = async (process) => {   
     
     if(!process){
-        toast.error("No Process Found");
+        alert("No Process Found");
         return;
     }
 
@@ -239,11 +255,11 @@ export default function DeleteFloor() {
       if (response) {
         const data=await response.json()
         if(response.ok){
-            toast.success(`Process ${process} Deleted Successfully`)
+          handleglobalShowModal(`Process ${process} Deleted Successfully`)
             setSelectedProcessNo("")            
         }
        else {
-        toast.error(data.Message);
+        alert(data.Message);
       }
     }
  } catch (error) {
@@ -274,11 +290,11 @@ export default function DeleteFloor() {
       if (response) {
         const data=await response.json()
         if(response.ok){
-            toast.success(`Parameter ${para} Deleted Successfully`)
+          handleglobalShowModal(`Parameter ${para} Deleted Successfully`)
             setParamNo("")
         }
        else {
-        toast.error(data.Message);
+        alert(data.Message);
       }
     }
  } catch (error) {
@@ -288,7 +304,9 @@ export default function DeleteFloor() {
 
   return (
     <>
-    <ToastContainer/>
+   <div>
+      {globalShowModal && <Modal message={globalmodalMessage} onClose={handleglobalCloseModal} />}
+      </div>
       <div>
         <DashBoardAbove />
       </div>

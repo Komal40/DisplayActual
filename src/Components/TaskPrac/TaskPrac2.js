@@ -5,10 +5,25 @@ import useTokenExpirationCheck from "../useTokenExpirationCheck";
 import Line from "../Line/Line";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import Modal from "../Modal/Modal";
+
 
 export default function TaskPrac2() {
+    const [showModal, setShowModal] = useState(false);
+    const [modalMessage, setModalMessage] = useState("");
+  
+  
+    const handleShowModal = (message) => {
+      setModalMessage(message);
+      setShowModal(true);
+    };
+  
+    const handleCloseModal = () => {
+      setShowModal(false);
+      setModalMessage("");
+    };
+
+    
   const [stationData, setStationData] = useState({});
   const navigate = useNavigate();
   const token = JSON.parse(localStorage.getItem("Token"));
@@ -337,7 +352,7 @@ export default function TaskPrac2() {
             [line]: processesData,
           }));
         } else {
-          toast.info(data.Message);
+            handleShowModal(data.Message);
         }
       } else {
         console.error("Failed to fetch parts", response.error);
@@ -390,7 +405,7 @@ export default function TaskPrac2() {
   const getPartAndProcessInfo = async () => {
     // Check if the selected time is empty
     if (selectedTime.trim() === "00:00") {
-      toast.error("Please select Time");
+      alert("Please select Time");
       return;
     }
     const formattedDate = `${selectedDate.getFullYear()}-${
@@ -428,8 +443,8 @@ export default function TaskPrac2() {
           Object.keys(data.Datas).length === 0 &&
           data.running_task_on_stations.length === 0
         ) {
-          // Show a toast message indicating that nothing is assigned on that day and time
-          toast.info("Nothing assigned on that day and time");
+          
+          alert("Nothing assigned on that day and time");
           //     const selectedLineStations = stationData.lines;
           // const blankData = {};
           // selectedLineStations.forEach((station) => {
@@ -462,17 +477,17 @@ export default function TaskPrac2() {
   const assignTask = async () => {
     // Check if shift timings are selected
     if (!startShiftTime || !endShiftTime) {
-      toast.warning("Please select shift timings", { autoClose: 5000 });
+      alert("Please select shift timings", { autoClose: 5000 });
       return; // Exit the function early
     }
 
     if (shift === "") {
-      toast.warning("Please select Shift", { autoClose: 5000 });
+      alert("Please select Shift", { autoClose: 5000 });
       return;
     }
 
     if (taskId === "") {
-      toast.warning("Please Enter Task Id", { autoClose: 5000 });
+      alert("Please Enter Task Id", { autoClose: 5000 });
       return;
     }
 
@@ -516,6 +531,12 @@ export default function TaskPrac2() {
       }
 
       //   console.log(processName?.[selectedLine]?.[index ]?.Cycle_Time_secs ? (timingDiff/processName?.[selectedLine]?.[index]?.Cycle_Time_secs):'')
+
+          if(userEnteredValue[station]==""){
+        alert(`Please Enter Quantity  for ${station}`);
+        return;
+    }
+
 
       // if (previousData.hasOwnProperty(station)) {
       // Extract required data from previousData for the current station
@@ -612,7 +633,7 @@ export default function TaskPrac2() {
               const assignedStations = Object.keys(
                 data["assigned task to"]
               ).join(", ");
-              toast.success(
+              handleShowModal(
                 `Task assigned successfully to stations: ${assignedStations}`
               );
             }
@@ -625,7 +646,7 @@ export default function TaskPrac2() {
               operatorKeys.forEach((operator) => {
                 const stations =
                   data["operator_assigned_to_stations"][operator].join(", ");
-                toast.info(
+                  handleShowModal(
                   `Operator ${operator} already assigned on station ${stations}`,
                   { autoClose: 10000 }
                 );
@@ -637,7 +658,7 @@ export default function TaskPrac2() {
               Object.keys(data["operator_assigned_to_stations"]).length === 0
             ) {
               // No tasks were assigned and no operator assigned to stations
-              toast.info("Please free all the tasks First", {
+              alert("Please free all the tasks First", {
                 autoClose: 10000,
               });
             }
@@ -651,9 +672,9 @@ export default function TaskPrac2() {
         } else {
           const data = await response.json();
           const errorMessage = data.Message;
-          toast.error(errorMessage);
+          alert(errorMessage);
           if (Object.keys(data["last_shift_on_these_stations"]).length > 0) {
-            toast.info(
+            handleShowModal(
               "This Shift is already over. First Delete Task then select Another Shift",
               { autoClose: 20000 }
             );
@@ -667,7 +688,7 @@ export default function TaskPrac2() {
 
   const deleteTask = async (e) => {
     if (!taskId) {
-      toast.error("First Enter Task ID");
+      alert("First Enter Task ID");
       return;
     }
 
@@ -691,9 +712,9 @@ export default function TaskPrac2() {
       if (response) {
         const data = await response.json();
         if (response.ok) {
-          toast.success(`Task Deleted Successfully`);
+            handleShowModal(`Task Deleted Successfully`);
         } else {
-          toast.error(data.Message);
+          alert(data.Message);
         }
       }
     } catch (error) {
@@ -720,7 +741,7 @@ export default function TaskPrac2() {
       // setApiValue(Math.floor(timingDiff / apiCycleTime));
       // Compare the entered value with the API value
       if (parseInt(value) > Math.floor(timingDiff / apiCycleTime)) {
-        toast.error("Limit exceeded", { autoClose: 1000 });
+        alert(`Limit exceeded for ${stationId}`, { autoClose: 1000 });
         return;
       }
     }
@@ -911,7 +932,7 @@ export default function TaskPrac2() {
 
   const assignEmployee = async () => {
     if (shift === "") {
-      toast.error("Please Select Shift", { autoClose: 3000 });
+      alert("Please Select Shift", { autoClose: 3000 });
       return;
     }
 
@@ -962,7 +983,7 @@ export default function TaskPrac2() {
 
           // Check if it's an empty object
           if (Object.keys(parsedData).length === 0) {
-            toast.info("No Employee Assigned on this shift", {
+            alert("No Employee Assigned on this shift", {
               autoClose: 2000,
             });
             return;
@@ -971,7 +992,7 @@ export default function TaskPrac2() {
             setEmployeeDataString(employeeInfo);
           }
         } else {
-          toast.info(data.Message);
+          alert(data.Message);
         }
       } else {
         console.error("Failed to assign employee", response.error);
@@ -1005,13 +1026,13 @@ export default function TaskPrac2() {
   const fetchQty = async () => {
     // Check if shift timings are selected
     if (!startShiftTime || !endShiftTime) {
-      toast.warning("Please select shift Timings", { autoClose: 3000 });
+      alert("Please select shift Timings", { autoClose: 3000 });
       return; // Exit the function early
     }
 
     // Check if a part is selected for the current selectedLine
     if (!globalInputValue[selectedLine]?.part) {
-      toast.warning("Please Select Part", { autoClose: 3000 });
+      alert("Please Select Part", { autoClose: 3000 });
       return;
     }
 
@@ -1073,10 +1094,15 @@ export default function TaskPrac2() {
 
   return (
     <>
-      <ToastContainer />
+    
       <div>
         <DashBoardAbove />
       </div>
+
+      <div>
+      {showModal && <Modal message={modalMessage} onClose={handleCloseModal} />}
+      </div>
+
 
       <div className="task__main">
         <div className="previous_task">
@@ -1438,9 +1464,8 @@ export default function TaskPrac2() {
                                 className="task_station_input"
                                 placeholder="prec."
                                 value={
-                                  `${s}`                                  
+                                  `PP-${s}`                                  
                                 }
-                               
                                 disabled
                               />
 
@@ -1473,12 +1498,10 @@ export default function TaskPrac2() {
                               />
 
                               <div className="task_dropdown">
-                                <select
-                                  
+                                <select                                  
                                   disabled
                                 >
-                                  <option value="">Select</option>
-                                 
+                                  <option value="">Select</option>   
                                 </select>
                               </div>
 

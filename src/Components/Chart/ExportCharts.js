@@ -13,8 +13,6 @@ import {
 import ExcelJS from "exceljs";
 import "chartjs-adapter-date-fns";
 import "./Chart.css";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 const ExportCharts = ({
   availableDates,
@@ -237,7 +235,7 @@ const ExportCharts = ({
       chartInstance.canvas.style.backgroundColor = "";
       rangeChartInstance.canvas.style.backgroundColor = "";
     } else {
-      toast.info("Both Charts are not available");
+      alert("Both Charts are not available");
     }
   };
 
@@ -391,7 +389,7 @@ const ExportCharts = ({
 
   return (
     <>
-      <ToastContainer />
+    
       <div className="chart-container">
         <button className="task_assign_btn" onClick={exportChartToExcel}>
           Export to Excel

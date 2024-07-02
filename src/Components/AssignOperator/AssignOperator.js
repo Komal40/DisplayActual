@@ -3,10 +3,26 @@ import "./AssignOpertor.css";
 import DashboardR from "../DashboardR/DashboardR";
 import useTokenExpirationCheck from "../useTokenExpirationCheck";
 import { useNavigate } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import Modal from "../Modal/Modal";
 
 export default function AssignOperator() {
+
+  const [globalShowModal, setglobalShowModal] = useState(false);
+  const [globalmodalMessage, setglobalModalMessage] = useState("");
+  
+  
+  const handleglobalShowModal = (message) => {
+    setglobalModalMessage(message);
+    setglobalShowModal(true);
+  };
+  
+  const handleglobalCloseModal = () => {
+    setglobalShowModal(false);
+    setglobalModalMessage("");
+  };
+
+  
+
   const navigate = useNavigate();
   const stationData = JSON.parse(localStorage.getItem("stationData"));
   const stations = stationData.stations;
@@ -34,7 +50,7 @@ export default function AssignOperator() {
 
   const updateOperator = async () => {
     if(shift=="" || stationId=="" || employeeId==""){
-        toast.info("Please Select all Details")
+        alert("Please Select all Details")
         return;
     }
     const link = process.env.REACT_APP_BASE_URL;
@@ -64,14 +80,14 @@ export default function AssignOperator() {
 
       if (response.ok) {
         const data = await response.json();
-        toast.success(data.Response);
+        handleglobalShowModal(data.Response);
         setShift("");
         setEmployeeId("");
         setStationId("");
       } else {
         const errorData = await response.json();
         const errorMessage = errorData.Response;
-        toast.error(errorMessage);
+        alert(errorMessage);
       }
     } catch (error) {
       console.error("Error:", error);
@@ -80,7 +96,10 @@ export default function AssignOperator() {
 
   return (
     <>
-      <ToastContainer />
+    <div>
+      {globalShowModal && <Modal message={globalmodalMessage} onClose={handleglobalCloseModal} />}
+      </div>
+
       <div>
         <DashboardR />
       </div>

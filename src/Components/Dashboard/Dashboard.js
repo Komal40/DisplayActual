@@ -4,8 +4,6 @@ import Line from "../Line/Line";
 import Operator from "../Operator/Operator";
 import DashboardR from "../DashboardR/DashboardR";
 import { useNavigate, useSubmit } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { io as socketIOClient } from "socket.io-client";
 import { useUser } from "../../UserContext";
 import useTokenExpirationCheck from "../useTokenExpirationCheck";
@@ -162,9 +160,54 @@ export default function Dashboard() {
     });
   };
 
+  const freeStation = async () => {
+    try{
+    const link = process.env.REACT_APP_BASE_URL;
+    const endPoint = "/floorincharge/free_station";
+    const fullLink = link + endPoint;
+
+    try {
+      const allStationsData = stationData
+        ? Object.values(stationData?.stations)
+        : []; // Extract all stations from stationData
+
+      // Flatten the array of arrays to get a single array of all station IDs
+      const stationIds = allStationsData.flat();
+
+      const response = await fetch(fullLink, {
+        method: "POST",
+        body: JSON.stringify({ stations_ids: stationIds }), // Send all station IDs in a single request
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        // Handle success response here
+        const data = await response.json();
+        console.log("All stations freed successfully");
+        
+      } else {
+        // Handle error response here
+        console.error("Failed to free all stations");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  }catch(error){
+    console.error(error)
+  }
+  };
+
+  useEffect(()=>{
+    freeStation()
+  },[stationData])
+
+
 // websocket
   useEffect(() => {
-    const link = "ws://192.168.1.13:5000";
+    const link = "ws://192.168.1.56:5000";
 
     // Get the current date
     const currentDate = new Date();
@@ -431,7 +474,7 @@ export default function Dashboard() {
 
   return (
     <>
-      {/* <ToastContainer /> */}
+
       <DashboardR />
 
       <div className="arrow_btn">

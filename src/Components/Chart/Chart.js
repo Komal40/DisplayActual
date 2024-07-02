@@ -5,12 +5,27 @@ import useTokenExpirationCheck from "../useTokenExpirationCheck";
 import { useNavigate } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import DashBoardAbove from "../DashboardR/DashBoardAbove";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import Modal from "../Modal/Modal";
 import ExportCharts from "./ExportCharts";
 
 
 export default function Chart() {
+
+  
+
+  const [globalShowModal, setglobalShowModal] = useState(false);
+const [globalmodalMessage, setglobalModalMessage] = useState("");
+
+
+const handleglobalShowModal = (message) => {
+  setglobalModalMessage(message);
+  setglobalShowModal(true);
+};
+
+const handleglobalCloseModal = () => {
+  setglobalShowModal(false);
+  setglobalModalMessage("");
+};
 
   const navigate=useNavigate()
   const [selectedStartDate, setSelectedStartDate] = useState(new Date());
@@ -209,7 +224,7 @@ export default function Chart() {
 
   const getReadings = async () => {
     if (paramNo === "") {
-      toast.info("Please Select Parameter No.");
+      alert("Please Select Parameter No.");
       return;
     }
 
@@ -245,7 +260,7 @@ export default function Chart() {
         extractStationIds(data.result);
         }
         else{
-          toast.info(data.Message)
+          alert(data.Message)
         }
       } else {
         console.error("Failed to fetch parts", response.error);
@@ -298,7 +313,9 @@ export default function Chart() {
 
   return (
     <>
-      <ToastContainer />
+      <div>
+      {globalShowModal && <Modal message={globalmodalMessage} onClose={handleglobalCloseModal} />}
+      </div>
       <div>
         <Navbar />
       </div>

@@ -53,9 +53,7 @@ export default function Navbar() {
         <nav className={closeMenu ? "nav_active" : "navbar"}>
           <div className={closeMenu ? "nav_arrow_active" : "nav_arrow"}>
           <img className='interface_logo' src={inter}/>
-
             <h2>
-
               {/* INTERFACE */}
               {/* <span><FaArrowLeft onClick={()=>handleClick()}/></span> */}
             </h2>
@@ -116,13 +114,11 @@ export default function Navbar() {
                 )}
               </li>
               {/* <li><HashLink to='/prevdata' className='dashboard_items'>Previous Data</HashLink></li> */}
-
               <li>
                 <HashLink to="/delete" className="dashboard_items">
                   DELETE FLOOR
                 </HashLink>
               </li>
-              
               <li>
                 <HashLink to="/register" className="dashboard_items">
                   ADD OPERATOR
@@ -133,14 +129,11 @@ export default function Navbar() {
                  TASK
                 </HashLink>
               </li>
-
               {/* <li>
                 <HashLink to="/updateTask" className="dashboard_items">
                  UPDATES TASK
                 </HashLink>
               </li> */}
-
-
               <li>
                       <HashLink to="/assignopt" className="dashboard_items">
                         UPDATE OPERATOR
@@ -151,7 +144,6 @@ export default function Navbar() {
                   GENERATE CHART
                 </HashLink>
               </li>
-
               {/* <li>
                 <HashLink className="dashboard_items" to="/history">
                   HISTORY
@@ -165,12 +157,12 @@ export default function Navbar() {
                   <div className="dropdown-menu">
                     <li>
                       <HashLink to="/history" className="dashboard_items">
-                        FPA Failed History 
+                        Failed History 
                       </HashLink>
                     </li>
                     <li>
                       <HashLink to="/itemsHistory" className="dashboard_items">
-                        FPA Failed Items
+                        Failed Items
                       </HashLink>
                     </li>
                     <li>

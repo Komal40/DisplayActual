@@ -3,8 +3,6 @@ import DashboardAbove from "../DashboardR/DashBoardAbove";
 import "./History.css";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import useTokenExpirationCheck from "../useTokenExpirationCheck";
 import { saveAs } from "file-saver";
@@ -117,12 +115,12 @@ function History() {
   const fetchHistory = async (e) => {
     
     if(selectedLine===""){
-        toast.error("Select Line")
+        alert("Select Line")
         return;
     }
 
     if(shift==""){
-      toast.error("Select Shift")
+      alert("Select Shift")
       return;
   }
 
@@ -166,7 +164,7 @@ function History() {
                     // Store the parsed data in the state
                     setFpaData(parsedFpaData);
         } else {
-          toast.error(data.Message);
+          alert(data.Message);
         }
       }
     } catch (error) {
@@ -232,7 +230,7 @@ const exportToExcel = () => {
   ];
 
   ws['!cols'] = wscols; // Assign the column widths to the worksheet
-  
+
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "History Data");
   const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });

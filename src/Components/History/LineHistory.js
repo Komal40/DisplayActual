@@ -3,8 +3,6 @@ import { json, useNavigate } from "react-router-dom";
 import useTokenExpirationCheck from "../useTokenExpirationCheck";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import DashboardAbove from "../DashboardR/DashBoardAbove";
 import * as XLSX from "xlsx";
 import './History.css'
@@ -31,12 +29,12 @@ function LineHistory() {
 
   const showLineHistory = async (e) => {
     if (selectedLine == "") {
-        toast.error("Select Line");
+        alert("Select Line");
         return;
       }
       
     if (shift == "") {
-      toast.error("Select Shift");
+      alert("Select Shift");
       return;
     }
 
@@ -86,7 +84,7 @@ function LineHistory() {
             }
             
           } else {
-            toast.error(data.Message);
+            alert(data.Message);
           }
 
         }
@@ -174,7 +172,7 @@ function LineHistory() {
             <th>Assigned by Owner</th>
             <th>Total Assigned Task</th>
             <th>Passed</th>
-            <th>Filled</th>
+            <th>Failed</th>
             <th>Operator Changed Status</th>
           </tr>
         </thead>
@@ -192,7 +190,7 @@ function LineHistory() {
               <td>{row.assigned_by_owner}</td>
               <td>{row.total_assigned_task}</td>
               <td>{row.passed}</td>
-              <td>{row.filled}</td>
+              <td>{row.failed}</td>
               <td>{row.operator_changed_status}</td>
             </tr>
           ))}
@@ -205,7 +203,7 @@ function LineHistory() {
 
   const exportToExcel = () => {
     if (Object.keys(lineHistoryData).length === 0 && lineHistoryData.constructor === Object) {
-      toast.error("No data to export");
+     alert("No data to export");
       return;
     }
 
@@ -241,7 +239,6 @@ function LineHistory() {
 
   return (
     <>
-      <ToastContainer />
       <div>
         <DashboardAbove />
       </div>

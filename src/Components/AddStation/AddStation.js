@@ -7,14 +7,27 @@ import { FaRegSave } from "react-icons/fa";
 import { useUser } from "../../UserContext";
 import { FiLogIn } from "react-icons/fi";
 import Login from "../Login/Login";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-
-// toast-configuration method,
-// it is compulsory method.
-// toast.configure();
+import Modal from "../Modal/Modal";
 
 const AddStationModal = ({ showModal, closeModal, totalLines }) => {
+
+
+  const [globalShowModal, setglobalShowModal] = useState(false);
+const [globalmodalMessage, setglobalModalMessage] = useState("");
+
+
+const handleglobalShowModal = (message) => {
+  setglobalModalMessage(message);
+  setglobalShowModal(true);
+};
+
+const handleglobalCloseModal = () => {
+  setglobalShowModal(false);
+  setglobalModalMessage("");
+};
+
+
+
   const [count, setCount] = useState(1);
   const [stationnum, setStationNum] = useState();
   const floor_no = JSON.parse(localStorage.getItem("floor_no"));
@@ -150,11 +163,11 @@ const AddStationModal = ({ showModal, closeModal, totalLines }) => {
 
       if (response.ok) {
         const data = await response.json();
-        toast.success("Stations Added Successfully");
+        handleglobalShowModal("Stations Added Successfully");
         console.log("Stations Added Successfully", data);
       } else {
         console.error("Failed to add stations", response.error);
-        toast.warning("Failed to add stations");
+        alert("Failed to add stations");
       }
     } catch (error) {
       console.error("Error:", error);
@@ -168,7 +181,9 @@ const AddStationModal = ({ showModal, closeModal, totalLines }) => {
 
   return (
     <>
-      <ToastContainer />
+      <div>
+      {globalShowModal && <Modal message={globalmodalMessage} onClose={handleglobalCloseModal} />}
+      </div>
       <div className={`modal ${showModal ? "show" : ""}`}>
         <div className="modal-content">
           <span className="close" onClick={closeAndClearModal}>

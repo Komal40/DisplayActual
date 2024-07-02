@@ -4,8 +4,6 @@ import DashboardR from "../DashboardR/DashboardR";
 import { useNavigate } from "react-router-dom";
 import useTokenExpirationCheck from "../useTokenExpirationCheck";
 
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 function Process() {
   const navigate = useNavigate();
@@ -86,7 +84,7 @@ function Process() {
 
   const addProcess = async (e) => {
     if (files.length == 0) {
-      toast.error("Please Select Images");
+      alert("Please Select Images");
     }
 
     if (!processId || !processName || !processVal) {
@@ -136,7 +134,7 @@ function Process() {
       } else {
         const errorData = await response.json();
         const errorMessage = errorData.Message;
-        toast.error(errorMessage);
+        alert(errorMessage);
       }
     } catch (error) {
       console.error("Error:", error);
@@ -180,8 +178,7 @@ function Process() {
       <div>
         <DashboardR />
       </div>
-      <ToastContainer />
-
+  
       {showErrPopup && (
         <div className="err_process_popup">
           <div className="err_process_content">
