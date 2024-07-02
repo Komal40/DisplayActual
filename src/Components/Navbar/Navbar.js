@@ -176,7 +176,8 @@ export default function Navbar() {
               {/* <li>
                 <HashLink className="dashboard_items">ACCOUNT</HashLink>
               </li> */}
-              <hr style={{ width: "100%" }} />
+              {/* <div style={{ width: "100%" ,height:'1px', backgroundColor:'white'}} ></div> */}
+              <hr style={{ width: "100%"}}/>
               <li onClick={handleLogout}>
                 <HashLink className="dashboard_items">LOG OUT</HashLink>
               </li>

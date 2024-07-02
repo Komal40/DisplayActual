@@ -6,6 +6,9 @@ import Line from "../Line/Line";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Modal from "../Modal/Modal";
+import TaskDetailsModal from "../TaskDetailsModal/TaskDetailsModal";
+
+
 
 export default function TaskPrac() {
   const [showModal, setShowModal] = useState(false);
@@ -472,52 +475,259 @@ export default function TaskPrac() {
     }
   };
 
-  const assignTask = async () => {  
 
-    try{
+  const [taskArray, setTaskArray] = useState([]);
+const [showTaskModal, setShowTaskModal] = useState(false);
+//   const assignTask = async () => {  
 
+//     try{
+
+//     // Check if shift timings are selected
+//     if (!startShiftTime || !endShiftTime) {
+//       alert("Please select shift timings", { autoClose: 5000 });
+//       return; // Exit the function early
+//     }
+
+//     if (shift === "") {
+//       alert("Please select Shift", { autoClose: 5000 });
+//       return;
+//     }
+
+//     if (taskId === "") {
+//       alert("Please Enter Task Id", { autoClose: 5000 });
+//       return;
+//     }
+
+//     // if(userEnteredValue==""){
+//     //     toast.warning("Please Enter Quantity timings", { autoClose: 5000 });
+//     //     return;
+//     // }
+
+//     const link = process.env.REACT_APP_BASE_URL;
+//     const endPoint = "/floorincharge/assign_task";
+//     const fullLink = link + endPoint;
+
+//     // Initialize an empty array to store task objects
+//     const tasksArray = [];
+
+//     const lineCode =
+//       selectedLine < 10 ? `L0${selectedLine}` : `L${selectedLine}`;
+
+//     // Get the selected line
+//     const selectedLineStations =
+//       stationData.stations[`${floor_no} ${lineCode}`];
+
+//     console.log(
+//       "object selectedLineStations on assigntask func",
+//       selectedLineStations
+//     );
+//     // ['G01 F02 L01 S01', 'G01 F02 L01 S03', 'G01 F02 L01 S04', 'G01 F02 L01 S05', 'G01 F02 L01 S06', 'G01 F02 L01 S07']
+
+//     // Check if selectedLineStations is defined and iterable
+//     if (!selectedLineStations || !Array.isArray(selectedLineStations)) {
+//       console.error("Selected line stations are undefined or not iterable");
+//       return;
+//     }
+
+//     selectedLineStations.forEach((station, index) => {
+//       if (runningTaskInitially.includes(station)) {
+//         console.log(
+//           `Skipping station ${station} as it already has a running task`
+//         );
+//         return;
+//       }
+
+      
+//       if(userEnteredValue[station]==""){
+//         alert(`Please Enter Quantity  for ${station}`);
+        
+//     }
+
+
+//       //   console.log(processName?.[selectedLine]?.[index ]?.Cycle_Time_secs ? (timingDiff/processName?.[selectedLine]?.[index]?.Cycle_Time_secs):'')
+
+//       // if (previousData.hasOwnProperty(station)) {
+//       // Extract required data from previousData for the current station
+//       const [
+//         firstName,
+//         lastName,
+//         skillLevel,
+//         part,
+//         process,
+//         skillRequired,
+//         employeeid,
+//       ] = previousData[station] || [];
+
+//       // Check if the user has entered values for part, process, and employee ID for the current station
+//       if (
+//         ((selectedParts[station] || globalInputValue[selectedLine]?.part) &&
+//           (selectedProcesses[station] ||
+//             processName[selectedLine]?.[index]?.process_no) &&
+//           (selectedEmployees[station] ||
+//             employeeResponse?.[station]?.[shift][0]) &&
+//           (userEnteredValue[station] ||
+//             (processName?.[selectedLine]?.[index].Cycle_Time_secs
+//               ? timingDiff /
+//                 processName?.[selectedLine]?.[index].Cycle_Time_secs
+//               : ""))) ||
+//         (part && process && employeeid)
+//       ) {
+//         // Create a new task object for the station
+//         const newTask = {
+//           station_id: station,
+//           // employee_id: employeeCode[station] || employeeid ? employeeid:"", // Use user entered value if available, otherwise use value from previousData
+//           // part_no: selectedParts[station] || part?  part:"", // Use user entered value if available, otherwise use value from previousData
+//           // process_no: selectedProcesses[station] ||process?process:"" , // Use user entered value if available, otherwise use value from previousData
+//           employee_id:
+//             (selectedEmployees[station] ? employeeCode[station] : employeeid) ||
+//             (selectedEmployee[station]
+//               ? selectedEmployee[station]
+//               : employeeResponse?.[station]?.[shift][0]) ||
+//             "", // Use user entered value if available, otherwise use value from previousData
+//           part_no:
+//             selectedParts[station] ||
+//             part ||
+//             "" ||
+//             globalInputValue[selectedLine]?.part, // Use user entered value if available, otherwise use value from previousData
+//           process_no:
+//             selectedProcesses[station] ||
+//             process ||
+//             processName[selectedLine]?.[index]?.process_no ||
+//             "",
+//           shift: shift,
+//           station_precedency: index + 1,
+//           start_shift_time: startShiftTime,
+//           end_shift_time: endShiftTime,
+//           temp_task_id: taskId,
+//           assigned_by_owner: login.employee_id,
+//           total_assigned_task:
+//             Number(userEnteredValue[station]) ||
+//             (processName?.[selectedLine]?.[index].Cycle_Time_secs
+//               ? Math.floor(
+//                   timingDiff / processName[selectedLine][index].Cycle_Time_secs
+//                 )
+//               : "") ||
+//             0,
+//         };
+
+//         // Push the new task object to the tasksArray
+//         console.log("adding newTask", newTask);
+//         tasksArray.push(newTask);
+//       }
+//     });
+
+//  // Check if the tasksArray is empty before making the API call
+//  if (tasksArray.length === 0) {
+//   alert("Please fill all the details.");
+//   return;
+// }
+
+// setTaskArray(tasksArray);
+// setShowTaskModal(true);
+
+//     console.log("object tasksArray", tasksArray);
+
+//     try {
+//       // Send a POST request to the server with the tasks data`
+//       const response = await fetch(fullLink, {
+//         method: "POST",
+//         body: JSON.stringify(tasksArray),
+//         headers: {
+//           "Content-type": "application/json",
+//           Authorization: `Bearer ${token}`,
+//         },
+//       });
+
+//       if (response) {
+//         if (response.ok) {
+//           {
+//             const data = await response.json();
+
+//             if (Object.keys(data["assigned task to"]).length > 0) {
+//               // Tasks were assigned successfully to specific stations
+//               const assignedStations = Object.keys(
+//                 data["assigned task to"]
+//               ).join(", ");
+//               handleShowModal(
+//                 `Task assigned successfully to stations: ${assignedStations}`
+//               );
+//             }
+
+//             if (Object.keys(data["operator_assigned_to_stations"]).length > 0) {
+//               // Operator(s) is already assigned to stations
+//               const operatorKeys = Object.keys(
+//                 data["operator_assigned_to_stations"]
+//               );
+//               operatorKeys.forEach((operator) => {
+//                 const stations =
+//                   data["operator_assigned_to_stations"][operator].join(", ");
+//                   handleShowModal(
+//                   `Operator ${operator} already assigned on station ${stations}`,
+//                   { autoClose: 10000 }
+//                 );
+//               });
+//             }
+
+//             if (
+//               Object.keys(data["assigned task to"]).length === 0 &&
+//               Object.keys(data["operator_assigned_to_stations"]).length === 0
+//             ) {
+//               // No tasks were assigned and no operator assigned to stations
+//               handleShowModal("Please free all the tasks First", {
+//                 autoClose: 10000,
+//               });
+//             }
+
+//             // if (Object.keys(data["last_shift_on_these_stations"]).length > 0) {
+//             //   toast.info("Please select Another Shift", { autoClose: 10000 });
+//             // }
+
+//             freeStation();
+//           }
+//         } else {
+//           const data = await response.json();
+//           const errorMessage = data.Message;
+//           alert(errorMessage);
+//           if (Object.keys(data["last_shift_on_these_stations"]).length > 0) {
+//             handleShowModal(
+//               "This Shift is already over. First Delete Task then select Another Shift",
+//               { autoClose: 20000 }
+//             );
+//           }
+//         }
+//       }
+//     } catch (error) {
+//       console.error("Error on assigning Task:", error);
+//     }
+
+//   }catch(error){
+//     console.error("Error on assigning Task:", error);
+//   }
+
+//   };
+
+const assignTask = async () => {
+  try {
     // Check if shift timings are selected
     if (!startShiftTime || !endShiftTime) {
-      alert("Please select shift timings", { autoClose: 5000 });
-      return; // Exit the function early
+      alert("Please select shift timings");
+      return;
     }
 
     if (shift === "") {
-      alert("Please select Shift", { autoClose: 5000 });
+      alert("Please select Shift");
       return;
     }
 
     if (taskId === "") {
-      alert("Please Enter Task Id", { autoClose: 5000 });
+      alert("Please Enter Task Id");
       return;
     }
 
-    // if(userEnteredValue==""){
-    //     toast.warning("Please Enter Quantity timings", { autoClose: 5000 });
-    //     return;
-    // }
-
-    const link = process.env.REACT_APP_BASE_URL;
-    const endPoint = "/floorincharge/assign_task";
-    const fullLink = link + endPoint;
-
-    // Initialize an empty array to store task objects
     const tasksArray = [];
+    const lineCode = selectedLine < 10 ? `L0${selectedLine}` : `L${selectedLine}`;
+    const selectedLineStations = stationData.stations[`${floor_no} ${lineCode}`];
 
-    const lineCode =
-      selectedLine < 10 ? `L0${selectedLine}` : `L${selectedLine}`;
-
-    // Get the selected line
-    const selectedLineStations =
-      stationData.stations[`${floor_no} ${lineCode}`];
-
-    console.log(
-      "object selectedLineStations on assigntask func",
-      selectedLineStations
-    );
-    // ['G01 F02 L01 S01', 'G01 F02 L01 S03', 'G01 F02 L01 S04', 'G01 F02 L01 S05', 'G01 F02 L01 S06', 'G01 F02 L01 S07']
-
-    // Check if selectedLineStations is defined and iterable
     if (!selectedLineStations || !Array.isArray(selectedLineStations)) {
       console.error("Selected line stations are undefined or not iterable");
       return;
@@ -525,23 +735,15 @@ export default function TaskPrac() {
 
     selectedLineStations.forEach((station, index) => {
       if (runningTaskInitially.includes(station)) {
-        console.log(
-          `Skipping station ${station} as it already has a running task`
-        );
+        console.log(`Skipping station ${station} as it already has a running task`);
         return;
       }
 
-      
-      if(userEnteredValue[station]==""){
-        alert(`Please Enter Quantity  for ${station}`);
-        
-    }
+      if (userEnteredValue[station] === "") {
+        alert(`Please Enter Quantity for ${station}`);
+        return;
+      }
 
-
-      //   console.log(processName?.[selectedLine]?.[index ]?.Cycle_Time_secs ? (timingDiff/processName?.[selectedLine]?.[index]?.Cycle_Time_secs):'')
-
-      // if (previousData.hasOwnProperty(station)) {
-      // Extract required data from previousData for the current station
       const [
         firstName,
         lastName,
@@ -552,37 +754,29 @@ export default function TaskPrac() {
         employeeid,
       ] = previousData[station] || [];
 
-      // Check if the user has entered values for part, process, and employee ID for the current station
       if (
         ((selectedParts[station] || globalInputValue[selectedLine]?.part) &&
-          (selectedProcesses[station] ||
-            processName[selectedLine]?.[index]?.process_no) &&
-          (selectedEmployees[station] ||
-            employeeResponse?.[station]?.[shift][0]) &&
+          (selectedProcesses[station] || processName[selectedLine]?.[index]?.process_no) &&
+          (selectedEmployees[station] || employeeResponse?.[station]?.[shift][0]) &&
           (userEnteredValue[station] ||
             (processName?.[selectedLine]?.[index].Cycle_Time_secs
-              ? timingDiff /
-                processName?.[selectedLine]?.[index].Cycle_Time_secs
+              ? timingDiff / processName?.[selectedLine]?.[index].Cycle_Time_secs
               : ""))) ||
         (part && process && employeeid)
       ) {
-        // Create a new task object for the station
         const newTask = {
           station_id: station,
-          // employee_id: employeeCode[station] || employeeid ? employeeid:"", // Use user entered value if available, otherwise use value from previousData
-          // part_no: selectedParts[station] || part?  part:"", // Use user entered value if available, otherwise use value from previousData
-          // process_no: selectedProcesses[station] ||process?process:"" , // Use user entered value if available, otherwise use value from previousData
           employee_id:
             (selectedEmployees[station] ? employeeCode[station] : employeeid) ||
             (selectedEmployee[station]
               ? selectedEmployee[station]
               : employeeResponse?.[station]?.[shift][0]) ||
-            "", // Use user entered value if available, otherwise use value from previousData
+            "",
           part_no:
             selectedParts[station] ||
             part ||
             "" ||
-            globalInputValue[selectedLine]?.part, // Use user entered value if available, otherwise use value from previousData
+            globalInputValue[selectedLine]?.part,
           process_no:
             selectedProcesses[station] ||
             process ||
@@ -600,102 +794,80 @@ export default function TaskPrac() {
               ? Math.floor(
                   timingDiff / processName[selectedLine][index].Cycle_Time_secs
                 )
-              : "") ||
-            0,
+              : "") ||0
         };
 
-        // Push the new task object to the tasksArray
         console.log("adding newTask", newTask);
         tasksArray.push(newTask);
       }
     });
-    
- // Check if the tasksArray is empty before making the API call
- if (tasksArray.length === 0) {
-  alert("Please fill all the details.");
-  return;
-}
 
-    console.log("object tasksArray", tasksArray);
-
-    try {
-      // Send a POST request to the server with the tasks data`
-      const response = await fetch(fullLink, {
-        method: "POST",
-        body: JSON.stringify(tasksArray),
-        headers: {
-          "Content-type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response) {
-        if (response.ok) {
-          {
-            const data = await response.json();
-
-            if (Object.keys(data["assigned task to"]).length > 0) {
-              // Tasks were assigned successfully to specific stations
-              const assignedStations = Object.keys(
-                data["assigned task to"]
-              ).join(", ");
-              handleShowModal(
-                `Task assigned successfully to stations: ${assignedStations}`
-              );
-            }
-
-            if (Object.keys(data["operator_assigned_to_stations"]).length > 0) {
-              // Operator(s) is already assigned to stations
-              const operatorKeys = Object.keys(
-                data["operator_assigned_to_stations"]
-              );
-              operatorKeys.forEach((operator) => {
-                const stations =
-                  data["operator_assigned_to_stations"][operator].join(", ");
-                  handleShowModal(
-                  `Operator ${operator} already assigned on station ${stations}`,
-                  { autoClose: 10000 }
-                );
-              });
-            }
-
-            if (
-              Object.keys(data["assigned task to"]).length === 0 &&
-              Object.keys(data["operator_assigned_to_stations"]).length === 0
-            ) {
-              // No tasks were assigned and no operator assigned to stations
-              handleShowModal("Please free all the tasks First", {
-                autoClose: 10000,
-              });
-            }
-
-            // if (Object.keys(data["last_shift_on_these_stations"]).length > 0) {
-            //   toast.info("Please select Another Shift", { autoClose: 10000 });
-            // }
-
-            freeStation();
-          }
-        } else {
-          const data = await response.json();
-          const errorMessage = data.Message;
-          alert(errorMessage);
-          if (Object.keys(data["last_shift_on_these_stations"]).length > 0) {
-            handleShowModal(
-              "This Shift is already over. First Delete Task then select Another Shift",
-              { autoClose: 20000 }
-            );
-          }
-        }
-      }
-    } catch (error) {
-      console.error("Error on assigning Task:", error);
+    if (tasksArray.length === 0) {
+      alert("Please fill all the details.");
+      return;
     }
 
-  }catch(error){
+    setTaskArray(tasksArray);
+    setShowTaskModal(true);
+
+  } catch (error) {
+    console.error("Error on assigning Task:", error);
+  }
+};
+
+const handleAssign = async () => {
+  const link = process.env.REACT_APP_BASE_URL;
+  const endPoint = "/floorincharge/assign_task";
+  const fullLink = link + endPoint;
+
+  try {
+    const response = await fetch(fullLink, {
+      method: "POST",
+      body: JSON.stringify(taskArray),
+      headers: {
+        "Content-type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+
+      if (Object.keys(data["assigned task to"]).length > 0) {
+        const assignedStations = Object.keys(data["assigned task to"]).join(", ");
+        handleShowModal(`Task assigned successfully to stations: ${assignedStations}`);
+      }
+
+      if (Object.keys(data["operator_assigned_to_stations"]).length > 0) {
+        const operatorKeys = Object.keys(data["operator_assigned_to_stations"]);
+        operatorKeys.forEach((operator) => {
+          const stations = data["operator_assigned_to_stations"][operator].join(", ");
+          handleShowModal(`Operator ${operator} already assigned on station ${stations}`, { autoClose: 10000 });
+        });
+      }
+
+      if (Object.keys(data["assigned task to"]).length === 0 &&
+          Object.keys(data["operator_assigned_to_stations"]).length === 0) {
+        handleShowModal("Please free all the tasks First", { autoClose: 10000 });
+      }
+
+      freeStation();
+    } else {
+      const data = await response.json();
+      const errorMessage = data.Message;
+      alert(errorMessage);
+
+      if (Object.keys(data["last_shift_on_these_stations"]).length > 0) {
+        handleShowModal("This Shift is already over. First Delete Task then select Another Shift", { autoClose: 20000 });
+      }
+    }
+  } catch (error) {
     console.error("Error on assigning Task:", error);
   }
 
-  };
+  setShowTaskModal(false);
+};
+
 
   const deleteTask = async (e) => {
     if (!taskId) {
@@ -1105,6 +1277,13 @@ export default function TaskPrac() {
 
   return (
     <>
+
+<TaskDetailsModal
+        show={showTaskModal}
+        onHide={() => setShowTaskModal(false)}
+        taskArray={taskArray}
+        handleAssign={handleAssign}
+      />
      
       <div>
         <DashBoardAbove />
@@ -1482,6 +1661,7 @@ export default function TaskPrac() {
 
                               <input
                                 className="task_station_input"
+                                type="number"
                                 value={
                                   // If the user has entered a value for the station, show it; otherwise, show the value from the API or default to 0
                                   userEnteredValue[station] ||

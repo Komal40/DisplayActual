@@ -63,16 +63,34 @@ function LineHistory() {
 
       if (response) {
         const data = await response.json();
-        console.log("line history data", data);
-
 
         if (response.ok) {
+           
+              
             if (data.Datas) {
+              
                  // Replace single quotes with double quotes and `None` with `null`
                  const correctedFpaData = data.Datas.replace(/'/g, '"').replace(/None/g, 'null');
-
+                // const correctedFpaData = response.Datas.replace(/'/g, '"').replace(/None/g, 'null').replace(/\bTrue\b/g, 'true').replace(/\bFalse\b/g, 'false');
+                const correctedData = data.Datas.replace(/'/g, '"').replace(/None/g, 'null').replace(/\bTrue\b/g, 'true').replace(/\bFalse\b/g, 'false');
+                // Parse the corrected JSON string
                  // Parse the corrected JSON string
-                 const parsedData = JSON.parse(correctedFpaData);
+                //  const parsedData = JSON.parse(correctedFpaData);
+
+
+                  // Correct the data format
+    // let correctedData = response.Datas;
+
+    // Replace single quotes with double quotes
+    // correctedData = correctedData.replace(/'/g, '"');
+
+    // Replace None with null, True with true, and False with false
+    // correctedData = correctedData.replace(/\bNone\b/g, 'null');
+    // correctedData = correctedData.replace(/\bTrue\b/g, 'true');
+    // correctedData = correctedData.replace(/\bFalse\b/g, 'false');
+
+    // Parse the corrected JSON string
+    const parsedData = JSON.parse(correctedData);
                 setLineHistoryData(parsedData);
               }
 
@@ -93,6 +111,80 @@ function LineHistory() {
       console.error("Error :", error);
     }
   };
+
+
+
+
+const [stationDataHistory, setStationDataHistory]=useState({})
+  const showStationHistory=async(e)=>{
+    if (stationval == "") {
+        alert("Select Station");
+        return;
+      }
+
+    const link = process.env.REACT_APP_BASE_URL;
+    const endPoint = "/floorincharge/generate_history_for_station";
+    const fullLink = link + endPoint;
+
+    const startDateFormatted = formatDate(selectedStartDate);
+    const endDateFormatted = formatDate(selectedEndDate);
+
+    try {
+      const params = new URLSearchParams();
+      params.append("station_id", stationval);      
+      params.append("start_date", startDateFormatted);
+      params.append("end_date", endDateFormatted);
+
+      const response = await fetch(fullLink, {
+        method: "POST",
+        body: params,
+        headers: {
+          "Content-type": "application/x-www-form-urlencoded",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response) {
+        const data = await response.json();
+
+        console.log("stationhistory",data)
+        if (response.ok) {
+           
+              
+            if (data.Messages) {
+              
+                 // Replace single quotes with double quotes and `None` with `null`
+                 const correctedFpaData = data.Messages.replace(/'/g, '"').replace(/None/g, 'null');
+                // const correctedFpaData = response.Datas.replace(/'/g, '"').replace(/None/g, 'null').replace(/\bTrue\b/g, 'true').replace(/\bFalse\b/g, 'false');
+                const correctedData = data.Messages.replace(/'/g, '"').replace(/None/g, 'null').replace(/\bTrue\b/g, 'true').replace(/\bFalse\b/g, 'false');
+                
+    const parsedData = JSON.parse(correctedData);
+    setStationDataHistory(parsedData);
+              }
+
+            if (data && data.toggle !== undefined) {
+              // Handle the data as needed
+              console.log("Valid data received:", data);
+            } else {
+              console.error("Data format is unexpected or 'toggle' property is missing.");
+            }
+            
+          }
+           else {
+            alert(data.Message);
+          }
+
+        }
+        
+    } catch (error) {
+      console.error("Error :", error);
+    }
+  }
+
+  console.log("lineHistoryData",lineHistoryData)
+  console.log("stationDataHistory",stationDataHistory)
+
+
 
   const handleStartDateChange = (date) => {
     setSelectedStartDate(date);
@@ -115,10 +207,25 @@ function LineHistory() {
     );
   };
 
+  const generatestationButtons=()=>{
+    return(
+        lineStations && lineStations.map((station,index)=> <option key={index}>{station}</option>)
+    )
+  }
+  const[lineStations, setLineStations]=useState([])
   const handleLineChange = (e) => {
-    setselectedLine(e);
+    // G01 F02 L01
+    setselectedLine(e);  
+    const station=stationData.stations[e]
+    setLineStations(station)
   };
 
+  const [stationval, setStationVal]=useState("")
+  const handleStationChange=(e)=>{
+setStationVal(e)
+  }
+
+console.log("lineStations,stationval",lineStations,stationval)
 
   const formatDataForTable = (data) => {
     const tableData = [];
@@ -142,8 +249,6 @@ function LineHistory() {
     return tableData;
   };
   
-  
-  console.log("lineHistoryData",lineHistoryData)
 
   const renderTable = () => {
     const tableData = formatDataForTable(lineHistoryData);
@@ -151,7 +256,7 @@ function LineHistory() {
     if (Object.keys(lineHistoryData).length === 0 && lineHistoryData.constructor === Object) {
       return null; // If no data, return null to render nothing
     }
-    
+
     return (
         <>
         <div style={{marginBottom:'1rem'}}>
@@ -201,6 +306,8 @@ function LineHistory() {
   };
 
 
+
+
   const exportToExcel = () => {
     if (Object.keys(lineHistoryData).length === 0 && lineHistoryData.constructor === Object) {
      alert("No data to export");
@@ -236,6 +343,159 @@ function LineHistory() {
     XLSX.writeFile(wb, fileName);
   };
 
+
+
+// station history
+  const parseStationHistoryData = (data) => {
+    const parsedData = [];
+    for (const date in data) {
+      const tasks = data[date];
+      for (const shift in tasks) {
+        parsedData.push({ date, shift, ...tasks[shift] });
+      }
+    }
+    return parsedData;
+  };
+  
+  const groupByDate = (data) => {
+    const groupedData = {};
+    data.forEach((item) => {
+      if (!groupedData[item.date]) {
+        groupedData[item.date] = [];
+      }
+      groupedData[item.date].push(item);
+    });
+    return groupedData;
+  };
+  
+  const renderStationTable = () => {
+    const tableData = parseStationHistoryData(stationDataHistory);
+    const groupedData = groupByDate(tableData);
+  
+    if (Object.keys(stationDataHistory).length === 0 && stationDataHistory.constructor === Object) {
+      return null; // If no data, return null to render nothing
+    }
+  
+    // Sort dates in decreasing order
+    const sortedDates = Object.keys(groupedData).sort((a, b) => new Date(b) - new Date(a));
+  
+    return (
+      <>
+        <div style={{ marginBottom: '1rem' }}>
+          <button onClick={exportStationToExcel} className="task_assign_btn">
+            Export Station History
+          </button>
+        </div>
+        <table className="station-table small-font">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Shift</th>
+              <th>Station ID</th>
+              <th>Employee ID</th>
+              <th>Part No</th>
+              <th>Process No</th>
+              <th>Start Shift Time</th>
+              <th>End Shift Time</th>
+              <th>Assigned by Owner</th>
+              <th>Total Assigned Task</th>
+              <th>Passed</th>
+              <th>Failed</th>
+              
+            </tr>
+          </thead>
+          <tbody>
+            {sortedDates.map((date) => {
+              const rows = groupedData[date];
+              return rows.map((row, rowIndex) => (
+                <tr key={rowIndex}>
+                  {rowIndex === 0 && (
+                    <td rowSpan={rows.length}>{row.date}</td>
+                  )}
+                  <td>{row.shift}</td>
+                  {rowIndex === 0 && (
+                  <td rowSpan={rows.length}>{rowIndex === 0 ? row.station_id : ''}</td>
+                )}
+                  <td>{row.employee_id}</td>
+                  <td>{row.part_no}</td>
+                  <td>{row.process_no}</td>
+                  <td>{row.start_shift_time}</td>
+                  <td>{row.end_shift_time}</td>
+                  <td>{row.assigned_by_owner}</td>
+                  <td>{row.total_assigned_task}</td>
+                  <td>{row.passed}</td>
+                  <td>{row.failed}</td>
+                 
+                </tr>
+              ));
+            })}
+          </tbody>
+        </table>
+      </>
+    );
+  };
+  
+// Function to format data for Excel export
+const formatDataStationForTable = (data) => {
+    const tableData = parseStationHistoryData(data);
+    return tableData.map(row => ({
+      Date: row.date,
+      Shift: row.shift,
+      "Station ID": row.station_id,
+      "Employee ID": row.employee_id,
+      "Part No": row.part_no,
+      "Process No": row.process_no,
+      "Start Shift Time": row.start_shift_time,
+      "End Shift Time": row.end_shift_time,
+      "Assigned by Owner": row.assigned_by_owner,
+      "Total Assigned Task": row.total_assigned_task,
+      Passed: row.passed,
+      Failed: row.failed,
+    }));
+  };
+  // Function to sort data by date in descending order
+const sortByDateDescending = (data) => {
+    return data.sort((a, b) => new Date(b.Date) - new Date(a.Date));
+  };
+  
+  // Function to export station data to Excel
+  const exportStationToExcel = () => {
+    if (Object.keys(stationDataHistory).length === 0 && stationDataHistory.constructor === Object) {
+      alert("No data to export");
+      return;
+    }
+  
+    const formattedData = formatDataStationForTable(stationDataHistory);
+
+    const sortedData = sortByDateDescending(formattedData);
+  
+    // Adjusting column widths
+    const wscols = [
+      { wch: 15 }, // Date
+      { wch: 10 }, // Shift
+      { wch: 20 }, // Station ID
+      { wch: 15 }, // Employee ID
+      { wch: 15 }, // Part No
+      { wch: 20 }, // Process No
+      { wch: 20 }, // Start Shift Time
+      { wch: 20 }, // End Shift Time
+      { wch: 20 }, // Assigned by Owner
+      { wch: 20 }, // Total Assigned Task
+      { wch: 10 }, // Passed
+      { wch: 10 }, // Failed
+    ];
+  
+    const ws = XLSX.utils.json_to_sheet(sortedData);
+    ws["!cols"] = wscols;
+  
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Station History Data");
+  
+    const date = new Date();
+    const fileName = `Station_History_Data_${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+  };
+  
 
   return (
     <>
@@ -304,6 +564,39 @@ function LineHistory() {
           </div>
        
 
+        <div style={{marginTop:'2rem'}}>
+        <div className="history_above_lineData">
+         <div className="task__qty">
+         <p>Select Line: </p>
+            <div className="update_dropdown">
+              <select onClick={(e) => handleLineChange(e.target.value)}>
+                <option value="">Select</option>
+                {generateLineButtons()}
+              </select>
+            </div>
+            </div>
+
+            <div className="task__qty">
+              <p>Select StationID: </p>
+              <div className="update_dropdown">
+                <select onClick={(e)=>handleStationChange(e.target.value)}>
+                    <option value="">Select</option>
+               {generatestationButtons()}
+                </select>
+              </div>
+            </div>
+           
+            <div>
+            <button className="task_assign_btn" onClick={showStationHistory}>
+              Show Station History
+            </button>
+          </div>
+
+          </div>
+        </div>
+
+
+
         <div className="history__table">
           <div className="history_station_table">
           <div className="lineHistory-table">
@@ -311,6 +604,17 @@ function LineHistory() {
         </div>
           </div>
         </div>
+
+
+{/* renderStationTable */}
+<div className="history__table">
+          <div className="history_station_table">
+          <div className="lineHistory-table">
+          {renderStationTable()}
+        </div>
+          </div>
+        </div>
+       
       </div>
     </>
   );

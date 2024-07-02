@@ -156,7 +156,8 @@ function History() {
           console.log(data)
             // The FPA_Data is a string that needs to be parsed correctly
                     // Replace single quotes with double quotes and `None` with `null`
-                    const correctedFpaData = data.FPA_Data.replace(/'/g, '"').replace(/None/g, 'null');
+                    // const correctedFpaData = data.FPA_Data.replace(/'/g, '"').replace(/None/g, 'null');
+                    const correctedFpaData = data.FPA_Data.replace(/'/g, '"').replace(/None/g, 'null').replace(/\bTrue\b/g, 'true').replace(/\bFalse\b/g, 'false');
 
                     // Parse the corrected JSON string
                     const parsedFpaData = JSON.parse(correctedFpaData);
