@@ -500,16 +500,40 @@ const exportStationToExcel = () => {
 
 
   const [activeTab, setActiveTab] = useState('line');
+ 
   const Tabs = ({ activeTab, setActiveTab }) => {
     return (
       <div className="tabs">
-        <button onClick={() => setActiveTab('line')}>Line History</button>
-        <button onClick={() => setActiveTab('station')}>Station History</button>
-        <button onClick={() => setActiveTab('parts')}>Part History</button>
-        <button onClick={() => setActiveTab('operator')}>Operator History</button>
+        <button 
+          className={`tab ${activeTab === 'line' ? 'active' : ''}`} 
+          onClick={() => setActiveTab('line')}
+        >
+          Line History
+        </button>
+        <button 
+          className={`tab ${activeTab === 'station' ? 'active' : ''}`} 
+          onClick={() => setActiveTab('station')}
+        >
+          Station History
+        </button>
+        <button 
+          className={`tab ${activeTab === 'parts' ? 'active' : ''}`} 
+          onClick={() => setActiveTab('parts')}
+        >
+          Part History
+        </button>
+        <button 
+          className={`tab ${activeTab === 'operator' ? 'active' : ''}`} 
+          onClick={() => setActiveTab('operator')}
+        >
+          Operator History
+        </button>
       </div>
     );
   };
+  
+
+  
 
 
 
@@ -758,7 +782,246 @@ const getParts = async (e) => {
 
 
 
+//   history for operator
+
+  // select employee name and skill from employee code
+  const [employeeDetails, setEmployeeDetails] = useState(null);
+  const [value, setValue] = useState(''); 
+  const showEmployee = async (e) => {
+
+    const link = process.env.REACT_APP_BASE_URL;
+    const endPoint = "/floorincharge/operator/details";
+    const fullLink = link + endPoint;
+
+    try {
+      const params = new URLSearchParams();
+      params.append("employee_id", value);
+
+      const response = await fetch(fullLink, {
+        method: "POST",
+        body: params,
+        headers: {
+          "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setEmployeeDetails(data); 
+      } else {
+        console.error("Failed to fetch employee details");
+        setEmployeeDetails(null);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      setEmployeeDetails(null);
+    }
+  };
+
+  const [OperatorDataHistory, setOperatorDataHistory]=useState({})
+  const showOperatorHistory=async(e)=>{
+    if (value == "") {
+        alert("Enter Operator Id");
+        return;
+      }
+
+    const link = process.env.REACT_APP_BASE_URL;
+    const endPoint = "/floorincharge/generate_history_for_operator";
+    const fullLink = link + endPoint;
+
+    const startDateFormatted = formatDate(selectedStartDate);
+    const endDateFormatted = formatDate(selectedEndDate);
+
+    try {
+      const params = new URLSearchParams();
+      params.append("operator_id", value);      
+      params.append("start_date", startDateFormatted);
+      params.append("end_date", endDateFormatted);
+
+      const response = await fetch(fullLink, {
+        method: "POST",
+        body: params,
+        headers: {
+          "Content-type": "application/x-www-form-urlencoded",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response) {
+        const data = await response.json();
+
+        console.log("parthistory",data)
+        if (response.ok) {
+           
+              
+            if (data.Messages) {
+              
+                 // Replace single quotes with double quotes and `None` with `null`
+                 const correctedFpaData = data.Messages.replace(/'/g, '"').replace(/None/g, 'null');
+                // const correctedFpaData = response.Datas.replace(/'/g, '"').replace(/None/g, 'null').replace(/\bTrue\b/g, 'true').replace(/\bFalse\b/g, 'false');
+                const correctedData = data.Messages.replace(/'/g, '"').replace(/None/g, 'null').replace(/\bTrue\b/g, 'true').replace(/\bFalse\b/g, 'false');
+                
+    const parsedData = JSON.parse(correctedData);
+    setOperatorDataHistory(parsedData);
+              }
+
+            if (data && data.toggle !== undefined) {
+              // Handle the data as needed
+              console.log("Valid data received:", data);
+            } else {
+              console.error("Data format is unexpected or 'toggle' property is missing.");
+            }
+            
+          }
+           else {
+            alert(data.Message);
+          }
+
+        }
+        
+    } catch (error) {
+      console.error("Error :", error);
+    }
+  }
+
+console.log("OperatorDataHistory",OperatorDataHistory)
+const parseOperatorData = (data) => {
+    const parsedData = [];
+    for (const date in data) {
+      const shifts = data[date];
+      for (const shift in shifts) {
+        parsedData.push({ date, shift, ...shifts[shift] });
+      }
+    }
+    return parsedData;
+  };
+
+  const renderOperatorTable = () => {
+    if (Object.keys(OperatorDataHistory).length === 0 && OperatorDataHistory.constructor === Object) {
+        return null; // If no data, return null to render nothing
+      }
+
+    const tableData = parseOperatorData(OperatorDataHistory);
+    const groupedData = tableData.reduce((acc, item) => {
+      acc[item.date] = acc[item.date] || [];
+      acc[item.date].push(item);
+      return acc;
+    }, {});
+
+    const sortedDates = Object.keys(groupedData).sort((a, b) => new Date(b) - new Date(a));
+
+    return (
+      <div>
+        <div style={{ marginBottom: '1rem' }}>
+          <button onClick={exportOperatorToExcel} className="task_assign_btn">
+            Export Operator History
+          </button>
+        </div>
+        <table className="station-table small-font">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Shift</th>
+              <th>Station ID</th>
+              <th>Employee ID</th>
+              <th>Part No</th>
+              <th>Process No</th>
+              <th>Start Shift Time</th>
+              <th>End Shift Time</th>
+              <th>Assigned by Owner</th>
+              <th>Total Assigned Task</th>
+              <th>Passed</th>
+              <th>Failed</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sortedDates.map((date) => {
+              const rows = groupedData[date];
+              return rows.map((row, rowIndex) => (
+                <tr key={rowIndex}>
+                  {rowIndex === 0 && (
+                    <td rowSpan={rows.length}>{row.date}</td>
+                  )}
+                  <td>{row.shift}</td>
+                  <td>{row.station_id}</td>
+                  <td>{row.employee_id}</td>
+                  <td>{row.part_no}</td>
+                  <td>{row.process_no}</td>
+                  <td>{row.start_shift_time}</td>
+                  <td>{row.end_shift_time}</td>
+                  <td>{row.assigned_by_owner}</td>
+                  <td>{row.total_assigned_task}</td>
+                  <td>{row.passed}</td>
+                  <td>{row.failed}</td>
+                </tr>
+              ));
+            })}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
+
+  const exportOperatorToExcel = () => {
+    const tableData = parseOperatorData(OperatorDataHistory);
+    const groupedData = tableData.reduce((acc, item) => {
+      acc[item.date] = acc[item.date] || [];
+      acc[item.date].push(item);
+      return acc;
+    }, {});
+
+    const sortedDates = Object.keys(groupedData).sort((a, b) => new Date(b) - new Date(a));
+
+    const dataToExport = sortedDates.flatMap(date => {
+      const rows = groupedData[date];
+      return rows.map((row, rowIndex) => ({
+        Date: rowIndex === 0 ? row.date : '',
+        Shift: row.shift,
+        "Station ID": row.station_id,
+        "Employee ID": row.employee_id,
+        "Part No": row.part_no,
+        "Process No": row.process_no,
+        "Start Shift Time": row.start_shift_time,
+        "End Shift Time": row.end_shift_time,
+        "Assigned by Owner": row.assigned_by_owner,
+        "Total Assigned Task": row.total_assigned_task,
+        Passed: row.passed,
+        Failed: row.failed
+      }));
+    });
+
+     // Adjusting column widths
+     const wscols = [
+        { wch: 15 }, 
+        { wch: 10 }, 
+        { wch: 15 }, 
+        { wch: 15 }, 
+        { wch: 15 },
+        { wch: 15 }, 
+        { wch: 20 }, 
+        { wch: 20 },
+        { wch: 20 }, 
+        { wch: 20 }, 
+        { wch: 10 }, 
+        { wch: 10 }, 
+      ];
   
+      
+    const ws = XLSX.utils.json_to_sheet(dataToExport);
+    ws["!cols"] = wscols;
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Operator History");
+
+    XLSX.writeFile(wb, `Operator_History_${new Date().toISOString()}.xlsx`);
+  };
+
+  const handleEmployeeChange = (e) => {
+    setValue(e.target.value);
+    setEmployeeDetails(null); // Reset employee details when input changes
+  };
+
   return (
     <>
       <div>
@@ -808,7 +1071,7 @@ const getParts = async (e) => {
               <div className="task__qty">
                 <p>Select Line: </p>
                 <div className="update_dropdown">
-                  <select value={selectedLine} onClick={(e) => handleLineChange(e.target.value)}>
+                  <select value={selectedLine} onChange={(e) => handleLineChange(e.target.value)}>
                     <option value="">Select</option>
                     {generateLineButtons()}
                   </select>
@@ -915,6 +1178,39 @@ const getParts = async (e) => {
         )}
 
 
+
+{activeTab === 'operator' && (
+          <>
+            <div className="history_above_lineData">
+              <div className="task__qty">
+              <p>Enter Operator Id:</p>
+            <div className="update_dropdown">
+             <input 
+             className="task_station_input"
+             value={value} 
+        onChange={handleEmployeeChange} />
+                </div>
+                <p>{employeeDetails ? `${employeeDetails["First Name"]} ${employeeDetails["Last Name"]}` : ""}</p>
+              </div>
+
+
+<div><button className="task_assign_btn" onClick={showEmployee}>Show Name</button></div>
+
+              <div>
+                <button className="task_assign_btn" onClick={showOperatorHistory}>
+                  Operator History
+                </button>
+              </div>
+            </div>
+            <div className="history__table">
+              <div className="history_station_table">
+                <div className="lineHistory-table">
+                {renderOperatorTable()}
+                </div>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </>
   );

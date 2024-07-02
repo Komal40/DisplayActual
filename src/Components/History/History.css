@@ -112,8 +112,9 @@
 
   .history_above_lineData{
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     align-items: center;
+    width: 60vw;
   }
 
   .small-font {
@@ -122,10 +123,6 @@
   
 
   .tab_history_buttons{
-    width: 60vw;
-    display: flex;
-    justify-content: space-evenly;
-    align-items: center;
     margin-bottom: 2rem;
   }
 
@@ -145,5 +142,15 @@
 
   .tab_history_buttons button:hover{
     background-color: var(--color-skin);
-    border: none;
+  /* border:1px solid black; */
+  color: black;
+}
+
+
+
+.tab.active {
+  background-color:var(--color-skin);
+  color: black;
+  font-weight: bold;
+  border:1px solid black;
 }
