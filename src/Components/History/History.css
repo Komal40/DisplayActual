@@ -120,3 +120,30 @@
     font-size: 0.8em; /* Adjust the font size as needed */
   }
   
+
+  .tab_history_buttons{
+    width: 60vw;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+
+  .tab_history_buttons button{
+    /* flex: 0 0 7rem; */
+    /* height: 3rem; */
+    background-color: var(--color-blue);
+    color: white;
+    margin-right: 2vw;
+    padding: 15px;
+    border: none;
+    border-radius: 8px;
+    display: inline-block;
+    cursor: pointer;
+    border: none;
+  }
+
+  .tab_history_buttons button:hover{
+    background-color: var(--color-skin);
+    border: none;
+}

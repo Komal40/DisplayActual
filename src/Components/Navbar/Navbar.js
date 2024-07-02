@@ -167,7 +167,7 @@ export default function Navbar() {
                     </li>
                     <li>
                       <HashLink to="/lineHistory" className="dashboard_items">
-                        Line History
+                        All History
                       </HashLink>
                     </li>
                   </div>

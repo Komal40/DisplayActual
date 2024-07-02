@@ -259,9 +259,9 @@ console.log("lineStations,stationval",lineStations,stationval)
 
     return (
         <>
-        <div style={{marginBottom:'1rem'}}>
+        <div style={{margin:'1rem'}}>
             <button onClick={exportToExcel} className="task_assign_btn">
-              Export to Excel
+              Export To Excel
             </button>
           </div>
       <table className="station-table small-font">
@@ -459,7 +459,8 @@ const sortByDateDescending = (data) => {
   };
   
   // Function to export station data to Excel
-  const exportStationToExcel = () => {
+const exportStationToExcel = () => {
+
     if (Object.keys(stationDataHistory).length === 0 && stationDataHistory.constructor === Object) {
       alert("No data to export");
       return;
@@ -497,6 +498,267 @@ const sortByDateDescending = (data) => {
   };
   
 
+
+  const [activeTab, setActiveTab] = useState('line');
+  const Tabs = ({ activeTab, setActiveTab }) => {
+    return (
+      <div className="tabs">
+        <button onClick={() => setActiveTab('line')}>Line History</button>
+        <button onClick={() => setActiveTab('station')}>Station History</button>
+        <button onClick={() => setActiveTab('parts')}>Part History</button>
+        <button onClick={() => setActiveTab('operator')}>Operator History</button>
+      </div>
+    );
+  };
+
+
+
+
+
+
+
+
+//   history for parts
+const [parts, setParts]=useState([])
+const getParts = async (e) => {
+    const link = process.env.REACT_APP_BASE_URL;
+    const endPoint = "/floorincharge/get_parts";
+    const fullLink = link + endPoint;
+
+    try {
+      const response = await fetch(fullLink, {
+        method: "GET",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("param", data.data);
+        setParts(data.data);
+      } else {
+        console.error("Failed to fetch parts");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  useEffect(()=>{
+   getParts(); 
+  },[])
+
+  const [selectedPartNo, setSelectedPartNo] = useState("");
+  const handlePartChange = (e) => {
+    e.preventDefault();
+    const selectedPartNo = e.target.value;
+    setSelectedPartNo(selectedPartNo);
+  };
+
+  const [PartDataHistory, setPartDataHistory]=useState({})
+  const showPartHistory=async(e)=>{
+    if (selectedPartNo == "") {
+        alert("Select Part No");
+        return;
+      }
+
+    const link = process.env.REACT_APP_BASE_URL;
+    const endPoint = "/floorincharge/generate_history_for_part";
+    const fullLink = link + endPoint;
+
+    const startDateFormatted = formatDate(selectedStartDate);
+    const endDateFormatted = formatDate(selectedEndDate);
+
+    try {
+      const params = new URLSearchParams();
+      params.append("part_no", selectedPartNo);      
+      params.append("start_date", startDateFormatted);
+      params.append("end_date", endDateFormatted);
+
+      const response = await fetch(fullLink, {
+        method: "POST",
+        body: params,
+        headers: {
+          "Content-type": "application/x-www-form-urlencoded",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response) {
+        const data = await response.json();
+
+        console.log("parthistory",data)
+        if (response.ok) {
+           
+              
+            if (data.Messages) {
+              
+                 // Replace single quotes with double quotes and `None` with `null`
+                 const correctedFpaData = data.Messages.replace(/'/g, '"').replace(/None/g, 'null');
+                // const correctedFpaData = response.Datas.replace(/'/g, '"').replace(/None/g, 'null').replace(/\bTrue\b/g, 'true').replace(/\bFalse\b/g, 'false');
+                const correctedData = data.Messages.replace(/'/g, '"').replace(/None/g, 'null').replace(/\bTrue\b/g, 'true').replace(/\bFalse\b/g, 'false');
+                
+    const parsedData = JSON.parse(correctedData);
+    setPartDataHistory(parsedData);
+              }
+
+            if (data && data.toggle !== undefined) {
+              // Handle the data as needed
+              console.log("Valid data received:", data);
+            } else {
+              console.error("Data format is unexpected or 'toggle' property is missing.");
+            }
+            
+          }
+           else {
+            alert(data.Message);
+          }
+
+        }
+        
+    } catch (error) {
+      console.error("Error :", error);
+    }
+  }
+
+  const parsePartsHistoryData = (data) => {
+    const parsedData = [];
+    for (const date in data) {
+      const shifts = data[date];
+      for (const shift in shifts) {
+        parsedData.push({ date, shift, ...shifts[shift] });
+      }
+    }
+    return parsedData;
+  };
+  
+
+  // Sorting and grouping data
+  const getSortedAndGroupedData = (data) => {
+    const tableData = parsePartsHistoryData(data);
+    const groupedData = groupByDate(tableData);
+    // Sort dates in decreasing order
+    const sortedDates = Object.keys(groupedData).sort((a, b) => new Date(b) - new Date(a));
+    return { sortedDates, groupedData };
+  };
+  
+  const renderPartsTable = () => {
+    const { sortedDates, groupedData } = getSortedAndGroupedData(PartDataHistory);
+  
+    if (Object.keys(PartDataHistory).length === 0 && PartDataHistory.constructor === Object) {
+      return null; // If no data, return null to render nothing
+    }
+  
+    return (
+      <>
+        <div style={{ marginBottom: '1rem' }}>
+          <button onClick={exportPartsToExcel} className="task_assign_btn">
+            Export Part History
+          </button>
+        </div>
+        <table className="station-table small-font">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Shift</th>
+              <th>Station ID</th>
+              <th>Employee ID</th>
+              <th>Part No</th>
+              <th>Process No</th>
+              <th>Start Shift Time</th>
+              <th>End Shift Time</th>
+              <th>Assigned by Owner</th>
+              <th>Total Assigned Task</th>
+              <th>Passed</th>
+              <th>Failed</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sortedDates.map((date) => {
+              const rows = groupedData[date];
+              return rows.map((row, rowIndex) => (
+                <tr key={rowIndex}>
+                  {rowIndex === 0 && (
+                    <td rowSpan={rows.length}>{row.date}</td>
+                  )}
+                  <td>{row.shift}</td>
+                  <td>{row.station_id}</td>
+                  <td>{row.employee_id}</td>
+                  <td>{row.part_no}</td>
+                  <td>{row.process_no}</td>
+                  <td>{row.start_shift_time}</td>
+                  <td>{row.end_shift_time}</td>
+                  <td>{row.assigned_by_owner}</td>
+                  <td>{row.total_assigned_task}</td>
+                  <td>{row.passed}</td>
+                  <td>{row.failed}</td>
+                </tr>
+              ));
+            })}
+          </tbody>
+        </table>
+      </>
+    );
+  };
+  
+  const exportPartsToExcel = () => {
+    if (Object.keys(PartDataHistory).length === 0 && PartDataHistory.constructor === Object) {
+      alert("No data to export");
+      return;
+    }
+  
+    const { sortedDates, groupedData } = getSortedAndGroupedData(PartDataHistory);
+    const tableData = sortedDates.flatMap(date => groupedData[date]);
+    const formattedData = tableData.map(row => ({
+      Date: row.date,
+      Shift: row.shift,
+      "Station ID": row.station_id,
+      "Employee ID": row.employee_id,
+      "Part No": row.part_no,
+      "Process No": row.process_no,
+      "Start Shift Time": row.start_shift_time,
+      "End Shift Time": row.end_shift_time,
+      "Assigned by Owner": row.assigned_by_owner,
+      "Total Assigned Task": row.total_assigned_task,
+      Passed: row.passed,
+      Failed: row.failed,
+    }));
+  
+    // Adjusting column widths
+    const wscols = [
+      { wch: 15 }, // Date
+      { wch: 10 }, // Shift
+      { wch: 15 }, // Station ID
+      { wch: 15 }, // Employee ID
+      { wch: 15 }, // Part No
+      { wch: 15 }, // Process No
+      { wch: 20 }, // Start Shift Time
+      { wch: 20 }, // End Shift Time
+      { wch: 20 }, // Assigned by Owner
+      { wch: 20 }, // Total Assigned Task
+      { wch: 10 }, // Passed
+      { wch: 10 }, // Failed
+    ];
+  
+    const ws = XLSX.utils.json_to_sheet(formattedData);
+    ws["!cols"] = wscols;
+  
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Parts History Data");
+  
+    const date = new Date();
+    const fileName = `Parts_History_Data_${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+  };
+  
+
+
+
+
+
+  
   return (
     <>
       <div>
@@ -532,89 +794,127 @@ const sortByDateDescending = (data) => {
              
         </div>
 <hr style={{marginTop:'1rem', marginBottom:'1rem'}}/>
-          <div className="history_above_lineData">
-         <div className="task__qty">
-         <p>Select Line: </p>
-            <div className="update_dropdown">
-              <select onClick={(e) => handleLineChange(e.target.value)}>
-                <option value="">Select</option>
-                {generateLineButtons()}
-              </select>
-            </div>
-            </div>
 
-            <div className="task__qty">
-              <p>Select Shift: </p>
-              <div className="update_dropdown">
-                <select onChange={(e) => setShift(e.target.value)}>
-                  <option value="">Shift</option>
-                  <option value="A">A</option>
-                  <option value="B">B</option>
-                  <option value="C">C</option>
-                </select>
-              </div>
-            </div>
-           
-            <div>
-            <button className="task_assign_btn" onClick={showLineHistory}>
-              Show Line History
-            </button>
-          </div>
 
-          </div>
-       
+<div className="tab_history_buttons">
+<Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
+</div>
 
-        <div style={{marginTop:'2rem'}}>
-        <div className="history_above_lineData">
-         <div className="task__qty">
-         <p>Select Line: </p>
-            <div className="update_dropdown">
-              <select onClick={(e) => handleLineChange(e.target.value)}>
-                <option value="">Select</option>
-                {generateLineButtons()}
-              </select>
-            </div>
-            </div>
 
-            <div className="task__qty">
-              <p>Select StationID: </p>
-              <div className="update_dropdown">
-                <select onClick={(e)=>handleStationChange(e.target.value)}>
+
+{activeTab === 'line' && (
+          <>
+            <div className="history_above_lineData">
+              <div className="task__qty">
+                <p>Select Line: </p>
+                <div className="update_dropdown">
+                  <select value={selectedLine} onClick={(e) => handleLineChange(e.target.value)}>
                     <option value="">Select</option>
-               {generatestationButtons()}
-                </select>
+                    {generateLineButtons()}
+                  </select>
+                </div>
+              </div>
+
+              <div className="task__qty">
+                <p>Select Shift: </p>
+                <div className="update_dropdown">
+                  <select value={shift} onChange={(e) => setShift(e.target.value)}>
+                    <option value="">Shift</option>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <button className="task_assign_btn" onClick={showLineHistory}>
+                  Show Line History
+                </button>
               </div>
             </div>
-           
-            <div>
-            <button className="task_assign_btn" onClick={showStationHistory}>
-              Show Station History
-            </button>
-          </div>
+            <div className="history__table">
+              <div className="lineHistory-table">
+                {renderTable()}
+              </div>
+            </div>
+          </>
+        )}
 
-          </div>
-        </div>
+        {activeTab === 'station' && (
+          <>
+            <div className="history_above_lineData">
+              <div className="task__qty">
+                <p>Select Line: </p>
+                <div className="update_dropdown">
+                  <select value={selectedLine} onChange={(e) => handleLineChange(e.target.value)}>
+                    <option value="">Select</option>
+                    {generateLineButtons()}
+                  </select>
+                </div>
+              </div>
+
+              <div className="task__qty">
+                <p>Select StationID: </p>
+                <div className="update_dropdown">
+                  <select value={stationval} onChange={(e) => handleStationChange(e.target.value)}>
+                    <option value="">Select</option>
+                    {generatestationButtons()}
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <button className="task_assign_btn" onClick={showStationHistory}>
+                  Show Station History
+                </button>
+              </div>
+            </div>
+            <div className="history__table">
+              <div className="history_station_table">
+                <div className="lineHistory-table">
+                  {renderStationTable()}
+                </div>
+              </div>
+            </div>
+          </>
+        )}
 
 
+{activeTab === 'parts' && (
+          <>
+            <div className="history_above_lineData">
+              <div className="task__qty">
+              <p>Select Part Name:</p>
+            <div className="update_dropdown">
+              <select value={selectedPartNo} onChange={handlePartChange}>
+                <option>Select</option>
+                {parts &&
+                  parts.map((part, index) => (
+                    <option key={index}>{part.part_no}</option>
+                  ))}
+              </select>
+                </div>
+              </div>
 
-        <div className="history__table">
-          <div className="history_station_table">
-          <div className="lineHistory-table">
-          {renderTable()}
-        </div>
-          </div>
-        </div>
+
+              <div>
+                <button className="task_assign_btn" onClick={showPartHistory}>
+                  Show Part History
+                </button>
+              </div>
+            </div>
+            <div className="history__table">
+              <div className="history_station_table">
+                <div className="lineHistory-table">
+                  {renderPartsTable()}
+                </div>
+              </div>
+            </div>
+          </>
+        )}
 
 
-{/* renderStationTable */}
-<div className="history__table">
-          <div className="history_station_table">
-          <div className="lineHistory-table">
-          {renderStationTable()}
-        </div>
-          </div>
-        </div>
-       
       </div>
     </>
   );
