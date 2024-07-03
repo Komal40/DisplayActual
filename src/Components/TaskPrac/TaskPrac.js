@@ -896,6 +896,7 @@ const handleAssign = async () => {
         const data = await response.json();
         if (response.ok) {
           handleShowModal(`Task Deleted Successfully`);
+          freeStation()
         } else {
           alert(data.Message);
         }
@@ -1477,7 +1478,9 @@ const handleAssign = async () => {
                         lastName,
                         runempSkill,
                         empprocessInfo,
-                        runprocessSkill;
+                        runpartName,
+                        runprocessSkill,
+                        taskId;
                       if (isRunning || runningOnLogs) {
                         // Extract details from the running task
                         const runningTask =
@@ -1492,7 +1495,9 @@ const handleAssign = async () => {
                           lastName,
                           runempSkill,
                           empprocessInfo,
+                          runpartName,
                           runprocessSkill,
+                          taskId
                         ] = runningTask;
                       }
 
@@ -1513,12 +1518,15 @@ const handleAssign = async () => {
                             <div className="task_stations_left">
                               <div>
                                 {(isRunning || runningOnLogs) && (
+<div style={{display:'flex'}}>
                                   <u className="task-running">
                                     Task is running..
                                   </u>
+                                  <p style={{color:'green',fontWeight:'bold'}}>({taskId})</p>
+                                  </div>
                                 )}
                               </div>
-
+                              
                               <h4>
                                 {/* <span style={{marginRight:'10px'}}>
                                   <label>
@@ -1536,8 +1544,8 @@ const handleAssign = async () => {
 
                               <div className="task_stations_part">
                                 <p>
-                                  Part:{" "}
-                                  {selectedParts[station] ||
+                                  Part:{" "}{isRunning || runningOnLogs ?runpartName:''||
+                                  selectedParts[station] ||
                                     partInfo ||
                                     globalInputValue[selectedLine]?.part ||
                                     ""}
@@ -1592,7 +1600,7 @@ const handleAssign = async () => {
                                   <p className="employee-name">
                                     Employee:{" "}
                                     {(isRunning || runningOnLogs
-                                      ? employeeId
+                                      ? (firstName+" "+lastName)
                                       : operatorfname && operatorlname
                                       ? `${operatorfname} ${operatorlname}`
                                       : "") ||
@@ -1646,7 +1654,7 @@ const handleAssign = async () => {
                                 className="task_station_input"
                                 placeholder="prec."
                                 value={
-                                  `${s}`
+                                  `PP-${s}`
                                   // (processName[selectedLine]?.[s - 1]
                                   //   ?.process_precedency !== undefined
                                   //   ? processName[selectedLine][s - 1]
@@ -1733,6 +1741,7 @@ const handleAssign = async () => {
                                   placeholder="Id"
                                   disabled={isRunning || runningOnLogs}
                                   value={
+                                    (isRunning || runningOnLogs ? employeeId:'')||
                                     (employeeCode[station]
                                       ? employeeCode[station]
                                       : empId) ||

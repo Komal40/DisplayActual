@@ -879,6 +879,7 @@ const assignTask = async () => {
         const data = await response.json();
         if (response.ok) {
             handleShowModal(`Task Deleted Successfully`);
+            freeStation()
         } else {
           alert(data.Message);
         }
@@ -1467,7 +1468,9 @@ const assignTask = async () => {
                         lastName,
                         runempSkill,
                         empprocessInfo,
-                        runprocessSkill;
+                        runpartName,
+                        runprocessSkill,
+                        taskId
                       if (isRunning || runningOnLogs) {
                         // Extract details from the running task
                         const runningTask =
@@ -1482,7 +1485,9 @@ const assignTask = async () => {
                           lastName,
                           runempSkill,
                           empprocessInfo,
+                          runpartName,
                           runprocessSkill,
+                          taskId
                         ] = runningTask;
                       }
 
@@ -1502,10 +1507,13 @@ const assignTask = async () => {
                           <div key={station} className="task_stations">
                             <div className="task_stations_left">
                               <div>
-                                {(isRunning || runningOnLogs) && (
+                              {(isRunning || runningOnLogs) && (
+<div style={{display:'flex'}}>
                                   <u className="task-running">
                                     Task is running..
                                   </u>
+                                  <p style={{color:'green',fontWeight:'bold'}}>({taskId})</p>
+                                  </div>
                                 )}
                               </div>
 
@@ -1527,8 +1535,8 @@ const assignTask = async () => {
 
                               <div className="task_stations_part">
                                 <p>
-                                  Part:{" "}
-                                  {selectedParts[station] ||
+                                Part:{" "}{isRunning || runningOnLogs ?runpartName:''||
+                                  selectedParts[station] ||
                                     partInfo ||                                    
                                     globalInputValue[selectedLine]?.part ||
                                     ""}
@@ -1584,7 +1592,7 @@ const assignTask = async () => {
                                   <p className="employee-name">
                                     Employee:{" "}
                                     {(isRunning || runningOnLogs
-                                      ? employeeId
+                                      ? (firstName+" "+lastName)
                                       : operatorfname && operatorlname
                                       ? `${operatorfname} ${operatorlname}`
                                       : "") ||
@@ -1694,6 +1702,7 @@ const assignTask = async () => {
                                   placeholder="Id"
                                   disabled={isRunning || runningOnLogs}
                                   value={
+                                    (isRunning || runningOnLogs ? employeeId:'')||
                                     (employeeCode[station]
                                       ? employeeCode[station]
                                       : empId) ||
