@@ -318,8 +318,8 @@ export default function DeleteFloor() {
             <div className="delete_drop_head">
             <p>Select Part:</p>
             <div className="update_dropdown">
-              <select onChange={handlePartChange}>
-                <option>Select</option>
+              <select value={selectedPartNo} onChange={handlePartChange}>
+                <option value="">Select</option>
                 {parts &&
                   parts.map((part, index) => (
                     <option key={index} value={part.part_no}>
@@ -344,8 +344,8 @@ export default function DeleteFloor() {
             <div className="delete_drop_head">
             <p>Select Process:</p>
             <div className="update_dropdown">
-              <select onChange={handleProcessChange}>
-                <option>Select</option>
+              <select value={selectedProcessNo} onChange={handleProcessChange}>
+                <option value="">Select</option>
                 {processName &&
                   processName.map((part, index) => (
                     <option key={index} value={part.process_no}>
@@ -370,8 +370,8 @@ export default function DeleteFloor() {
             <div className="delete_drop_head">
             <p>Parameter No:</p>
             <div className="update_dropdown">
-              <select onChange={handleParamNo}>
-                <option>Select</option>
+              <select value={paramNo} onChange={handleParamNo}>
+                <option value="">Select</option>
                 {parameters &&
                   parameters.map((part, index) => (
                     <option key={index} value={part.parameter_no}>

@@ -202,40 +202,47 @@ const DashboardAbove = () => {
       </div>
       
       {showModal && (
-        <div className="notify_modal" onClick={handleModalClick}>
-          <div className="notify_modal-content">
-            <span className="notify_close" onClick={() => setShowModal(false)}>
-              &times;
-            </span>
-            <h2>Notifications</h2>
-            {Object.keys(groupedNotifications).map((stationId) => (
-              <div key={stationId} className="notification-group">
-                <div className="notification-group-header">
-                  <h3>Station {stationId}</h3>
-                </div>
-                {groupedNotifications[stationId].map((notification, index) => (
-                  <div key={notification.notification_id} className="notification-item">
-                    <p className="time">{`${notification.created_time} on ${notification.created_date}`}</p>
-                    <p className="content">{`${index + 1}. ${notification.csp_name}`}</p>
-                    <div className="notification-buttons">
-                      <button
-                        className={`approved ${notification.approved ? 'approved-text' : ''}`}
-                        onClick={() => handleApprovedNotification(notification.notification_id)}
-                        disabled={approvedNotifications.includes(notification.notification_id)}
-                      >
-                        {approvedNotifications.includes(notification.notification_id) ? "Approved" : "Approve"}
-                      </button>
-                      <button className="delete-button" onClick={() => handleDeleteNotification(notification.notification_id)}>
-                        &times;
-                      </button>
-                    </div>
+  <div className="notify_modal" onClick={handleModalClick}>
+    <div className="notify_modal-content">
+      <div className="notification-header">
+        <h2>Notifications</h2>
+        <span className="notify_close" onClick={() => setShowModal(false)}>
+          &times;
+        </span>
+      </div>
+      <div className="notification-list">
+        {Object.keys(groupedNotifications).map((stationId) => (
+          <div key={stationId} className="notification-group">
+            <div className="notification-group-header">
+              <h3>Station {stationId}</h3>
+            </div>
+            {groupedNotifications[stationId]
+              .slice() // Create a copy of the array
+              .reverse() // Reverse the array
+              .map((notification, index) => (
+                <div key={notification.notification_id} className="notification-item">
+                  <p className="time">{`${notification.created_time} on ${notification.created_date}`}</p>
+                  <p className="content">{`${index + 1}. ${notification.csp_name}`}</p>
+                  <div className="notification-buttons">
+                    <button
+                      className={`approved ${notification.approved ? 'approved-text' : ''}`}
+                      onClick={() => handleApprovedNotification(notification.notification_id)}
+                      disabled={approvedNotifications.includes(notification.notification_id)}
+                    >
+                      {approvedNotifications.includes(notification.notification_id) ? "Approved" : "Approve"}
+                    </button>
+                    <button className="delete-button" onClick={() => handleDeleteNotification(notification.notification_id)}>
+                      &times;
+                    </button>
                   </div>
-                ))}
-              </div>
-            ))}
+                </div>
+              ))}
           </div>
-        </div>
-      )}
+        ))}
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 };

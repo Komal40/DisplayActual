@@ -1664,15 +1664,16 @@ const assignTask = async () => {
                                   //       processName?.[selectedLine]?.[s - 1]
                                   //         .Cycle_Time_secs
                                   //     : "")
-                                  (processName ? ( processName?.[selectedLine]?.[s - 1]
-                                    ?.Cycle_Time_secs
-                                    ? Math.floor(
-                                        timingDiff /
-                                          processName[selectedLine][s - 1]
-                                            .Cycle_Time_secs
-                                      )
-                                    : "") :'')||
-                                  ""
+                                  (processName
+                                    ? processName?.[selectedLine]?.[s - 1]
+                                        ?.Cycle_Time_secs
+                                      ? Math.floor(
+                                          timingDiff /
+                                            processName[selectedLine][s - 1]
+                                              .Cycle_Time_secs
+                                        )
+                                      : ""
+                                    : "") ||""
                                 }
                                 placeholder="qty"
                                 onChange={(e) => handleInputChange(e, station)}

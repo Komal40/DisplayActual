@@ -631,6 +631,12 @@ export default function Dashboard() {
                               employeeDataForStation.map(
                                 (employee, empIndex) => (
                                   <div key={empIndex}>
+                                      <p>
+                                      Assigned Task:&nbsp;&nbsp;
+                                      <strong>
+                                        {employee.total_assigned_task || ""}
+                                      </strong>
+                                    </p>
                                     <p>
                                       Operator:&nbsp;&nbsp;
                                       <strong>

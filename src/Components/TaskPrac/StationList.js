@@ -26,7 +26,7 @@ const StationList = () => {
     </div>
     <div className="modal_customize" onClick={() => handleClick('global')}>
       <h2>Global</h2>
-      <p>Click here to go to the Globally Assign Value.</p>
+      <p>Click here to go to the Global Page.</p>
     </div>
   </div>
   );
