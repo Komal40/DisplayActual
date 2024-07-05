@@ -125,12 +125,18 @@ function History() {
   }
 
     
-      const formattedDate = `${selectedHisDate.getFullYear()}-${
-        selectedHisDate.getMonth() + 1 < 10
-          ? "0" + (selectedHisDate.getMonth() + 1)
-          : selectedHisDate.getMonth() + 1
-      }-${selectedHisDate.getDate()}`;
+  const formattedDate = `${selectedHisDate.getFullYear()}-${
+    selectedHisDate.getMonth() + 1 < 10
+      ? "0" + (selectedHisDate.getMonth() + 1)
+      : selectedHisDate.getMonth() + 1
+  }-${
+    selectedHisDate.getDate() < 10
+      ? "0" + selectedHisDate.getDate()
+      : selectedHisDate.getDate()
+  }`;
+  
 
+   
     const link = process.env.REACT_APP_BASE_URL;
     const endPoint = "/floorincharge/get_fpa_failed_history";
     const fullLink = link + endPoint;

@@ -802,10 +802,10 @@ const assignTask = async () => {
       }
     });
 
-    if (tasksArray.length === 0) {
-      alert("Please fill all the details.");
-      return;
-    }
+    // if (tasksArray.length === 0) {
+    //   alert("Please fill all the details.");
+    //   return;
+    // }
 
     setTaskArray(tasksArray);
     setShowTaskModal(true);
@@ -855,7 +855,7 @@ const handleAssign = async () => {
     } else {
       const data = await response.json();
       const errorMessage = data.Message;
-      alert(errorMessage);
+      // alert(errorMessage);
 
       if (Object.keys(data["last_shift_on_these_stations"]).length > 0) {
         handleShowModal("This Shift is already over. First Delete Task then select Another Shift", { autoClose: 20000 });
@@ -925,8 +925,7 @@ const handleAssign = async () => {
       // setApiValue(Math.floor(timingDiff / apiCycleTime));
       // Compare the entered value with the API value
       if (parseInt(value) > Math.floor(timingDiff / apiCycleTime)) {
-        alert(`Limit exceeded for ${stationId}`, { autoClose: 1000 });
-        return;
+        alert(`Limit exceeded for ${stationId}`, { autoClose: 1000 });        
       }
     }
 
