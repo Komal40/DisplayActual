@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import "./Login.css";
 import bg from "../Images/bg.png";
 import inter from "../Images/interface.png";
-
 import { json, useNavigate } from "react-router-dom";
 import { useUser } from "../../UserContext";
 import { Link } from "react-router-dom";
@@ -14,6 +13,7 @@ export default function Login() {
   const [msg, setMsg] = useState("");
   const navigate = useNavigate();
   const { setLoginData } = useUser();
+  const [role, setRole]=useState("")
 
   const clickLogin = async (e) => {
     e.preventDefault();
@@ -72,6 +72,18 @@ export default function Login() {
     }
   };
 
+  const handleRoleChange=(e)=>{
+    const nav=e.target.value
+    setRole(nav)
+
+    if(role==='/admin'){
+      navigate('/')
+    }
+    else if(role==='/superadmin'){
+      navigate('/superadmin')
+    }    
+  }
+
   return (
     <>
       <div className="login_section">
@@ -80,6 +92,7 @@ export default function Login() {
             <img className="login_sidebar_img" src={bg} />
             <div className="overlay_text">
               <img className='interface_logo' src={inter}/>
+              <h5 style={{marginTop:'1rem'}}>Digital Display</h5>
               </div>
             <div className="overlay_bottom_text">
               Developed By Cellus Tech India
@@ -96,9 +109,9 @@ export default function Login() {
               </strong>
             </h2>
             <div className="dropdown">
-              <select>
-                <option>Admin</option>
-                {/* <option>Super Admin</option> */}
+              <select value={role} onChange={handleRoleChange}>
+                <option value="admin">Admin</option>
+                <option value="superadmin">Super Admin</option>
               </select>
             </div>
             <div className="login_below_section">
@@ -157,7 +170,6 @@ export default function Login() {
     </>
   );
 }
-
 
 
 

@@ -211,6 +211,7 @@ function LineHistory() {
       ))
     );
   };
+  
   const [lineStations, setLineStations] = useState([]);
   const handleLineChange = (e) => {
     // G01 F02 L01

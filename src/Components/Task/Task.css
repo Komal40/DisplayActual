@@ -395,3 +395,61 @@ input[type="number"]::-webkit-inner-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
 }
+
+
+
+
+/* add fixed task data */
+.main_taskfixeddata{
+    margin-left: 16rem;
+}
+.taskfixed_head{
+    margin-top: 2rem;
+}
+.taskfixed_data_table {
+    width: 96%;
+    margin-top: 20px;
+    border: 1px solid var(--color-grey);
+  }
+  
+  .taskfixed_table_header{
+    font-weight: bold;
+    border-bottom: 2px solid #ddd;
+    background-color: var(--color-grey);
+  }
+
+  .taskfixed_table_header, .taskfixed_row {
+    display: flex;
+    padding: 10px;
+  }
+  
+  .taskfixed_table_header div, .taskfixed_row div{
+    flex: 1;
+    padding: 5px 10px;
+    margin: 0 5px;
+    text-align: left;
+  }
+  
+
+  
+  .taskfixed_row:nth-child(odd) {
+    background-color: #f9f9f9;
+  }
+  
+ .taskfixed_inp{
+    width: 3rem;
+    border:2px solid rgb(190, 186, 186);
+    border-radius: 3px;
+    padding: 1px 5px;
+ }
+  
+ .taskfixed_check{
+    width: 2rem;
+    height: 1rem;
+ }
+
+ .taskfixed_shifts{
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+ }

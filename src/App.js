@@ -19,12 +19,14 @@ import TaskPrac from "./Components/TaskPrac/TaskPrac";
 import StationList from "./Components/TaskPrac/StationList";
 import UpdatedTask from "./Components/UpdatedTask/UpdatedTask";
 import History from "./Components/History/History";
+import AdminLogin from './SuperAdmin/Login/AdminLogin'
 
 import { ErrorBoundary, useErrorBoundary } from "react-error-boundary";
 import { UserProvider } from "./UserContext";
 import TaskPrac2 from "./Components/TaskPrac/TaskPrac2";
 import Fpa_FailedItems from "./Components/History/Fpa_FailedItems";
 import LineHistory from "./Components/History/LineHistory";
+import AddFixedTask from "./Components/TaskPrac/AddFixedTask";
 
 const FallbackComponent = ({ error, resetErrorBoundary }) => (
   <div style={{ marginLeft: "20rem", marginTop: "4rem" }}>
@@ -88,6 +90,7 @@ function MainApp() {
               path="/global"
               element={<ProtectedRoute Component={TaskPrac2} />}
             />
+            <Route path='/taskData' element={<ProtectedRoute Component={AddFixedTask}/>}/>
             {/* <Route path='/task' element={<ProtectedRoute Component={TaskNew}/>}/> */}
             {/* <Route path='/updateTask' element={<UpdatedTask/>}/>  */}
             <Route
@@ -117,6 +120,8 @@ function MainApp() {
               path="/assignopt"
               element={<ProtectedRoute Component={AssignOperator} />}
             />
+
+            <Route path='/superadmin' Component={AdminLogin}/>
           </Routes>
         </UserProvider>
       </ErrorBoundary>

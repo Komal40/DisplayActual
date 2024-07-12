@@ -155,6 +155,10 @@ color: white ;
 
 
 .interface_logo{
+    aspect-ratio: 20 / 3.2;
     max-width: 20vw;
-    height: 3.2rem;
+    height: auto;
 }
+
+
+

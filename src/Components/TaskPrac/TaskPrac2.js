@@ -1097,6 +1097,7 @@ const assignTask = async () => {
     }
   };
 
+  const [lineAssignData, setLineAssignData]=useState({})
   const assignEmployee = async () => {
     if (shift === "") {
       alert("Please Select Shift", { autoClose: 3000 });
@@ -1104,7 +1105,7 @@ const assignTask = async () => {
     }
 
     const link = process.env.REACT_APP_BASE_URL;
-    const endPoint = "/floorincharge/operator_of_station_shift";
+    const endPoint = "/floorincharge/get_auto_task_assign_data";
     const fullLink = link + endPoint;
 
     try {
@@ -1126,38 +1127,8 @@ const assignTask = async () => {
       if (response) {
         const data = await response.json();
        
-        if (response.ok) {
-          // Replace single quotes with double quotes
-          const fixedDataString = data.Data.replace(/'/g, '"');
-          const employeeDetails = data.Employees_data.replace(/'/g, '"');
-          //   const fixedDataString = data.Data;
-
-          console.log("object fixedDataString", fixedDataString);
-          // Replace double quotes with single quotes
-          // const fixedDataString = JSON.stringify(data.Data).replace(/"/g, "'");
-
-          // Parse the 'Data' property
-          let parsedData;
-          let employeeInfo;
-          try {
-            // parsedData = fixedDataString;
-            parsedData = JSON.parse(fixedDataString);
-            employeeInfo = JSON.parse(employeeDetails);
-          } catch (error) {
-            console.error("Error parsing employee data:", error);
-            return; // Exit the function early if parsing fails
-          }
-
-          // Check if it's an empty object
-          if (Object.keys(parsedData).length === 0) {
-            alert("No Employee Assigned on this shift", {
-              autoClose: 2000,
-            });
-            return;
-          } else {
-            setEmployeeResponse(parsedData);
-            setEmployeeDataString(employeeInfo);
-          }
+        if (response.ok) { 
+         setLineAssignData(data.stations_data)
         } else {
           alert(data.Message);
         }
@@ -1168,26 +1139,6 @@ const assignTask = async () => {
       console.error("Error:", error);
     }
   };
-
-  // let station
-  //////////////////////////////////////////////////////////////////////////////////for skills//////////////////////
-  //   const getEmployeeNameAndSkill = () => {
-  //     if (employeeResponse && employeeResponse[station] && employeeResponse[station][shift]) {
-  //       const employeeCode = employeeResponse[station][shift][0];
-  //       if (employeeCode && employeeDataString[employeeCode]) {
-  //         const employeeInfo = employeeDataString[employeeCode].split(',');
-  //         // const name = employeeInfo[0].trim();
-  //         const skill = employeeInfo[1] ? employeeInfo[1].trim() : '';
-  //         return {skill};
-  //       }
-  //     }
-  //     return {skill:''};
-  //   };
-
-  //   const {skill} = getEmployeeNameAndSkill();
-  // //////////////////////////////////////////////////////////////////////////////////////////////
-
-  console.log("object employeeResponse", employeeResponse);
 
 
   const fetchQty = async () => {
@@ -1240,24 +1191,7 @@ const assignTask = async () => {
       setEndShiftTime("");
     }
   };
-
-  // const [showStation, setShowStation] = useState({});
-  // Handle checkbox change for showing stations
-  // const handleCheckboxChange = (index, checked, station) => {
-  //   setShowStation(prevState => ({
-  //     ...prevState,
-  //     [station]: { checked: !showStation[station]?.checked  }
-  //   }));
-  // };
-
-  //  const handleCheckboxChange = (station) => {
-  //   setShowStation(prevState => ({
-  //     ...prevState,
-  //     [station]: !prevState[station]
-  //   }));
-  // };
-
-  
+ 
 
   return (
     <>
@@ -1383,7 +1317,7 @@ const assignTask = async () => {
 
 
 
-       <div className="update_dropdown">
+       {/* <div className="update_dropdown">
           <div className="global_task">
             <div className="task_whole_part">
               <p>Select Part:</p>
@@ -1406,7 +1340,7 @@ const assignTask = async () => {
             <div className="global_task_qty">
               <div>
                 <button className="task_assign_btn" onClick={assignEmployee}>
-                  Assign Employee
+                  Get Data On Line
                 </button>
               </div>
               <div>
@@ -1416,7 +1350,7 @@ const assignTask = async () => {
               </div>
             </div>
           </div>
-        </div> 
+        </div>  */}
 
 
 
@@ -1502,6 +1436,8 @@ const assignTask = async () => {
                       );
                       console.log("processName", processName);
 
+                      const lineData=lineAssignData[station]?.[0] || {}
+
                       return (
                         <>
                           <div key={station} className="task_stations">
@@ -1529,8 +1465,7 @@ const assignTask = async () => {
                                     />
                                   </label>
                                 </span> */}
-                                {station}
-                                
+                                {station}                                
                               </h4>
 
                               <div className="task_stations_part">
@@ -1539,7 +1474,7 @@ const assignTask = async () => {
                                   selectedParts[station] ||
                                     partInfo ||                                    
                                     globalInputValue[selectedLine]?.part ||
-                                    ""}
+                                    lineData.part_no|| ""}
                                 </p>
                               </div>
 
@@ -1548,7 +1483,7 @@ const assignTask = async () => {
                                   Process:{" "}
                                   {isRunning || runningOnLogs
                                     ? empprocessInfo
-                                    : selectedProcesses[station] ||
+                                    : selectedProcesses[station] || processInfo||
                                       // processInfo ||
                                       // processName[selectedLine]?.[s - 1]
                                       //   ?.process_no ||
@@ -1569,7 +1504,7 @@ const assignTask = async () => {
                                     : "" ||
                                     (globalInputValue[selectedLine]?.part ?
                                        processName[selectedLine]?.[s - 1]?.skill_level
-                                    : '')
+                                    : '') ||skillRequired
                                   }
                                 </p>
                               </div>
@@ -1664,6 +1599,7 @@ const assignTask = async () => {
                                   //       processName?.[selectedLine]?.[s - 1]
                                   //         .Cycle_Time_secs
                                   //     : "")
+                                  
                                   (processName
                                     ? processName?.[selectedLine]?.[s - 1]
                                         ?.Cycle_Time_secs
@@ -1707,46 +1643,13 @@ const assignTask = async () => {
                                     (employeeCode[station]
                                       ? employeeCode[station]
                                       : empId) ||
-                                    (employeeResponse?.[station]?.[shift] &&
-                                      employeeResponse?.[station]?.[
-                                        shift
-                                      ][0]) ||
-                                    ""
+                                    
+                                    lineData.operator_id||"" 
                                   }
                                   onChange={(e) => employeeChange(e, station)}
                                 />
 
-                                {employeeResponse?.[station] && employeeResponse[station]?.[shift]?.length >
-                                1 ? (
-                                  <select
-                                    value={
-                                      selectedEmployee[station] ||
-                                      employeeResponse[station]?.[shift][0]
-                                    }
-                                    onChange={(e) => {
-                                      setSelectedEmployee({
-                                        ...selectedEmployee,
-                                        [station]: e.target.value,
-                                      }); // Update selectedEmployees state
-                                     
-                                      employeeChange(
-                                         e,
-                                        station
-                                      );
-                                    }}
-                                  >
-
-                                    {employeeResponse[station]?.[shift].map(
-                                      (employee) => (
-                                        <option key={employee} value={employee}>
-                                          {employee}
-                                        </option>
-                                      )
-                                    )}
-                                  </select>
-                                ) : (
-                                  ""
-                                )}
+                              
                               </div>
 
                               {/* Show a message if part and process are selected but employee ID is missing

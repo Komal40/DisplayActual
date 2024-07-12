@@ -126,8 +126,11 @@ export default function Navbar() {
               </li>
               <li>
                 <HashLink to="/task" className="dashboard_items">
-                 TASK
+                 TASK ALLOCATION
                 </HashLink>
+              </li>
+              <li>
+                <HashLink to='/taskData' className="dashboard_items"> TASK SCHEDULING</HashLink>
               </li>
               {/* <li>
                 <HashLink to="/updateTask" className="dashboard_items">

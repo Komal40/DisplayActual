@@ -1543,7 +1543,7 @@ const handleAssign = async () => {
 
                               <div className="task_stations_part">
                                 <p>
-                                  Part:{" "}{isRunning || runningOnLogs ?runpartName:''||
+                                  Part:{" "}{isRunning || runningOnLogs ? runpartName:''||
                                   selectedParts[station] ||
                                     partInfo ||
                                     globalInputValue[selectedLine]?.part ||
@@ -1556,7 +1556,7 @@ const handleAssign = async () => {
                                   Process:{" "}
                                   {isRunning || runningOnLogs
                                     ? empprocessInfo
-                                    : selectedProcesses[station] ||
+                                    : selectedProcesses[station] ||processInfo||
                                       // processInfo ||
                                       // processName[selectedLine]?.[s - 1]
                                       //   ?.process_no ||
@@ -1569,16 +1569,16 @@ const handleAssign = async () => {
                                 <p style={{ fontSize: "12px" }}>
                                   Skill Required:&nbsp;
                                   {isRunning || runningOnLogs
-                                    ? runprocessSkill
+                                    ? runprocessSkill 
                                     : selectedSkill[station]
                                     ? `${selectedSkill[station]} Or Above`
                                     : skillRequired
-                                    ? `${skillRequired} Or Above`
-                                    : "" ||
+                                    ? `${skillRequired} Or Above` 
+                                    : "" || 
                                       (globalInputValue[selectedLine]?.part
                                         ? processName[selectedLine]?.[s - 1]
                                             ?.skill_level
-                                        : "")}
+                                        : "") ||skillRequired}
                                 </p>
                               </div>
 
