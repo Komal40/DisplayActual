@@ -94,6 +94,9 @@ export default function Login() {
               <img className='interface_logo' src={inter}/>
               <h5 style={{marginTop:'1rem'}}>Digital Display</h5>
               </div>
+
+
+              
             <div className="overlay_bottom_text">
               Developed By Cellus Tech India
             </div>
