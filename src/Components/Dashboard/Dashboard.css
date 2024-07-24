@@ -1,8 +1,10 @@
 .dashboard_container{
     height: 3.5rem;  
-    width: 90vw;
+    width: 100vw;
     background-color:#ECECEC;
     margin-left: 10.5rem;
+    padding-right: 7vw;
+    /* border: 1px solid #000; */
 }
 
 .grey-background {
@@ -20,6 +22,7 @@
 
 .dashboard_stations{
     margin-left: 15rem;
+    margin-top: 1.2rem;
 
 }
 .dashboard_navbar{
@@ -232,3 +235,194 @@
  @media screen and (min-width: 768px) and (max-width: 1024px) {
   }
 
+
+
+
+
+
+
+  /* new design for stations */
+/*   
+  .card_container {
+    width: 250px;
+    height: 200px;
+    border: 2px solid white; 
+    display: flex;
+    flex-direction: column;
+}
+.upper_row {
+  flex: 0 1 20%; 
+  background-color: var(--color-lightpink); 
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between;
+  color: white;
+}
+
+.upper_div_row{
+  display: flex;
+}
+
+.upper_div_row p{
+  font-weight: 700;
+  border: 2px solid black;
+}
+
+.mid_row {
+    flex: 0 1 60%; 
+    background-color: gray; 
+}
+
+.bottom_row {
+    flex: 0 1 20%; 
+    display: flex; 
+    flex-direction: row; 
+}
+
+.bottom_section {
+    flex: 1; 
+    background-color: darkgray; 
+    border: 1px solid white;} */
+
+
+
+    .card_container {
+      width: 250px;
+      height: 200px;
+      border: 2px solid white;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .upper_row {
+      flex: 0 1 20%;
+      background-color: var(--color-lightpink);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: white;
+      padding: 5px;
+    }
+    
+    .upper_div_row {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+    }
+    
+    .upper_div_row p {
+      font-weight: 500;
+      margin: 0;
+    }
+    
+    .mid_employee{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .mid_row {
+      flex: 0 1 60%;
+      background-color: var(--color-lightyellow);
+      color: black;
+      padding: 5px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      font-weight: 700;
+
+    }
+    .mids_row {
+      flex: 0 1 60%;
+      background-color: var(--color-lightgrey);
+      color: black;
+      padding: 5px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      font-weight: 600;
+
+    }
+    .divider {
+      border: 0;
+      border-top: 3px dotted black; /* Change to dotted line */
+      margin: 0.5em 0;
+    }
+    
+    .skill_metrix{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .color_bar {
+      display: flex;
+      justify-content: flex-start;
+      border: 1.5px solid black;
+    }
+    
+    .color_red,
+    .color_orange,
+    .color_yellow,
+    .color_green {
+      height: 15px;
+      width: 15px;
+      border: 1px solid black;
+
+    }
+    
+    .color_red {
+      background-color: rgba(224, 57, 57, 1);
+    }
+    
+    .color_orange {
+      background-color: rgba(240, 127, 78, 1);
+    }
+    
+    .color_yellow {
+      background-color: rgba(255, 202, 57, 1);
+    }
+    
+    .color_green {
+      background-color: rgba(80, 186, 78, 1);
+    }
+    
+    .bottom_row {
+      flex: 0 1 20%;
+      display: flex;
+      flex-direction: row;
+    }
+    
+    .bottom_section {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: black;
+      font-weight: 700;
+    }
+    
+    .green {
+      background-color: var(--color-lightgreen);
+    }
+    
+    .red {
+      background-color: var(--color-lightred);
+    }
+    
+    .blue {
+      background-color: var(--color-lightblue);
+      color: white;
+    }
+    
+    .grey-color {
+      background-color: grey;
+    }
+    
+    .blue-color {
+      background-color: rgba(145, 242, 248, 1);
+    }
+    
+    .yellow-color {
+      background-color: yellow;
+    }
+    

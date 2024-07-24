@@ -26,6 +26,16 @@ body {
   --color-blue:#2B3499;
   --color-grey:#ECECEC;
    --font-family: 'Poppins', sans-serif !important;
+   
+   --color-lightpink:#C27396;
+   --color-lightgreen:#78EC75;
+   --color-lightred:#FF4141;
+   --color-lightblue:#6C76E4;
+   --color-cayon:#91F2F8;
+   --color-lightyellow:#FFFB99;
+   --color-lightgrey: rgb(224, 217, 217);
+
+
 }
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',

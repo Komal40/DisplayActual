@@ -8,23 +8,20 @@ import "react-datepicker/dist/react-datepicker.css";
 import Modal from "../Modal/Modal";
 import TaskDetailsModal from "../TaskDetailsModal/TaskDetailsModal";
 
-
 export default function TaskPrac2() {
-    const [showModal, setShowModal] = useState(false);
-    const [modalMessage, setModalMessage] = useState("");
-  
-  
-    const handleShowModal = (message) => {
-      setModalMessage(message);
-      setShowModal(true);
-    };
-  
-    const handleCloseModal = () => {
-      setShowModal(false);
-      setModalMessage("");
-    };
+  const [showModal, setShowModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
 
-    
+  const handleShowModal = (message) => {
+    setModalMessage(message);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setModalMessage("");
+  };
+
   const [stationData, setStationData] = useState({});
   const navigate = useNavigate();
   const token = JSON.parse(localStorage.getItem("Token"));
@@ -259,7 +256,6 @@ export default function TaskPrac2() {
     //   setSelectedProcesses(prevProcesses => ({ ...prevProcesses, [stationId]: "" })); // Reset corresponding process information
   };
 
-
   const handleProcessChange = (e, stationId) => {
     const selectedProcessNo = e.target.value;
     const selectedProcess = processes[stationId].find(
@@ -353,7 +349,7 @@ export default function TaskPrac2() {
             [line]: processesData,
           }));
         } else {
-            handleShowModal(data.Message);
+          handleShowModal(data.Message);
         }
       } else {
         console.error("Failed to fetch parts", response.error);
@@ -375,11 +371,11 @@ export default function TaskPrac2() {
     }
   }, [stationData]);
 
-  const [activeBtn , setActiveBtn]=useState("")
+  const [activeBtn, setActiveBtn] = useState("");
 
   const handleLineClick = async (line) => {
     // line=G01 F02 L01
-    setActiveBtn(line)
+    setActiveBtn(line);
     console.log("object initially selcted line", line);
     const data = parseInt(line.split("L")[1]);
     setSelectedLine(data);
@@ -444,7 +440,6 @@ export default function TaskPrac2() {
           Object.keys(data.Datas).length === 0 &&
           data.running_task_on_stations.length === 0
         ) {
-          
           alert("Nothing assigned on that day and time");
           //     const selectedLineStations = stationData.lines;
           // const blankData = {};
@@ -475,259 +470,261 @@ export default function TaskPrac2() {
     }
   };
 
-//   const assignTask = async () => {
-//     // Check if shift timings are selected
-//     if (!startShiftTime || !endShiftTime) {
-//       alert("Please select shift timings", { autoClose: 5000 });
-//       return; // Exit the function early
-//     }
+  //   const assignTask = async () => {
+  //     // Check if shift timings are selected
+  //     if (!startShiftTime || !endShiftTime) {
+  //       alert("Please select shift timings", { autoClose: 5000 });
+  //       return; // Exit the function early
+  //     }
 
-//     if (shift === "") {
-//       alert("Please select Shift", { autoClose: 5000 });
-//       return;
-//     }
+  //     if (shift === "") {
+  //       alert("Please select Shift", { autoClose: 5000 });
+  //       return;
+  //     }
 
-//     if (taskId === "") {
-//       alert("Please Enter Task Id", { autoClose: 5000 });
-//       return;
-//     }
+  //     if (taskId === "") {
+  //       alert("Please Enter Task Id", { autoClose: 5000 });
+  //       return;
+  //     }
 
-//     // if(userEnteredValue==""){
-//     //     toast.warning("Please Enter Quantity timings", { autoClose: 5000 });
-//     //     return;
-//     // }
+  //     // if(userEnteredValue==""){
+  //     //     toast.warning("Please Enter Quantity timings", { autoClose: 5000 });
+  //     //     return;
+  //     // }
 
-//     const link = process.env.REACT_APP_BASE_URL;
-//     const endPoint = "/floorincharge/assign_task";
-//     const fullLink = link + endPoint;
+  //     const link = process.env.REACT_APP_BASE_URL;
+  //     const endPoint = "/floorincharge/assign_task";
+  //     const fullLink = link + endPoint;
 
-//     // Initialize an empty array to store task objects
-//     const tasksArray = [];
+  //     // Initialize an empty array to store task objects
+  //     const tasksArray = [];
 
-//     const lineCode =
-//       selectedLine < 10 ? `L0${selectedLine}` : `L${selectedLine}`;
+  //     const lineCode =
+  //       selectedLine < 10 ? `L0${selectedLine}` : `L${selectedLine}`;
 
-//     // Get the selected line
-//     const selectedLineStations =
-//       stationData.stations[`${floor_no} ${lineCode}`];
+  //     // Get the selected line
+  //     const selectedLineStations =
+  //       stationData.stations[`${floor_no} ${lineCode}`];
 
-//     console.log(
-//       "object selectedLineStations on assigntask func",
-//       selectedLineStations
-//     );
-//     // ['G01 F02 L01 S01', 'G01 F02 L01 S03', 'G01 F02 L01 S04', 'G01 F02 L01 S05', 'G01 F02 L01 S06', 'G01 F02 L01 S07']
+  //     console.log(
+  //       "object selectedLineStations on assigntask func",
+  //       selectedLineStations
+  //     );
+  //     // ['G01 F02 L01 S01', 'G01 F02 L01 S03', 'G01 F02 L01 S04', 'G01 F02 L01 S05', 'G01 F02 L01 S06', 'G01 F02 L01 S07']
 
-//     // Check if selectedLineStations is defined and iterable
-//     if (!selectedLineStations || !Array.isArray(selectedLineStations)) {
-//       console.error("Selected line stations are undefined or not iterable");
-//       return;
-//     }
+  //     // Check if selectedLineStations is defined and iterable
+  //     if (!selectedLineStations || !Array.isArray(selectedLineStations)) {
+  //       console.error("Selected line stations are undefined or not iterable");
+  //       return;
+  //     }
 
-//     selectedLineStations.forEach((station, index) => {
-//       if (runningTaskInitially.includes(station)) {
-//         console.log(
-//           `Skipping station ${station} as it already has a running task`
-//         );
-//         return;
-//       }
+  //     selectedLineStations.forEach((station, index) => {
+  //       if (runningTaskInitially.includes(station)) {
+  //         console.log(
+  //           `Skipping station ${station} as it already has a running task`
+  //         );
+  //         return;
+  //       }
 
-//       //   console.log(processName?.[selectedLine]?.[index ]?.Cycle_Time_secs ? (timingDiff/processName?.[selectedLine]?.[index]?.Cycle_Time_secs):'')
+  //       //   console.log(processName?.[selectedLine]?.[index ]?.Cycle_Time_secs ? (timingDiff/processName?.[selectedLine]?.[index]?.Cycle_Time_secs):'')
 
-//           if(userEnteredValue[station]==""){
-//         alert(`Please Enter Quantity  for ${station}`);
-//         return;
-//     }
+  //           if(userEnteredValue[station]==""){
+  //         alert(`Please Enter Quantity  for ${station}`);
+  //         return;
+  //     }
 
+  //       // if (previousData.hasOwnProperty(station)) {
+  //       // Extract required data from previousData for the current station
+  //       const [
+  //         firstName,
+  //         lastName,
+  //         skillLevel,
+  //         part,
+  //         process,
+  //         skillRequired,
+  //         employeeid,
+  //       ] = previousData[station] || [];
 
-//       // if (previousData.hasOwnProperty(station)) {
-//       // Extract required data from previousData for the current station
-//       const [
-//         firstName,
-//         lastName,
-//         skillLevel,
-//         part,
-//         process,
-//         skillRequired,
-//         employeeid,
-//       ] = previousData[station] || [];
+  //       // Check if the user has entered values for part, process, and employee ID for the current station
+  //       if (
+  //         ((selectedParts[station] ||
+  //           globalInputValue[selectedLine]?.part) &&
+  //           (selectedProcesses[station] ||
+  //             processName[selectedLine]?.[index]?.process_no) &&
+  //           (selectedEmployees[station] ||
+  //             employeeResponse?.[station]?.[shift][0]) &&
+  //           (userEnteredValue[station] ||
+  //             (processName?.[selectedLine]?.[index].Cycle_Time_secs
+  //               ? timingDiff /
+  //                 processName?.[selectedLine]?.[index].Cycle_Time_secs
+  //               : ""))) ||
+  //         (part && process && employeeid)
+  //       ) {
+  //         // Create a new task object for the station
+  //         const newTask = {
+  //           station_id: station,
+  //           // employee_id: employeeCode[station] || employeeid ? employeeid:"", // Use user entered value if available, otherwise use value from previousData
+  //           // part_no: selectedParts[station] || part?  part:"", // Use user entered value if available, otherwise use value from previousData
+  //           // process_no: selectedProcesses[station] ||process?process:"" , // Use user entered value if available, otherwise use value from previousData
+  //           employee_id:
+  //             (selectedEmployees[station] ? employeeCode[station] : employeeid) ||
+  //             (selectedEmployee[station]
+  //               ? selectedEmployee[station]
+  //               : employeeResponse?.[station]?.[shift][0]) ||
+  //             "", // Use user entered value if available, otherwise use value from previousData
+  //           part_no:
+  //             selectedParts[station] ||
+  //             part ||
+  //             "" ||
+  //             globalInputValue[selectedLine]?.part, // Use user entered value if available, otherwise use value from previousData
+  //           process_no:
+  //             selectedProcesses[station] ||
+  //             process ||
+  //             processName[selectedLine]?.[index]?.process_no ||
+  //             "",
+  //           shift: shift,
+  //           station_precedency: index + 1,
+  //           start_shift_time: startShiftTime,
+  //           end_shift_time: endShiftTime,
+  //           temp_task_id: taskId,
+  //           assigned_by_owner: login.employee_id,
+  //           total_assigned_task:
+  //             Number(userEnteredValue[station]) ||
+  //             (processName?.[selectedLine]?.[index].Cycle_Time_secs
+  //               ? Math.floor(
+  //                   timingDiff / processName[selectedLine][index].Cycle_Time_secs
+  //                 )
+  //               : "") ||
 
-//       // Check if the user has entered values for part, process, and employee ID for the current station
-//       if (
-//         ((selectedParts[station] ||
-//           globalInputValue[selectedLine]?.part) &&
-//           (selectedProcesses[station] ||
-//             processName[selectedLine]?.[index]?.process_no) &&
-//           (selectedEmployees[station] ||
-//             employeeResponse?.[station]?.[shift][0]) &&
-//           (userEnteredValue[station] ||
-//             (processName?.[selectedLine]?.[index].Cycle_Time_secs
-//               ? timingDiff /
-//                 processName?.[selectedLine]?.[index].Cycle_Time_secs
-//               : ""))) ||
-//         (part && process && employeeid)
-//       ) {
-//         // Create a new task object for the station
-//         const newTask = {
-//           station_id: station,
-//           // employee_id: employeeCode[station] || employeeid ? employeeid:"", // Use user entered value if available, otherwise use value from previousData
-//           // part_no: selectedParts[station] || part?  part:"", // Use user entered value if available, otherwise use value from previousData
-//           // process_no: selectedProcesses[station] ||process?process:"" , // Use user entered value if available, otherwise use value from previousData
-//           employee_id:
-//             (selectedEmployees[station] ? employeeCode[station] : employeeid) ||
-//             (selectedEmployee[station]
-//               ? selectedEmployee[station]
-//               : employeeResponse?.[station]?.[shift][0]) ||
-//             "", // Use user entered value if available, otherwise use value from previousData
-//           part_no:
-//             selectedParts[station] ||
-//             part ||
-//             "" ||
-//             globalInputValue[selectedLine]?.part, // Use user entered value if available, otherwise use value from previousData
-//           process_no:
-//             selectedProcesses[station] ||
-//             process ||
-//             processName[selectedLine]?.[index]?.process_no ||
-//             "",
-//           shift: shift,
-//           station_precedency: index + 1,
-//           start_shift_time: startShiftTime,
-//           end_shift_time: endShiftTime,
-//           temp_task_id: taskId,
-//           assigned_by_owner: login.employee_id,
-//           total_assigned_task:
-//             Number(userEnteredValue[station]) ||
-//             (processName?.[selectedLine]?.[index].Cycle_Time_secs
-//               ? Math.floor(
-//                   timingDiff / processName[selectedLine][index].Cycle_Time_secs
-//                 )
-//               : "") ||
-           
-//             0,
-//         };
+  //             0,
+  //         };
 
-//         // Push the new task object to the tasksArray
-//         console.log("adding newTask", newTask);
-//         tasksArray.push(newTask);
-//       }
-//     });
+  //         // Push the new task object to the tasksArray
+  //         console.log("adding newTask", newTask);
+  //         tasksArray.push(newTask);
+  //       }
+  //     });
 
-//     console.log("object tasksArray", tasksArray);
+  //     console.log("object tasksArray", tasksArray);
 
-//     try {
-//       // Send a POST request to the server with the tasks data`
-//       const response = await fetch(fullLink, {
-//         method: "POST",
-//         body: JSON.stringify(tasksArray),
-//         headers: {
-//           "Content-type": "application/json",
-//           Authorization: `Bearer ${token}`,
-//         },
-//       });
+  //     try {
+  //       // Send a POST request to the server with the tasks data`
+  //       const response = await fetch(fullLink, {
+  //         method: "POST",
+  //         body: JSON.stringify(tasksArray),
+  //         headers: {
+  //           "Content-type": "application/json",
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       });
 
-//       if (response) {
-//         if (response.ok) {
-//           {
-//             const data = await response.json();
+  //       if (response) {
+  //         if (response.ok) {
+  //           {
+  //             const data = await response.json();
 
-//             if (Object.keys(data["assigned task to"]).length > 0) {
-//               // Tasks were assigned successfully to specific stations
-//               const assignedStations = Object.keys(
-//                 data["assigned task to"]
-//               ).join(", ");
-//               handleShowModal(
-//                 `Task assigned successfully to stations: ${assignedStations}`
-//               );
-//             }
+  //             if (Object.keys(data["assigned task to"]).length > 0) {
+  //               // Tasks were assigned successfully to specific stations
+  //               const assignedStations = Object.keys(
+  //                 data["assigned task to"]
+  //               ).join(", ");
+  //               handleShowModal(
+  //                 `Task assigned successfully to stations: ${assignedStations}`
+  //               );
+  //             }
 
-//             if (Object.keys(data["operator_assigned_to_stations"]).length > 0) {
-//               // Operator(s) is already assigned to stations
-//               const operatorKeys = Object.keys(
-//                 data["operator_assigned_to_stations"]
-//               );
-//               operatorKeys.forEach((operator) => {
-//                 const stations =
-//                   data["operator_assigned_to_stations"][operator].join(", ");
-//                   handleShowModal(
-//                   `Operator ${operator} already assigned on station ${stations}`,
-//                   { autoClose: 10000 }
-//                 );
-//               });
-//             }
+  //             if (Object.keys(data["operator_assigned_to_stations"]).length > 0) {
+  //               // Operator(s) is already assigned to stations
+  //               const operatorKeys = Object.keys(
+  //                 data["operator_assigned_to_stations"]
+  //               );
+  //               operatorKeys.forEach((operator) => {
+  //                 const stations =
+  //                   data["operator_assigned_to_stations"][operator].join(", ");
+  //                   handleShowModal(
+  //                   `Operator ${operator} already assigned on station ${stations}`,
+  //                   { autoClose: 10000 }
+  //                 );
+  //               });
+  //             }
 
-//             if (
-//               Object.keys(data["assigned task to"]).length === 0 &&
-//               Object.keys(data["operator_assigned_to_stations"]).length === 0
-//             ) {
-//               // No tasks were assigned and no operator assigned to stations
-//               alert("Please free all the tasks First", {
-//                 autoClose: 10000,
-//               });
-//             }
+  //             if (
+  //               Object.keys(data["assigned task to"]).length === 0 &&
+  //               Object.keys(data["operator_assigned_to_stations"]).length === 0
+  //             ) {
+  //               // No tasks were assigned and no operator assigned to stations
+  //               alert("Please free all the tasks First", {
+  //                 autoClose: 10000,
+  //               });
+  //             }
 
-//             // if (Object.keys(data["last_shift_on_these_stations"]).length > 0) {
-//             //   toast.info("Please select Another Shift", { autoClose: 10000 });
-//             // }
+  //             // if (Object.keys(data["last_shift_on_these_stations"]).length > 0) {
+  //             //   toast.info("Please select Another Shift", { autoClose: 10000 });
+  //             // }
 
-//             freeStation();
-//           }
-//         } else {
-//           const data = await response.json();
-//           const errorMessage = data.Message;
-//           alert(errorMessage);
-//           if (Object.keys(data["last_shift_on_these_stations"]).length > 0) {
-//             handleShowModal(
-//               "This Shift is already over. First Delete Task then select Another Shift",
-//               { autoClose: 20000 }
-//             );
-//           }
-//         }
-//       }
-//     } catch (error) {
-//       console.error("Error on assigning Task:", error);
-//     }
-//   };
+  //             freeStation();
+  //           }
+  //         } else {
+  //           const data = await response.json();
+  //           const errorMessage = data.Message;
+  //           alert(errorMessage);
+  //           if (Object.keys(data["last_shift_on_these_stations"]).length > 0) {
+  //             handleShowModal(
+  //               "This Shift is already over. First Delete Task then select Another Shift",
+  //               { autoClose: 20000 }
+  //             );
+  //           }
+  //         }
+  //       }
+  //     } catch (error) {
+  //       console.error("Error on assigning Task:", error);
+  //     }
+  //   };
 
-
-const [taskArray, setTaskArray] = useState([]);
-const [showTaskModal, setShowTaskModal] = useState(false);
-const assignTask = async () => {
+  const [taskArray, setTaskArray] = useState([]);
+  const [showTaskModal, setShowTaskModal] = useState(false);
+  const assignTask = async () => {
     try {
       // Check if shift timings are selected
       if (!startShiftTime || !endShiftTime) {
         alert("Please select shift timings");
         return;
       }
-  
+
       if (shift === "") {
         alert("Please select Shift");
         return;
       }
-  
+
       if (taskId === "") {
         alert("Please Enter Task Id");
         return;
       }
-  
+
       const tasksArray = [];
-      const lineCode = selectedLine < 10 ? `L0${selectedLine}` : `L${selectedLine}`;
-      const selectedLineStations = stationData.stations[`${floor_no} ${lineCode}`];
-  
+      const lineCode =
+        selectedLine < 10 ? `L0${selectedLine}` : `L${selectedLine}`;
+      const selectedLineStations =
+        stationData.stations[`${floor_no} ${lineCode}`];
+
       if (!selectedLineStations || !Array.isArray(selectedLineStations)) {
         console.error("Selected line stations are undefined or not iterable");
         return;
       }
-  
+
       selectedLineStations.forEach((station, index) => {
         if (runningTaskInitially.includes(station)) {
-          console.log(`Skipping station ${station} as it already has a running task`);
+          console.log(
+            `Skipping station ${station} as it already has a running task`
+          );
           return;
         }
-  
+
         if (userEnteredValue[station] === "") {
           alert(`Please Enter Quantity for ${station}`);
           return;
         }
-  
+
         const [
           firstName,
           lastName,
@@ -737,34 +734,46 @@ const assignTask = async () => {
           skillRequired,
           employeeid,
         ] = previousData[station] || [];
-  
+
         if (
-          ((selectedParts[station] || globalInputValue[selectedLine]?.part) &&
-            (selectedProcesses[station] || processName[selectedLine]?.[index]?.process_no) &&
-            (selectedEmployees[station] || employeeResponse?.[station]?.[shift][0]) &&
+          ((selectedParts[station] ||
+            globalInputValue[selectedLine]?.part ||
+            taskAssignData[station]?.[0]?.part_no) &&
+            (selectedProcesses[station] ||
+              processName[selectedLine]?.[index]?.process_no ||
+              taskAssignData[station]?.[0]?.process_no) &&
+            (selectedEmployees[station] ||
+              employeeResponse?.[station]?.[shift][0] ||
+              taskAssignData[station]?.[0]?.operator_id) &&
             (userEnteredValue[station] ||
-              (processName?.[selectedLine]?.[index].Cycle_Time_secs
-                ? timingDiff / processName?.[selectedLine]?.[index].Cycle_Time_secs
-                : ""))) ||
+              // (processName?.[selectedLine]?.[index].Cycle_Time_secs
+              //   ? timingDiff / processName?.[selectedLine]?.[index].Cycle_Time_secs
+              //   : "")
+              taskAssignData[station]?.[0]?.quantity)) ||
           (part && process && employeeid)
         ) {
           const newTask = {
             station_id: station,
             employee_id:
-              (selectedEmployees[station] ? employeeCode[station] : employeeid) ||
+              (selectedEmployees[station]
+                ? employeeCode[station]
+                : employeeid) ||
               (selectedEmployee[station]
                 ? selectedEmployee[station]
                 : employeeResponse?.[station]?.[shift][0]) ||
+              taskAssignData[station]?.[0]?.operator_id ||
               "",
             part_no:
               selectedParts[station] ||
               part ||
               "" ||
-              globalInputValue[selectedLine]?.part,
+              globalInputValue[selectedLine]?.part ||
+              taskAssignData[station]?.[0]?.part_no,
             process_no:
               selectedProcesses[station] ||
               process ||
               processName[selectedLine]?.[index]?.process_no ||
+              taskAssignData[station]?.[0]?.process_no ||
               "",
             shift: shift,
             station_precedency: index + 1,
@@ -776,35 +785,36 @@ const assignTask = async () => {
               Number(userEnteredValue[station]) ||
               (processName?.[selectedLine]?.[index].Cycle_Time_secs
                 ? Math.floor(
-                    timingDiff / processName[selectedLine][index].Cycle_Time_secs
+                    timingDiff /
+                      processName[selectedLine][index].Cycle_Time_secs
                   )
                 : "") ||
+              taskAssignData[station]?.[0]?.quantity ||
               0,
           };
-  
+
           console.log("adding newTask", newTask);
           tasksArray.push(newTask);
         }
       });
-  
+
       if (tasksArray.length === 0) {
         alert("Please fill all the details.");
         return;
       }
-  
+
       setTaskArray(tasksArray);
       setShowTaskModal(true);
-  
     } catch (error) {
       console.error("Error on assigning Task:", error);
     }
   };
-  
+
   const handleAssign = async () => {
     const link = process.env.REACT_APP_BASE_URL;
     const endPoint = "/floorincharge/assign_task";
     const fullLink = link + endPoint;
-  
+
     try {
       const response = await fetch(fullLink, {
         method: "POST",
@@ -814,42 +824,58 @@ const assignTask = async () => {
           Authorization: `Bearer ${token}`,
         },
       });
-  
+
       if (response.ok) {
         const data = await response.json();
-  
+
         if (Object.keys(data["assigned task to"]).length > 0) {
-          const assignedStations = Object.keys(data["assigned task to"]).join(", ");
-          handleShowModal(`Task assigned successfully to stations: ${assignedStations}`);
+          const assignedStations = Object.keys(data["assigned task to"]).join(
+            ", "
+          );
+          handleShowModal(
+            `Task assigned successfully to stations: ${assignedStations}`
+          );
         }
-  
+
         if (Object.keys(data["operator_assigned_to_stations"]).length > 0) {
-          const operatorKeys = Object.keys(data["operator_assigned_to_stations"]);
+          const operatorKeys = Object.keys(
+            data["operator_assigned_to_stations"]
+          );
           operatorKeys.forEach((operator) => {
-            const stations = data["operator_assigned_to_stations"][operator].join(", ");
-            handleShowModal(`Operator ${operator} already assigned on station ${stations}`, { autoClose: 10000 });
+            const stations =
+              data["operator_assigned_to_stations"][operator].join(", ");
+            handleShowModal(
+              `Operator ${operator} already assigned on station ${stations}`,
+              { autoClose: 10000 }
+            );
           });
         }
-  
-        if (Object.keys(data["assigned task to"]).length === 0 &&
-            Object.keys(data["operator_assigned_to_stations"]).length === 0) {
-          handleShowModal("Please free all the tasks First", { autoClose: 10000 });
+
+        if (
+          Object.keys(data["assigned task to"]).length === 0 &&
+          Object.keys(data["operator_assigned_to_stations"]).length === 0
+        ) {
+          handleShowModal("Please free all the tasks First", {
+            autoClose: 10000,
+          });
         }
-  
+
         freeStation();
       } else {
         const data = await response.json();
         const errorMessage = data.Message;
         alert(errorMessage);
-  
+
         if (Object.keys(data["last_shift_on_these_stations"]).length > 0) {
-          handleShowModal("This Shift is already over. First Delete Task then select Another Shift", { autoClose: 20000 });
+          handleShowModal(
+            "This Shift is already over. First Delete Task then select Another Shift",
+            { autoClose: 20000 }
+          );
         }
       }
     } catch (error) {
       console.error("Error on assigning Task:", error);
     }
-  
     setShowTaskModal(false);
   };
   const deleteTask = async (e) => {
@@ -878,8 +904,8 @@ const assignTask = async () => {
       if (response) {
         const data = await response.json();
         if (response.ok) {
-            handleShowModal(`Task Deleted Successfully`);
-            freeStation()
+          handleShowModal(`Task Deleted Successfully`);
+          freeStation();
         } else {
           alert(data.Message);
         }
@@ -948,14 +974,13 @@ const assignTask = async () => {
     updateElementAtIndex(selectedLine, field, input);
   };
 
-
-  const [selectedWholePart, setSelectedWholePart]=useState({})
+  const [selectedWholePart, setSelectedWholePart] = useState({});
   const handleWholePartChange = async (value, field, selectedLine) => {
     if (value == undefined) {
       // Handle undefined case appropriately
       return;
     }
-    
+
     setSelectedWholePart((prevSelectedParts) => ({
       ...prevSelectedParts,
       [selectedLine]: value,
@@ -1003,7 +1028,9 @@ const assignTask = async () => {
     const fullLink = link + endPoint;
 
     try {
-      const allStationsData = stationData ? Object.values(stationData?.stations):[]; // Extract all stations from stationData
+      const allStationsData = stationData
+        ? Object.values(stationData?.stations)
+        : []; // Extract all stations from stationData
 
       // Flatten the array of arrays to get a single array of all station IDs
       const stationIds = allStationsData.flat();
@@ -1034,7 +1061,7 @@ const assignTask = async () => {
   const handleEmployeeCodeChange = (event) => {
     setEmployeeCode(event.target.value);
   };
-                                                                                                                                
+
   // Function to handle employee selection for each station
   //   const handleEmployeeChange = (employee, stationId) => {
   //     setSelectedEmployees({ ...selectedEmployees, [stationId]: employee });
@@ -1097,50 +1124,6 @@ const assignTask = async () => {
     }
   };
 
-  const [lineAssignData, setLineAssignData]=useState({})
-  const assignEmployee = async () => {
-    if (shift === "") {
-      alert("Please Select Shift", { autoClose: 3000 });
-      return;
-    }
-
-    const link = process.env.REACT_APP_BASE_URL;
-    const endPoint = "/floorincharge/get_auto_task_assign_data";
-    const fullLink = link + endPoint;
-
-    try {
-      const stations = lineStations;
-      const payload = stations.map((station) => ({
-        station_id: station,
-        shift: shift,
-      }));
-
-      const response = await fetch(fullLink, {
-        method: "POST",
-        body: JSON.stringify(payload),
-        headers: {
-          "Content-type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response) {
-        const data = await response.json();
-       
-        if (response.ok) { 
-         setLineAssignData(data.stations_data)
-        } else {
-          alert(data.Message);
-        }
-      } else {
-        console.error("Failed to assign employee", response.error);
-      }
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  };
-
-
   const fetchQty = async () => {
     // Check if shift timings are selected
     if (!startShiftTime || !endShiftTime) {
@@ -1174,7 +1157,6 @@ const assignTask = async () => {
     setTimingDiff(adjustedDiffInSeconds);
   };
 
-
   const shiftTimings = {
     A: { start: "07:00:00", end: "12:00:00" },
     B: { start: "13:00:00", end: "17:00:00" },
@@ -1191,26 +1173,106 @@ const assignTask = async () => {
       setEndShiftTime("");
     }
   };
- 
+
+  const [taskAssignData, setTaskAssignData] = useState({});
+  const getTaskData = async () => {
+    if (shift == "") {
+      alert("Please Select Shift");
+      return;
+    }
+
+    const link = process.env.REACT_APP_BASE_URL;
+    const endPoint = "/floorincharge/get_auto_task_assign_data";
+    const fullLink = link + endPoint;
+
+    try {
+      const stations = lineStations;
+      const payload = stations.map((station) => ({
+        station_id: station,
+        shift: shift,
+      }));
+
+      const response = await fetch(fullLink, {
+        method: "POST",
+        body: JSON.stringify(payload),
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      // Object.keys(data["assigned task to"]).length === 0
+      if (response) {
+        if (response.ok) {
+          const data = await response.json();
+          if (Object.keys(data["stations_data"]).length === 0) {
+            alert("No Data Assigned");
+          }
+          setTaskAssignData(data.stations_data);
+        }
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
+  const getTaskDataOnFloor = async () => {
+    if (shift == "") {
+      alert("Please Select Shift");
+      return;
+    }
+
+    const link = process.env.REACT_APP_BASE_URL;
+    const endPoint = "/floorincharge/get_auto_task_assign_data";
+    const fullLink = link + endPoint;
+
+    try {
+      const stations = Object.values(stationData.stations).flat();
+      const payload = stations.map((station) => ({
+        station_id: station,
+        shift: shift,
+      }));
+
+      const response = await fetch(fullLink, {
+        method: "POST",
+        body: JSON.stringify(payload),
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      // Object.keys(data["assigned task to"]).length === 0
+      if (response) {
+        if (response.ok) {
+          const data = await response.json();
+          if (Object.keys(data["stations_data"]).length === 0) {
+            alert("No Data Assigned");
+          }
+          setTaskAssignData(data.stations_data);
+        }
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
 
   return (
     <>
-
-<TaskDetailsModal
+      <TaskDetailsModal
         show={showTaskModal}
         onHide={() => setShowTaskModal(false)}
         taskArray={taskArray}
         handleAssign={handleAssign}
       />
-    
+
       <div>
         <DashBoardAbove />
       </div>
 
       <div>
-      {showModal && <Modal message={modalMessage} onClose={handleCloseModal} />}
+        {showModal && (
+          <Modal message={modalMessage} onClose={handleCloseModal} />
+        )}
       </div>
-
 
       <div className="task__main">
         <div className="previous_task">
@@ -1249,10 +1311,11 @@ const assignTask = async () => {
                 return lineA - lineB;
               })
               .map((line, index) => (
-                <button 
-                className={`${activeBtn==line ? "act" :""}`}
-                key={index} onClick={() => handleLineClick(line)}  
-               >
+                <button
+                  className={`${activeBtn == line ? "act" : ""}`}
+                  key={index}
+                  onClick={() => handleLineClick(line)}
+                >
                   {`Line ${parseInt(line.split("L")[1])}`}
                 </button>
               ))}
@@ -1269,7 +1332,7 @@ const assignTask = async () => {
                 <option value="C">C</option>
               </select>
             </div>
- 
+
             <p>Select Shift Timings</p>
 
             <div className="update_dropdown">
@@ -1314,10 +1377,7 @@ const assignTask = async () => {
           </div>
         </div>
 
-
-
-
-       {/* <div className="update_dropdown">
+        {/* <div className="update_dropdown">
           <div className="global_task">
             <div className="task_whole_part">
               <p>Select Part:</p>
@@ -1338,24 +1398,22 @@ const assignTask = async () => {
             </div>
 
             <div className="global_task_qty">
-              <div>
-                <button className="task_assign_btn" onClick={assignEmployee}>
-                  Get Data On Line
-                </button>
-              </div>
-              <div>
-                <button className="task_assign_btn" onClick={fetchQty}>
-                  Fetch From Quantity
-                </button>
-              </div>
             </div>
           </div>
         </div>  */}
 
-
-
-
-
+        <div className="task_btnss">
+          <div>
+            <button className="task_assign_btn" onClick={getTaskData}>
+              Get Data on Line
+            </button>
+          </div>
+          <div>
+            <button className="task_assign_btn" onClick={getTaskDataOnFloor}>
+              Get Data on Floor
+            </button>
+          </div>
+        </div>
 
         <div>
           {stationData.stations &&
@@ -1367,7 +1425,7 @@ const assignTask = async () => {
                     display:
                       selectedLine == `${parseInt(line.split("L")[1])}`
                         ? "block"
-                        : "none",                        
+                        : "none",
                   }}
                 >
                   <div className="task_stations_container">
@@ -1404,7 +1462,7 @@ const assignTask = async () => {
                         empprocessInfo,
                         runpartName,
                         runprocessSkill,
-                        taskId
+                        taskId;
                       if (isRunning || runningOnLogs) {
                         // Extract details from the running task
                         const runningTask =
@@ -1421,7 +1479,7 @@ const assignTask = async () => {
                           empprocessInfo,
                           runpartName,
                           runprocessSkill,
-                          taskId
+                          taskId,
                         ] = runningTask;
                       }
 
@@ -1436,19 +1494,26 @@ const assignTask = async () => {
                       );
                       console.log("processName", processName);
 
-                      const lineData=lineAssignData[station]?.[0] || {}
+                      const lineData = taskAssignData[station]?.[0] || {};
 
                       return (
                         <>
                           <div key={station} className="task_stations">
                             <div className="task_stations_left">
                               <div>
-                              {(isRunning || runningOnLogs) && (
-<div style={{display:'flex'}}>
-                                  <u className="task-running">
-                                    Task is running..
-                                  </u>
-                                  <p style={{color:'green',fontWeight:'bold'}}>({taskId})</p>
+                                {(isRunning || runningOnLogs) && (
+                                  <div style={{ display: "flex" }}>
+                                    <u className="task-running">
+                                      Task is running..
+                                    </u>
+                                    <p
+                                      style={{
+                                        color: "green",
+                                        fontWeight: "bold",
+                                      }}
+                                    >
+                                      ({taskId})
+                                    </p>
                                   </div>
                                 )}
                               </div>
@@ -1465,16 +1530,20 @@ const assignTask = async () => {
                                     />
                                   </label>
                                 </span> */}
-                                {station}                                
+                                {station}
                               </h4>
 
                               <div className="task_stations_part">
                                 <p>
-                                Part:{" "}{isRunning || runningOnLogs ?runpartName:''||
-                                  selectedParts[station] ||
-                                    partInfo ||                                    
-                                    globalInputValue[selectedLine]?.part ||
-                                    lineData.part_no|| ""}
+                                  Part:{" "}
+                                  {isRunning || runningOnLogs
+                                    ? runpartName
+                                    : "" ||
+                                      selectedParts[station] ||
+                                      partInfo ||
+                                      globalInputValue[selectedLine]?.part ||
+                                      lineData.part_no ||
+                                      ""}
                                 </p>
                               </div>
 
@@ -1483,15 +1552,18 @@ const assignTask = async () => {
                                   Process:{" "}
                                   {isRunning || runningOnLogs
                                     ? empprocessInfo
-                                    : selectedProcesses[station] || processInfo||
+                                    : selectedProcesses[station] ||
+                                      processInfo ||
                                       // processInfo ||
                                       // processName[selectedLine]?.[s - 1]
                                       //   ?.process_no ||
                                       // ""
+                                      lineData.process_no ||
+                                      "" ||
                                       (globalInputValue[selectedLine]?.part
-                                        ? processName[selectedLine]?.[s - 1]?.process_no
-                                        : "")
-                                      }
+                                        ? processName[selectedLine]?.[s - 1]
+                                            ?.process_no
+                                        : "")}
                                 </p>
                                 <p style={{ fontSize: "12px" }}>
                                   Skill Required:&nbsp;
@@ -1502,10 +1574,15 @@ const assignTask = async () => {
                                     : skillRequired
                                     ? `${skillRequired} Or Above`
                                     : "" ||
-                                    (globalInputValue[selectedLine]?.part ?
-                                       processName[selectedLine]?.[s - 1]?.skill_level
-                                    : '') ||skillRequired
-                                  }
+                                      (globalInputValue[selectedLine]?.part
+                                        ? processName[selectedLine]?.[s - 1]
+                                            ?.skill_level
+                                        : "") ||
+                                      skillRequired ||
+                                      (lineData.required_skill_level !==
+                                      undefined
+                                        ? lineData.required_skill_level
+                                        : "" || "")}
                                 </p>
                               </div>
 
@@ -1522,15 +1599,17 @@ const assignTask = async () => {
                                   </p>
                                 </div>
                               ) : (
-
                                 <div className="task_stations_part">
                                   <p className="employee-name">
                                     Employee:{" "}
-                                    {(isRunning || runningOnLogs
-                                      ? (firstName+" "+lastName)
-                                      : operatorfname && operatorlname
-                                      ? `${operatorfname} ${operatorlname}`
-                                      : "") ||
+                                    {
+                                      (isRunning || runningOnLogs
+                                        ? firstName + " " + lastName
+                                        : operatorfname && operatorlname
+                                        ? `${operatorfname} ${operatorlname}`
+                                        : "") ||
+                                        lineData.operator_name ||
+                                        ""
 
                                       // ( operatorfname +
                                       //   " " +
@@ -1538,38 +1617,43 @@ const assignTask = async () => {
                                       // || ((employeeResponse?.[station]?.[shift] && employeeDataString[employeeResponse[station][shift][0]]) ?
                                       // employeeDataString[employeeResponse[station][shift][0]].split(',')[0].trim()
                                       // : ''){
-                                      
-                                     (employeeResponse && employeeResponse[station] && employeeResponse[station][shift] && employeeResponse[station][shift][0]
-  ? (() => {
-      const employeeCode = employeeResponse[station][shift][0];
-      const employeeData = employeeDataString[employeeCode];
-      if (employeeData) {
-        const { first_name, last_name } = employeeData;
-        return `${first_name} ${last_name}`;
-      }
-      return ""; // If no employee data found
-    })()
-  : "")}
+
+                                      //  (employeeResponse && employeeResponse[station] && employeeResponse[station][shift] && employeeResponse[station][shift][0]
+                                      //   ? (() => {
+                                      //       const employeeCode = employeeResponse[station][shift][0];
+                                      //       const employeeData = employeeDataString[employeeCode];
+                                      //       if (employeeData) {
+                                      //         const { first_name, last_name } = employeeData;
+                                      //         return `${first_name} ${last_name}`;
+                                      //       }
+                                      //       return ""; // If no employee data found
+                                      //     })()
+                                      //   : "")
+                                    }
                                   </p>
 
                                   <p style={{ fontSize: "12px" }}>
                                     Skill :&nbsp;
-                                    {(isRunning || runningOnLogs
-                                      ? runempSkill
-                                      : empSkill )||
-                                      (employeeResponse && employeeResponse[station] && employeeResponse[station][shift] && employeeResponse[station][shift][0]
-                                        ? (() => {
-                                            const employeeCode = employeeResponse[station][shift][0];
-                                            const employeeData = employeeDataString[employeeCode];
-                                            if (employeeData) {
-        const { skill_level } = employeeData;
-                                              
-                                              return `${skill_level}`;
-                                            }
-                                            return ""; // If no employee data found
-                                          })()
-                                        : "")
-                                          }
+                                    {
+                                      (isRunning || runningOnLogs
+                                        ? runempSkill
+                                        : empSkill) ||
+                                        lineData.operator_skill_level ||
+                                        ""
+
+                                      //                               (employeeResponse && employeeResponse[station] && employeeResponse[station][shift] && employeeResponse[station][shift][0]
+                                      //                                 ? (() => {
+                                      //                                     const employeeCode = employeeResponse[station][shift][0];
+                                      //                                     const employeeData = employeeDataString[employeeCode];
+                                      //                                     if (employeeData) {
+                                      // const { skill_level } = employeeData;
+
+                                      //                                       return `${skill_level}`;
+                                      //                                     }
+                                      //                                     return "";
+                                      //                                   })()
+                                      //                                 : "")
+                                    }
                                   </p>
                                 </div>
                               )}
@@ -1579,9 +1663,7 @@ const assignTask = async () => {
                               <input
                                 className="task_station_input"
                                 placeholder="prec."
-                                value={
-                                  `PP-${s}`                                  
-                                }
+                                value={`PP-${s}`}
                                 disabled
                               />
 
@@ -1591,7 +1673,7 @@ const assignTask = async () => {
                                 value={
                                   // If the user has entered a value for the station, show it; otherwise, show the value from the API or default to 0
                                   userEnteredValue[station] ||
-                                  
+                                  lineData.quantity ||
                                   // globalInputValue[selectedLine]?.inputValue ||
                                   //   (processName?.[selectedLine]?.[s - 1]
                                   //     .Cycle_Time_secs
@@ -1599,36 +1681,33 @@ const assignTask = async () => {
                                   //       processName?.[selectedLine]?.[s - 1]
                                   //         .Cycle_Time_secs
                                   //     : "")
-                                  
-                                  (processName
-                                    ? processName?.[selectedLine]?.[s - 1]
-                                        ?.Cycle_Time_secs
-                                      ? Math.floor(
-                                          timingDiff /
-                                            processName[selectedLine][s - 1]
-                                              .Cycle_Time_secs
-                                        )
-                                      : ""
-                                    : "") ||""
+
+                                  // (processName
+                                  //   ? processName?.[selectedLine]?.[s - 1]
+                                  //       ?.Cycle_Time_secs
+                                  //     ? Math.floor(
+                                  //         timingDiff /
+                                  //           processName[selectedLine][s - 1]
+                                  //             .Cycle_Time_secs
+                                  //       )
+                                  //     : ""
+                                  //   : "")
+                                  ""
                                 }
                                 placeholder="qty"
                                 onChange={(e) => handleInputChange(e, station)}
-                                disabled={isRunning || runningOnLogs}
+                                disabled
                               />
 
                               <div className="task_dropdown">
-                                <select                                  
-                                  disabled
-                                >
-                                  <option value="">Select</option>   
+                                <select disabled>
+                                  <option value="">Select</option>
                                 </select>
                               </div>
 
                               <div className="task_dropdown">
-                                <select
-                                 disabled
-                                >
-                                  <option>Select</option>                                  
+                                <select disabled>
+                                  <option>Select</option>
                                 </select>
                               </div>
 
@@ -1639,17 +1718,17 @@ const assignTask = async () => {
                                   placeholder="Id"
                                   disabled={isRunning || runningOnLogs}
                                   value={
-                                    (isRunning || runningOnLogs ? employeeId:'')||
+                                    (isRunning || runningOnLogs
+                                      ? employeeId
+                                      : "") ||
                                     (employeeCode[station]
                                       ? employeeCode[station]
                                       : empId) ||
-                                    
-                                    lineData.operator_id||"" 
+                                    lineData.operator_id ||
+                                    ""
                                   }
                                   onChange={(e) => employeeChange(e, station)}
                                 />
-
-                              
                               </div>
 
                               {/* Show a message if part and process are selected but employee ID is missing

@@ -11,6 +11,8 @@
   padding: 20px;
 }
 
+
+
 .notify_modal-content {
   background-color: #fefefe;
   margin: 5% auto;
@@ -181,7 +183,22 @@
 
 .approved-text {
   border-radius: 10px;
-  background: green;
+  background: rgb(133, 232, 133);
   color: white;
 }
 
+
+.notification-bell-container {
+  position: relative;
+
+}
+
+.red-dot {
+  position: absolute;
+  top: 3px;
+  right: 5px;
+  width: 10px;
+  height: 10px;
+  background-color: red;
+  border-radius: 50%;
+}

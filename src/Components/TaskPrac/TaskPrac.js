@@ -699,11 +699,9 @@ const [showTaskModal, setShowTaskModal] = useState(false);
 //     } catch (error) {
 //       console.error("Error on assigning Task:", error);
 //     }
-
 //   }catch(error){
 //     console.error("Error on assigning Task:", error);
 //   }
-
 //   };
 
 const assignTask = async () => {
@@ -830,7 +828,8 @@ const handleAssign = async () => {
       },
     });
 
-    if (response.ok) {
+    if (response) {
+      if(response.ok){
       const data = await response.json();
 
       if (Object.keys(data["assigned task to"]).length > 0) {
@@ -852,17 +851,21 @@ const handleAssign = async () => {
       }
 
       freeStation();
-    } else {
+    } 
+  else{
       const data = await response.json();
-      const errorMessage = data.Message;
-      // alert(errorMessage);
-
+      if (data && data.Message) {
+        const errorMessage = data.Message;
+        alert(errorMessage);
+      } 
+    
       if (Object.keys(data["last_shift_on_these_stations"]).length > 0) {
         handleShowModal("This Shift is already over. First Delete Task then select Another Shift", { autoClose: 20000 });
       }
     }
+  }
   } catch (error) {
-    console.error("Error on assigning Task:", error);
+    alert("Error on assigning Task:", error);
   }
 
   setShowTaskModal(false);
