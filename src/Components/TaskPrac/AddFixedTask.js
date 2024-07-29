@@ -44,11 +44,12 @@ function AddFixedTask() {
           // Set totalLines in local storage
           localStorage.setItem("TotalLines", totalLines);
           initializeArray(totalLines + 1);
-          setStationData({
-            stations: stations,
-            lines: lines,
-            totalLines: totalLines,
-          });
+          // setStationData({
+          //   stations: stations,
+          //   lines: lines,
+          //   totalLines: totalLines,
+          // });
+          setStationData({ stations, lines, totalLines });
           handleAllClick({
             stations: stations,
             lines: lines,
@@ -286,20 +287,20 @@ function AddFixedTask() {
     }));
   };
 
-  console.log("Checked Stations:", checked);
 
   const updateTaskAssign = async () => {
     if (shift == "") {
       alert("Select Shift");
       return;
     }
-    const taskArray = lineSelect
-      .filter((station) => checked[station]||checkedLine[selectedLine]) // Filter checked stations
+
+    const taskArray = generateAllStations()
+      .filter((station) => checkedStations[station]) // Filter checked stations
       .filter((station) => {
         const partSelected = selectedParts[station] !== undefined || globalInputValue[selectedLine]?.part;
         const processSelected = selectedProcesses[station] !== undefined ||processName[selectedLine]?.[0]?.process_no;
         const quantityEntered = quantities[station] !== undefined || globalInputValue[selectedLine]?.inputValue;
-        const operatorId = employeeCode[station] !== undefined;
+        const operatorId = employeeCode[station] !== undefined ;
         return partSelected && processSelected && quantityEntered && operatorId;
       })
       .map((station,index) => ({
@@ -351,7 +352,6 @@ function AddFixedTask() {
       .map(() => ({
         part: "",
         inputValue: "",
-        checked: false,
       }));
     setGlobalInputValue(initialArray);
   };
@@ -461,7 +461,7 @@ function AddFixedTask() {
   }, [lineSelect]);
 
 
-  console.log("object",lineItems)
+  console.log("lineItems",lineItems)
   const handleHeaderChange = () => {
     console.log(selectedLine)
     const newCheckedStatus = !isAllChecked;
@@ -473,7 +473,53 @@ function AddFixedTask() {
     setIsAllChecked(newCheckedStatus);
   };
 
-  console.log("selectedline",selectedLine)
+
+
+
+
+
+
+
+  //new logic 
+  const [checkedStations, setCheckedStations]=useState({})
+  const allStations=stationData.stations
+  console.log("allstations",allStations)
+
+  const generateAllStations=()=>{
+    if (!stationData.stations) return [];
+   if(activeBtn=='All'){
+    return Object.values(allStations).flat()
+   }
+   return allStations[activeBtn] ||[]
+  } 
+
+  const handleStationCheckboxChange=(station)=>{
+    setCheckedStations(prev=>({
+      ...prev,
+      [station]:!prev[station]
+    }))
+  }
+
+  
+  const handleGlobalCheckedBoxChange=(isChecked)=>{
+    if(activeBtn=="All"){
+      const newCheckedStations=Object.values(allStations).flat().reduce((acc, station)=>{
+        acc[station]=isChecked
+        return acc;
+      }, {})
+      setCheckedStations(newCheckedStations)
+    }
+    else{
+      const newCheckedStations=(allStations[activeBtn]||[]).reduce((acc, station)=>{
+        acc[station]=isChecked
+        return acc;
+      },{})
+      setCheckedStations(newCheckedStations)
+    }
+  }
+
+  console.log("Checked Stations:", checkedStations);
+
 
   return (
     <>
@@ -554,6 +600,7 @@ function AddFixedTask() {
                   handleGlobalInputChange(e, "inputValue", selectedLine)
                 }
               />
+
             </div>
             <div className="taskfixed_dropdown">
               {/* <p>Part</p> */}
@@ -589,17 +636,19 @@ function AddFixedTask() {
               <input
                 type="checkbox"
                 className="taskfixed_check"
-                checked={isAllChecked}
-                onChange={handleHeaderChange}
-                // value={checkedLine[selectedLine]}
-                // onChange={() => setWholeToggle(!setCheckedLine, "checked",selectedLine)}
+                checked={
+                  activeBtn === 'All'
+                    ? generateAllStations().every(station => checkedStations[station])
+                    : allStations && (allStations[activeBtn] || []).every(station => checkedStations[station])
+                }
+                onChange={(e)=>handleGlobalCheckedBoxChange(e.target.checked)}
               />
             </div>
           </div>
 
 
-          {lineSelect &&
-            lineSelect.map((station, index) => {
+          {allStations &&
+            generateAllStations().map((station, index) => {
               const s = extractStation(station);
 
               return (
@@ -690,10 +739,9 @@ function AddFixedTask() {
                     <input
                       type="checkbox"
                       className="taskfixed_check"
-                      // checked={
-                      //   checked[station] ||
-                      //   globalInputValue[selectedLine]?.checked
-                      // }
+                      checked={!!checkedStations[station]}
+                      onChange={()=>handleStationCheckboxChange(station)}
+                      // checked= {!!checked[station]}
                       // onChange={() => checkToggle(station)}
                     />
                   </div>

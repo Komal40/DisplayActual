@@ -27,13 +27,15 @@ body {
   --color-grey:#ECECEC;
    --font-family: 'Poppins', sans-serif !important;
    
-   --color-lightpink:#C27396;
+   --color-lightpink:#a86181;
    --color-lightgreen:#78EC75;
    --color-lightred:#FF4141;
    --color-lightblue:#6C76E4;
    --color-cayon:#91F2F8;
    --color-lightyellow:#FFFB99;
    --color-lightgrey: rgb(224, 217, 217);
+   --color-softgrey:rgba(236, 236, 236, 1);
+   --color-lightestgrey:rgba(250, 250, 250, 1)
 
 
 }

@@ -243,7 +243,7 @@ const DashboardAbove = () => {
           </p>
         </div>
         <div className="date_time">
-          <p className="dashboard_content">{formattedDateTime()}</p>
+          <p className="dashboard_content" >{formattedDateTime()}</p>
         </div>
         <div className="dashboard_content">
           <div

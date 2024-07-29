@@ -1078,7 +1078,13 @@ export default function TaskPrac2() {
 
   const employeeChange = async (e, stationId) => {
     // const { value } = event.target;
-    const value = e.target ? e.target.value : e;
+    const value = e.target ? e.target.value.toUpperCase() : e;
+    // Clear the selected employee details for the current stationId
+    setSelectedEmployees((prevSelectedEmployees) => ({
+      ...prevSelectedEmployees,
+      [stationId]: null, // or {} depending on how you handle empty state
+    }));
+    
     console.log(`Employee changed for station ${stationId}: ${value}`);
     // setEmployeeCode(value); // Update the employee code state
     setEmployeeCode({ ...employeeCode, [stationId]: value });
@@ -1091,6 +1097,8 @@ export default function TaskPrac2() {
     //     ...prevState,
     //     [stationId]: value
     // }));
+
+    
 
     const link = process.env.REACT_APP_BASE_URL;
     const endPoint = "/floorincharge/operator/details";

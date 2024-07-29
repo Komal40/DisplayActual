@@ -7,6 +7,8 @@ import { useNavigate, useSubmit } from "react-router-dom";
 import { io as socketIOClient } from "socket.io-client";
 import { useUser } from "../../UserContext";
 import useTokenExpirationCheck from "../useTokenExpirationCheck";
+import { MdDashboard } from "react-icons/md";
+import { FaChartLine } from "react-icons/fa6";
 
 export default function Dashboard() {
   const [stationData, setStationData] = useState({});
@@ -206,7 +208,7 @@ export default function Dashboard() {
 
   // websocket
   useEffect(() => {
-    const link = "192.168.1.2:5000";
+    const link = "192.168.1.6:5000";
 
     // Get the current date
     const currentDate = new Date();
@@ -254,7 +256,14 @@ export default function Dashboard() {
     return `${parts[0]}:${parts[1]}`;
   };
 
+  const [employeeData, setEmployeeData] = useState({});
+
   const [activeBtn, setActiveBtn] = useState("");
+  const handleButtonClick = async (line) => {
+    await handleLineClick(line);
+    await getChartData(line);
+  };
+
   const handleLineClick = async (line) => {
     // line=G01 F02 L01
     setActiveBtn(line);
@@ -293,14 +302,78 @@ export default function Dashboard() {
         const responseData = await response.json();
         console.log("API response: of sending operator data", responseData);
         setEmployeeData(responseData.Datas);
-      } else {
+        } else {
         // Handle error response
         console.error("API error:", response.statusText);
       }
     } catch (error) {
       console.error("Error:", error);
-    }
+    }   
   };
+
+
+  const getChartData=async(line)=>{
+    const link = process.env.REACT_APP_BASE_URL;
+    const chartEndPoint = "/floorincharge/get_30_45_90_days_readings_for_chart";
+    const chartFullLink = link + chartEndPoint;
+    // Prepare the payload for the chart data API
+     // Extract the line number from the line name
+     const lineNumber = parseInt(line.split("L")[1]);
+     // Filter station data to include only stations belonging to the selected line
+     const lineStationsIds = Object.entries(stationData.stations)
+       .filter(([key]) => parseInt(key.split("L")[1]) === lineNumber)
+       .map(([, stations]) => stations)
+       .flat();
+
+       
+   // Prepare the payload for the chart data API
+  const stationIdsPayload = {};
+  lineStationsIds.forEach(stationId => {
+    const parameters = [];
+    if (employeeData[stationId]) {
+      employeeData[stationId].forEach(employee => {
+        if (employee.reading_parameters) {
+          Object.keys(employee.reading_parameters).forEach(paramKey => {
+            parameters.push(paramKey);
+          });
+        }
+      });
+    }
+    if (parameters.length > 0) {
+      stationIdsPayload[stationId] = parameters;
+    }
+  });
+
+    const chartPayload = {
+      station_ids: stationIdsPayload,
+      shift: "B",
+      days: 90,
+    };
+    
+    try {
+      const chartResponse = await fetch(chartFullLink, {
+        method: "POST",
+        body: JSON.stringify(chartPayload),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (chartResponse.ok) {
+        // Handle successful response
+        const chartData = await chartResponse.json();
+        console.log("Chart data response:", chartData);
+        // Update state with chart data if necessary
+      } else {
+        // Handle error response
+        console.error("Chart API error:", chartResponse.statusText);
+      }
+    } catch (error) {
+      console.error("Error fetching chart data:", error);
+    }
+  }
+ 
 
   // Initially fetch data for line L01
   useEffect(() => {
@@ -316,7 +389,7 @@ export default function Dashboard() {
       const firstLine = stationData.lines[0];
       const lineCode = firstLine.split(" ")[2];
       console.log(lineCode); // Output: L01
-      handleLineClick(firstLine);
+      handleButtonClick(firstLine);
     }
   }, [stationData]);
 
@@ -403,7 +476,6 @@ export default function Dashboard() {
   console.log("processData", processData);
   console.log("object stationData", stationData);
 
-  const [employeeData, setEmployeeData] = useState({});
   const [unassignedStations, setUnassignedStations] = useState([]);
 
   // const refreshData=async() =>{
@@ -473,6 +545,16 @@ export default function Dashboard() {
     console.log("employeeDatahgbhvhv hghghghb bhhjbjhb ", employeeData);
   }, [employeeData]);
 
+  const [showStations, setShowStations] = useState(true);
+
+  const handleShowStations = () => {
+    setShowStations(true);
+  };
+
+  const handleShowCharts = () => {
+    setShowStations(false);
+  };
+
   return (
     <>
       <DashboardR />
@@ -499,11 +581,19 @@ export default function Dashboard() {
                 <button
                   className={`${activeBtn == line ? "dashActBtn" : ""}`}
                   key={index}
-                  onClick={() => handleLineClick(line)}
+                  onClick={() => handleButtonClick(line)}
                 >
                   {`Line ${parseInt(line.split("L")[1])}`}
                 </button>
               ))}
+        </div>
+        <div className="dashboard_main_symbols">
+          <div className="dashboard_sign_main" onClick={handleShowStations}>
+            <MdDashboard className="dashboard_sign" />
+          </div>
+          <div className="dashboard_chart_main" onClick={handleShowCharts}>
+            <FaChartLine className="dashboard_chart" />
+          </div>
         </div>
       </div>
 
@@ -533,270 +623,380 @@ export default function Dashboard() {
                   )}
                 />
 
-                <div className="dashboard_stations">
-                  {stations.map((station, index) => {
-                    const stationProcessData = processData.filter(
-                      (data) => data.station_id == station
-                    );
+                {showStations ? (
+                  <div className="dashboard_stations">
+                    {stations.map((station, index) => {
+                      const stationProcessData = processData.filter(
+                        (data) => data.station_id == station
+                      );
 
-                    console.log(
-                      "object station process data",
-                      stationProcessData
-                    );
-                    // Check if stationProcessData is not empty before accessing its properties
-                    const shift =
-                      stationProcessData.length > 0
-                        ? stationProcessData[0].shift
-                        : "";
-                    const passed =
-                      stationProcessData.length > 0
-                        ? stationProcessData[0].passed
-                        : 0;
-                    const failed =
-                      stationProcessData.length > 0
-                        ? stationProcessData[0].failed
-                        : 0;
-                    const startTime =
-                      stationProcessData.length > 0
-                        ? stationProcessData[0].start_shift_time
-                        : "";
-                    const endTime =
-                      stationProcessData.length > 0
-                        ? stationProcessData[0].end_shift_time
-                        : "";
+                      console.log(
+                        "object station process data",
+                        stationProcessData
+                      );
+                      // Check if stationProcessData is not empty before accessing its properties
+                      const shift =
+                        stationProcessData.length > 0
+                          ? stationProcessData[0].shift
+                          : "";
+                      const passed =
+                        stationProcessData.length > 0
+                          ? stationProcessData[0].passed
+                          : 0;
+                      const failed =
+                        stationProcessData.length > 0
+                          ? stationProcessData[0].failed
+                          : 0;
+                      const startTime =
+                        stationProcessData.length > 0
+                          ? stationProcessData[0].start_shift_time
+                          : "";
+                      const endTime =
+                        stationProcessData.length > 0
+                          ? stationProcessData[0].end_shift_time
+                          : "";
 
-                    // Find employee associated with this station
-                    // const employee = employeeData.find((employee) =>
-                    //   employee.stations.includes(station)
-                    // );
+                      // Find employee associated with this station
+                      // const employee = employeeData.find((employee) =>
+                      //   employee.stations.includes(station)
+                      // );
 
-                    // // Initialize variables for employee information
-                    // let operatorName = "";
-                    // let operatorSkill = "";
-                    // let process_data=""
+                      // // Initialize variables for employee information
+                      // let operatorName = "";
+                      // let operatorSkill = "";
+                      // let process_data=""
 
-                    // // If employee is found, assign operator's name and skill
-                    // if (employee) {
-                    //   operatorName = `${employee.fName} ${employee.lName}`;
-                    //   operatorSkill = employee.skill_level;
-                    //   process_data=employee.process_data
-                    // }
+                      // // If employee is found, assign operator's name and skill
+                      // if (employee) {
+                      //   operatorName = `${employee.fName} ${employee.lName}`;
+                      //   operatorSkill = employee.skill_level;
+                      //   process_data=employee.process_data
+                      // }
 
-                    // Find employee data for this station
-                    const employeeDataForStation = employeeData[station];
-                    
-                    // Get previous station process
-  const prevStation = index > 0 ? stations[index - 1] : null;
-  const futureStation = index < stations.length - 1 ? stations[index + 1] : null;
+                      // Find employee data for this station
+                      const employeeDataForStation = employeeData[station];
 
-  const prevProcess = prevStation && employeeData[prevStation]
-    ? employeeData[prevStation][0].process_no
-    : null;
+                      // Get previous station process
+                      const prevStation =
+                        index > 0 ? stations[index - 1] : null;
+                      const futureStation =
+                        index < stations.length - 1
+                          ? stations[index + 1]
+                          : null;
 
-  // Get current station process
-  const currentProcess = employeeDataForStation
-    ? employeeDataForStation[0].process_no
-    : null;
+                      const prevProcess =
+                        prevStation && employeeData[prevStation]
+                          ? employeeData[prevStation][0].process_no
+                          : null;
 
-  const futureProcess=prevStation && employeeData[futureStation]
-  ? employeeData[futureStation][0].process_no
-  : null;
+                      // Get current station process
+                      const currentProcess = employeeDataForStation
+                        ? employeeDataForStation[0].process_no
+                        : null;
 
-  // console.log("employeeDataForStation", employeeDataForStation);
-  // console.log("employeeData[prevStation]", prevProcess, currentProcess,futureProcess, station);
+                      const futureProcess =
+                        prevStation && employeeData[futureStation]
+                          ? employeeData[futureStation][0].process_no
+                          : null;
 
-  const isSameProcess = currentProcess === prevProcess;
-  const isSame=currentProcess===futureProcess
+                      console.log(
+                        "employeeDataForStation",
+                        employeeDataForStation
+                      );
+                      console.log(
+                        "employeeData[prevStation]",
+                        prevProcess,
+                        currentProcess,
+                        futureProcess,
+                        station
+                      );
 
-                    return (
-                      // <div className="operator_line" key={index}>
-                      //   <div
-                      //     className="operator_container1"
-                      //     style={{
-                      //       backgroundColor: passed + failed == 0 ? "#aaa" : "",
-                      //     }}
-                      //   >
-                      //     <div>
-                      //       <h4>Shift Timings</h4>
-                      //       {startTime && endTime && (
-                      //         <h5>{`(${startTime} - ${endTime})`}</h5>
-                      //       )}
-                      //       <p>
-                      //         Station Id:&nbsp;&nbsp;
-                      //         <strong>{station}</strong>
-                      //       </p>
-                      //       {employeeDataForStation ? (
-                      //         employeeDataForStation.map(
-                      //           (employee, empIndex) => (
-                      //             <div key={empIndex}>
-                      //                 <p>
-                      //                 Assigned Task:&nbsp;&nbsp;
-                      //                 <strong>
-                      //                   {employee.total_assigned_task || ""}
-                      //                 </strong>
-                      //               </p>
-                      //               <p>
-                      //                 Operator:&nbsp;&nbsp;
-                      //                 <strong>
-                      //                   {employee.fName || ""}{" "}
-                      //                   {employee.lName || ""}
-                      //                 </strong>
-                      //               </p>
-                      //               <p>
-                      //                 Operator Skill:&nbsp;&nbsp;
-                      //                 <strong>
-                      //                   {employee.skill_level || ""}
-                      //                 </strong>
-                      //               </p>
+                      const isSameProcess = currentProcess === prevProcess;
+                      const isSame = currentProcess === futureProcess;
+                      // Check if index is 0 and compare with future process
+                      const sameProcess =
+                        index == 0
+                          ? employeeData[futureStation]
+                            ? employeeData[futureStation][0].process_no
+                            : null
+                          : false;
 
-                      //               <p>
-                      //                 Part:&nbsp;&nbsp;
-                      //                 <strong>{employee.parts_no || ""}</strong>
-                      //               </p>
-                      //               <p>
-                      //                 Process:&nbsp;&nbsp;
-                      //                 <strong>
-                      //                   {employee.process_no || ""}
-                      //                 </strong>
-                      //               </p>
-                      //             </div>
-                      //           )
-                      //         )
-                      //       ) : (
-                      //         <div>
-                      //           <p>
-                      //             Operator:&nbsp;&nbsp;
-                      //             <strong>{""}</strong>
-                      //           </p>
-                      //           <p>
-                      //             Operator Skill:&nbsp;&nbsp;
-                      //             <strong>{""}</strong>
-                      //           </p>
-                      //           <p>
-                      //             Part:&nbsp;&nbsp;
-                      //             <strong>{""}</strong>
-                      //           </p>
-                      //           <p>
-                      //             Process:&nbsp;&nbsp;
-                      //             <strong>{""}</strong>
-                      //           </p>
-                      //         </div>
-                      //       )}
-                      //     </div>
-                      //     <div className="operator_below_content">
-                      //       {passed + failed} Done&nbsp;&nbsp;
-                      //       <span>{passed || 0} Pass&nbsp;</span>
-                      //       <span>{failed || 0} Fail&nbsp;</span>
-                      //     </div>
-                      //   </div>
-                      // </div>
+                      return (
+                        // <div className="operator_line" key={index}>
+                        //   <div
+                        //     className="operator_container1"
+                        //     style={{
+                        //       backgroundColor: passed + failed == 0 ? "#aaa" : "",
+                        //     }}
+                        //   >
+                        //     <div>
+                        //       <h4>Shift Timings</h4>
+                        //       {startTime && endTime && (
+                        //         <h5>{`(${startTime} - ${endTime})`}</h5>
+                        //       )}
+                        //       <p>
+                        //         Station Id:&nbsp;&nbsp;
+                        //         <strong>{station}</strong>
+                        //       </p>
+                        //       {employeeDataForStation ? (
+                        //         employeeDataForStation.map(
+                        //           (employee, empIndex) => (
+                        //             <div key={empIndex}>
+                        //                 <p>
+                        //                 Assigned Task:&nbsp;&nbsp;
+                        //                 <strong>
+                        //                   {employee.total_assigned_task || ""}
+                        //                 </strong>
+                        //               </p>
+                        //               <p>
+                        //                 Operator:&nbsp;&nbsp;
+                        //                 <strong>
+                        //                   {employee.fName || ""}{" "}
+                        //                   {employee.lName || ""}
+                        //                 </strong>
+                        //               </p>
+                        //               <p>
+                        //                 Operator Skill:&nbsp;&nbsp;
+                        //                 <strong>
+                        //                   {employee.skill_level || ""}
+                        //                 </strong>
+                        //               </p>
 
-                      <div className={`operator_line `}>
-                        {employeeDataForStation ? (
-                          employeeDataForStation.map((employee, empIndex) => {
-                            
-                            return (
-                              <>
-                                <div className={`home`}>
-                                  <div className="card_container">
-                                    <div className="upper_row">
-                                      <div className="upper_div_row">
-                                        <p>{station}</p>
-                                        {startTime && endTime && (
-                                          <p>{`${extractTime(
-                                            startTime
-                                          )} - ${extractTime(endTime)}`}</p>
-                                        )}
-                                      </div>
-                                    </div>
-                                    {/* ${isSameProcess ? "blue-color" : ""} */}
-                                    <div className={`mid_row ${isSameProcess||isSame ? "blue-color" : ""}`}>
-                                      <p>{employee.parts_no}</p>
-                                      <p>{employee.process_no}</p>
-                                      <hr className="divider" />
-                                      <div className="mid_employee">
-                                        <p>{employee.employee_id}</p>
-                                        <p>{employee.total_assigned_task}</p>
-                                      </div>
-                                      <div className="skill_metrix">
-                                        <p>
-                                          {employee.fName || ""}&nbsp;
-                                          {employee.lName || ""} -- L
-                                          {employee.skill_level}
-                                        </p>
-                                        <div className="color_bar">
-                                          {employee.skill_level >= 1 && (
-                                            <div className="color_red"></div>
-                                          )}
-                                          {employee.skill_level >= 2 && (
-                                            <div className="color_orange"></div>
-                                          )}
-                                          {employee.skill_level >= 3 && (
-                                            <div className="color_yellow"></div>
-                                          )}
-                                          {employee.skill_level >= 4 && (
-                                            <div className="color_green"></div>
+                        //               <p>
+                        //                 Part:&nbsp;&nbsp;
+                        //                 <strong>{employee.parts_no || ""}</strong>
+                        //               </p>
+                        //               <p>
+                        //                 Process:&nbsp;&nbsp;
+                        //                 <strong>
+                        //                   {employee.process_no || ""}
+                        //                 </strong>
+                        //               </p>
+                        //             </div>
+                        //           )
+                        //         )
+                        //       ) : (
+                        //         <div>
+                        //           <p>
+                        //             Operator:&nbsp;&nbsp;
+                        //             <strong>{""}</strong>
+                        //           </p>
+                        //           <p>
+                        //             Operator Skill:&nbsp;&nbsp;
+                        //             <strong>{""}</strong>
+                        //           </p>
+                        //           <p>
+                        //             Part:&nbsp;&nbsp;
+                        //             <strong>{""}</strong>
+                        //           </p>
+                        //           <p>
+                        //             Process:&nbsp;&nbsp;
+                        //             <strong>{""}</strong>
+                        //           </p>
+                        //         </div>
+                        //       )}
+                        //     </div>
+                        //     <div className="operator_below_content">
+                        //       {passed + failed} Done&nbsp;&nbsp;
+                        //       <span>{passed || 0} Pass&nbsp;</span>
+                        //       <span>{failed || 0} Fail&nbsp;</span>
+                        //     </div>
+                        //   </div>
+                        // </div>
+
+                        <div className={`operator_line `}>
+                          {employeeDataForStation ? (
+                            employeeDataForStation.map((employee, empIndex) => {
+                              return (
+                                <>
+                                  <div className={`home`}>
+                                    <div className="card_container">
+                                      <div className="upper_row">
+                                        <div className="upper_div_row">
+                                          <p>{station}</p>
+                                          {startTime && endTime && (
+                                            <p>{`(${extractTime(
+                                              startTime
+                                            )}-${extractTime(endTime)})`}</p>
                                           )}
                                         </div>
                                       </div>
-                                    </div>
-                                    <div className="bottom_row">
-                                      <div className="bottom_section green">
-                                        <p>{passed || 0}</p>
+                                      {/* ${isSameProcess ? "blue-color" : ""} */}
+                                      <div
+                                        className={`mid_row ${
+                                          isSameProcess || isSame || sameProcess
+                                            ? "blue-color"
+                                            : ""
+                                        }`}
+                                      >
+                                        <p>{employee.parts_no}</p>
+                                        <p>{employee.process_no}</p>
+                                        <hr className="divider" />
+                                        <div className="mid_employee">
+                                          <p>{employee.employee_id}</p>
+                                          <p>{employee.total_assigned_task}</p>
+                                        </div>
+                                        <div className="skill_metrix">
+                                          <p>
+                                            {employee.fName || ""}&nbsp;
+                                            {employee.lName || ""} -- L
+                                            {employee.skill_level}
+                                          </p>
+                                          <div className="color_bar">
+                                            {employee.skill_level >= 1 && (
+                                              <div className="color_red"></div>
+                                            )}
+                                            {employee.skill_level >= 2 && (
+                                              <div className="color_orange"></div>
+                                            )}
+                                            {employee.skill_level >= 3 && (
+                                              <div className="color_yellow"></div>
+                                            )}
+                                            {employee.skill_level >= 4 && (
+                                              <div className="color_green"></div>
+                                            )}
+                                          </div>
+                                        </div>
                                       </div>
-                                      <div className="bottom_section red">
-                                        <p>{failed || 0}</p>
-                                      </div>
-                                      <div className="bottom_section blue">
-                                        <p>{passed + failed}</p>
+                                      <div className="bottom_row">
+                                        <div className="bottom_section green">
+                                          <p>{passed || 0}</p>
+                                        </div>
+                                        <div className="bottom_section red">
+                                          <p>{failed || 0}</p>
+                                        </div>
+                                        <div className="bottom_section blue">
+                                          <select>
+                                            <option></option>
+                                            <option>1</option>
+                                            <option>2</option>
+                                          </select>
+                                        </div>
                                       </div>
                                     </div>
                                   </div>
+                                </>
+                              );
+                            })
+                          ) : (
+                            <div className={`home grey-color`}>
+                              <div className="card_container">
+                                <div className="upper_row">
+                                  <div className="upper_div_row">
+                                    <p>{station}</p>
+                                  </div>
                                 </div>
-                              </>
-                            );
-                          })
-                        ) : (
-                          <div className={`home grey-color`}>
-                            <div className="card_container">
-                              <div className="upper_row">
-                                <div className="upper_div_row">
-                                  <p>{station}</p>
-                                </div>
-                              </div>
-                              <div className="mids_row">
-                                <p></p>
-                                <p style={{ textAlign: "center" }}>
-                                  No Job Assigned
-                                </p>
-                                {/* <hr className="divider" /> */}
-                                <p></p>
-                                <p></p>
-                                {/* <div className="color_bar">
+                                <div className="mids_row">
+                                  <p></p>
+                                  <p style={{ textAlign: "center" }}>
+                                    No Job Assigned
+                                  </p>
+                                  {/* <hr className="divider" /> */}
+                                  <p></p>
+                                  <p></p>
+                                  {/* <div className="color_bar">
                                         <div className="color_red"></div>
                                         <div className="color_orange"></div>
                                         <div className="color_yellow"></div>
                                         <div className="color_green"></div>
                                       </div> */}
-                              </div>
-                              <div className="bottom_row">
-                                <div className="bottom_section green">
-                                  <p></p>
                                 </div>
-                                <div className="bottom_section red">
-                                  <p></p>
-                                </div>
-                                <div className="bottom_section blue">
-                                  <p></p>
+                                <div className="bottom_row">
+                                  <div className="bottom_section green">
+                                    <p></p>
+                                  </div>
+                                  <div className="bottom_section red">
+                                    <p></p>
+                                  </div>
+                                  <div className="bottom_section blue">
+                                    <select>
+                                      <option></option>
+                                      <option>1</option>
+                                      <option>2</option>
+                                    </select>
+                                  </div>
                                 </div>
                               </div>
                             </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  // chart component
+                  <div className="dashboard_stations">
+                     {stations.map((station, index) => {
+                         
+                      const employeeDataForStation = employeeData[station];
+
+                   
+            
+                      return (
+                        <div className={`operator_line `}>
+                          {employeeDataForStation ? (
+                            employeeDataForStation.map((employee, empIndex) => {
+                              return (
+                                <>
+                                 <div className={`home`}>
+                            <div className="card_chart_container">
+                            <div className="upper_chart_rw">
+                                <div className="upper_chart_row">
+                                  <p>{station}</p>
+                                  <p>Air Pressure 2-4M/KM</p>
+                                </div>
+                                <div className="chart_box"></div>
+                              </div>                            
+                             
+                              <div className={`mid_row`}></div>
+                              <div className="bottom_row">
+                              <div className="bottom_section grey">
+                                <p>R:46</p>
+                              </div>
+                              <div className="bottom_section lightgrey">
+                                <p>X:12</p>
+                              </div>
+                              <div className="bottom_section grey">
+                                <p>CFK:10</p>
+                              </div>
+                            </div>
+                            </div>                            
                           </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
+                                </>
+                              );
+                            })
+                          ) : (
+                            <div className={`home`}>
+                            <div className="card_chart_container">
+                              <div className="upper_chart_rw">
+                                <div className="upper_chart_row">
+                                  <p>{station}</p>
+                                  <p></p>
+                                  </div>    
+                                  <div></div>                     
+                              </div>
+                             
+                              <div className={`mid_row`}><p style={{textAlign:'center'}}>No Chart Available</p></div>
+                              <div className="bottom_row">
+                              <div className="bottom_section grey">
+                                <p></p>
+                              </div>
+                              <div className="bottom_section lightgrey">
+                                <p></p>
+                              </div>
+                              <div className="bottom_section grey">
+                                <p></p>
+                              </div>
+                            </div>
+                            </div>
+                            
+                          </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             )
           )}
@@ -804,3 +1004,5 @@ export default function Dashboard() {
     </>
   );
 }
+
+
