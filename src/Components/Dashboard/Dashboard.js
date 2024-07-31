@@ -9,6 +9,7 @@ import { useUser } from "../../UserContext";
 import useTokenExpirationCheck from "../useTokenExpirationCheck";
 import { MdDashboard } from "react-icons/md";
 import { FaChartLine } from "react-icons/fa6";
+import ChartComponent from "./ChartForStation";
 
 export default function Dashboard() {
   const [stationData, setStationData] = useState({});
@@ -17,6 +18,7 @@ export default function Dashboard() {
   const [activeLine, setActiveLine] = useState(null);
   const [socket, setSocket] = useState(null);
   const { getTotalLines } = useUser();
+  const [stationValues, setStationValues] = useState({});
 
   const navigate = useNavigate();
   const token = JSON.parse(localStorage.getItem("Token"));
@@ -312,7 +314,9 @@ export default function Dashboard() {
   };
 
 
+  const [chartResData, setChartResData]=useState({})
   const getChartData=async(line)=>{
+    console.log("chartline",line)
     const link = process.env.REACT_APP_BASE_URL;
     const chartEndPoint = "/floorincharge/get_30_45_90_days_readings_for_chart";
     const chartFullLink = link + chartEndPoint;
@@ -344,6 +348,8 @@ export default function Dashboard() {
     }
   });
 
+
+
     const chartPayload = {
       station_ids: stationIdsPayload,
       shift: "B",
@@ -364,6 +370,7 @@ export default function Dashboard() {
         // Handle successful response
         const chartData = await chartResponse.json();
         console.log("Chart data response:", chartData);
+        setChartResData(chartData)
         // Update state with chart data if necessary
       } else {
         // Handle error response
@@ -374,6 +381,30 @@ export default function Dashboard() {
     }
   }
  
+   // Parsing the API response to get the data for each station
+   const parseChartResponse = (response) => {
+    const stationData = {};
+
+    Object.keys(response).forEach((date) => {
+      Object.keys(response[date]).forEach((station) => {
+        if (!stationData[station]) {
+          stationData[station] = [];
+        }
+        Object.keys(response[date][station]).forEach((process) => {
+          stationData[station].push({
+            date,
+            process,
+            values: response[date][station][process]
+          });
+        });
+      });
+    });
+
+    return stationData;
+  };
+  const chartData = parseChartResponse(chartResData);
+  console.log("chart data ",chartData)
+
 
   // Initially fetch data for line L01
   useEffect(() => {
@@ -929,7 +960,7 @@ export default function Dashboard() {
                      {stations.map((station, index) => {
                          
                       const employeeDataForStation = employeeData[station];
-
+                      const chartDataForStation=chartData[station]||[]
                    
             
                       return (
@@ -948,7 +979,13 @@ export default function Dashboard() {
                                 <div className="chart_box"></div>
                               </div>                            
                              
-                              <div className={`mid_row`}></div>
+                              <div className={`mid_row`}>
+                              {chartDataForStation.length > 0 ? (
+                          <ChartComponent data={chartDataForStation} />
+                        ) : (
+                          <p>No Chart Available</p>
+                        )}
+                              </div>
                               <div className="bottom_row">
                               <div className="bottom_section grey">
                                 <p>R:46</p>

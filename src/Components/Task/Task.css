@@ -357,6 +357,12 @@ padding: 20px;
         display: flex;
         flex-wrap: wrap;
     }
+    .task_dropdown select{
+        width: 1.5rem;
+    }
+    .taskfixed_dropdown select {
+        width:4rem;
+    }
 }
 
 

@@ -75,6 +75,7 @@ export default function Navbar() {
               closeMenu ? "content_container_active" : "content_container"
             }
           >
+            <div className="navbar_elements">
             <ul>
               <li>
                 <HashLink to="/app" className="dashboard_items">
@@ -185,6 +186,8 @@ export default function Navbar() {
                 <HashLink className="dashboard_items">LOG OUT</HashLink>
               </li>
             </ul>
+            </div>
+           
           </div>
         </nav>
       </div>

@@ -14,6 +14,7 @@ nav{
     height: 125%;
     width: 14rem;
     position: fixed;
+    overflow-y: scroll;
     /* position: absolute; */
     padding: 2rem 1rem;
     font-family: 'Poppins', sans-serif;
@@ -146,3 +147,13 @@ ul{
 }
 
 
+
+
+@media screen and (min-width: 768px) and (max-width: 1440px){
+    .navbar{
+        height: 100vh;
+    }
+    .navbar_elements{
+        overflow: scroll;
+    }
+}

@@ -138,11 +138,11 @@
 
 /* Media Query for responsiveness */
 @media screen and (min-width: 768px) and (max-width: 1024px) {
-    .login_section {
+    .register_login_section {
       flex-direction: column;
       margin-left: 15rem;
     }
-    .login_left_sidebar,
+    .register_left_sidebar,
     .register_right_sidebar {
       width: 100%;
     }

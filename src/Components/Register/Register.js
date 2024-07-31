@@ -174,8 +174,8 @@ const handleglobalCloseModal = () => {
       {globalShowModal && <Modal message={globalmodalMessage} onClose={handleglobalCloseModal} />}
       </div>
 
-      <div className="login_section">
-        {/* <div className="login_left_sidebar">
+      <div className="register_login_section">
+        {/* <div className="register_left_sidebar">
         <div className="img_container">
           <img className="login_sidebar_img" src={bg} alt="Background" />
           <div className="overlay_text">INTERFACE</div>
