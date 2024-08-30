@@ -814,6 +814,21 @@ const assignTask = async () => {
 };
 
 const handleAssign = async () => {
+   // Get current time
+   const currentTime = new Date();
+
+   // Parse the endShiftTime (e.g., "12:00:00") and set it to today's date
+   const [hours, minutes, seconds] = endShiftTime.split(':');
+   const shiftEndTime = new Date();
+   shiftEndTime.setHours(hours, minutes, seconds, 0);
+ 
+   // Compare current time with endShiftTime
+   if (currentTime >= shiftEndTime) {
+     handleShowModal("Cannot assign tasks as Shift EndTime has already ended.", { autoClose: 10000 });
+     return; // Stop execution if the current time is after the shift end time
+   }
+
+  
   const link = process.env.REACT_APP_BASE_URL;
   const endPoint = "/floorincharge/assign_task";
   const fullLink = link + endPoint;
@@ -849,7 +864,6 @@ const handleAssign = async () => {
           Object.keys(data["operator_assigned_to_stations"]).length === 0) {
         handleShowModal("Please free all the tasks First", { autoClose: 10000 });
       }
-
       freeStation();
     } 
   else{

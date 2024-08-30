@@ -6,9 +6,8 @@ import useTokenExpirationCheck from "../useTokenExpirationCheck";
 import Modal from "../Modal/Modal";
 
 function Register() {
-
-  
-  const [globalShowModal, setglobalShowModal] = useState(false);
+ 
+const [globalShowModal, setglobalShowModal] = useState(false);
 const [globalmodalMessage, setglobalModalMessage] = useState("");
 
 
@@ -69,28 +68,69 @@ const handleglobalCloseModal = () => {
     
   };
 
+
+  // selecting operator image
+  const fileInputRef = useRef(null);
+  const [file, setFile]=useState(null);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const handleFileChange = (e) => {
+    // const file = fileInputRef.current.files[0];
+    const fileImage=e.target.files[0]
+    setFile(fileImage)
+  
+    // Check if the file is an image
+    if (!fileImage.type.startsWith('image/')) {
+      setErrorMessage("Please select an image file.");
+      return;
+    }
+
+
+    if (fileImage) {
+      // Check the file size (in bytes)
+      const maxSizeInBytes = 64 * 1024; // 64 KB = 64 * 1024 bytes
+      if (fileImage.size > maxSizeInBytes) {
+        setErrorMessage("Image size must be 64 KB or less.");
+        return;
+      }
+  };
+  setErrorMessage("")
+}
+  
+  
+
   const handleSubmit = async (e) => {
+    if (!file) {
+      setErrorMessage("Please select an image.");
+      return;
+    }
+
+
     e.preventDefault();
     const link = process.env.REACT_APP_BASE_URL;
     const endPoint = "/floorincharge/operator/signup";
     const fullLink = link + endPoint;
 
     try {
-      const params = new URLSearchParams();
-      params.append("fName", firstNameRef.current.value);
-      params.append("lName", lastNameRef.current.value);
-      params.append("employee_id", employeeIdRef.current.value);
-      params.append("skill_level", floorNumRef.current.value);
-      params.append("dob", dobRef.current.value);
-      params.append("mobile", mobileRef.current.value);
-      params.append("email", emailRef.current.value);
-      params.append("password", passwordRef.current.value);
+      // const params = new URLSearchParams();
+      const formData = new FormData();
+
+      formData.append("fName", firstNameRef.current.value);
+      formData.append("lName", lastNameRef.current.value);
+      formData.append("employee_id", employeeIdRef.current.value);
+      formData.append("skill_level", floorNumRef.current.value);
+      formData.append("dob", dobRef.current.value);
+      formData.append("mobile", mobileRef.current.value);
+      formData.append("email", emailRef.current.value);
+      formData.append("password", passwordRef.current.value);
+      formData.append("file", file);
+
 
       const response = await fetch(fullLink, {
         method: "POST",
-        body: params,
+        body: formData,
         headers: {
-          "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -105,9 +145,11 @@ const handleglobalCloseModal = () => {
         mobileRef.current.value = "";
         emailRef.current.value = "";
         passwordRef.current.value = "";
+       setFile(null)
+       setErrorMessage("")
       } else {
         const errorData = await response.json();
-        const errorMessage = errorData.Message;
+        const errorMessage = errorData.message;
         alert(errorMessage);
       }
     } catch (error) {
@@ -167,6 +209,7 @@ const handleglobalCloseModal = () => {
   const showModalForPass = () => {
     setIsModalOpen(true);
   };
+
 
   return (
     <>
@@ -235,6 +278,16 @@ const handleglobalCloseModal = () => {
                 className="register_input"
                 required
               />
+              
+              
+             <input
+              type="file"
+              accept="image/*"
+              placeholder="Operator Image"
+              onChange={handleFileChange}
+            />
+              
+      {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
             </div>
 
             <div className="register_mobile_section">
@@ -253,6 +306,15 @@ const handleglobalCloseModal = () => {
                 name="mobile"
                 className="register_input"
                 onChange={handleChange}
+                required
+              />
+              <input
+                ref={emailRef}
+                placeholder="Enter email *"
+                type="email"
+                name="email"
+                className="register_input"
+                
                 required
               />
               {mobileError && <p className="error_message">{mobileError}</p>}
@@ -311,7 +373,8 @@ const handleglobalCloseModal = () => {
 
       <div>
         {isModalOpen && (
-          <div className="notify_modal">
+         <div>
+           <div className="notify_modal">
             <div className="notify_modal-content">
               <span
                 className="notify_close"
@@ -345,6 +408,7 @@ const handleglobalCloseModal = () => {
               </div>
             </div>
           </div>
+         </div>
         )}
       </div>
     </>

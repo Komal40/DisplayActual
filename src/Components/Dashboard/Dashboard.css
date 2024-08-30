@@ -511,3 +511,25 @@
       background-color: var(--color-lightestgrey);
     }
 
+
+  .chart_type_selector{
+    margin-left: 15rem;
+  }
+
+
+/* Custom styles for the modal close button */
+
+
+.custom-modal-header .close {
+  color: black;  /* Change the color of the close button */
+  font-size: 1.5rem;  /* Adjust the size */
+  opacity: 1;  /* Make sure the button is fully visible */
+  border:none;
+  background-color: transparent;
+}
+
+.custom-modal-header .close:hover {
+  color: rgb(157, 149, 149);  /* Change color on hover */
+}
+
+  

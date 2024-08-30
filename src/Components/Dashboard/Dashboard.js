@@ -10,6 +10,7 @@ import useTokenExpirationCheck from "../useTokenExpirationCheck";
 import { MdDashboard } from "react-icons/md";
 import { FaChartLine } from "react-icons/fa6";
 import ChartComponent from "./ChartForStation";
+import { Modal, Button } from "react-bootstrap";
 
 export default function Dashboard() {
   const [stationData, setStationData] = useState({});
@@ -210,7 +211,7 @@ export default function Dashboard() {
 
   // websocket
   useEffect(() => {
-    const link = "192.168.1.6:5000";
+    const link = "192.168.1.5:5000";
 
     // Get the current date
     const currentDate = new Date();
@@ -251,6 +252,7 @@ export default function Dashboard() {
       socket.disconnect(); // Cleanup on component unmount
     };
   }, []);
+
   const extractTime = (timeString) => {
     // Split the time string by colon
     const parts = timeString.split(":");
@@ -261,9 +263,9 @@ export default function Dashboard() {
   const [employeeData, setEmployeeData] = useState({});
 
   const [activeBtn, setActiveBtn] = useState("");
-  const handleButtonClick = async (line) => {
-    await handleLineClick(line);
-    await getChartData(line);
+  const handleButtonClick = (line) => {
+    handleLineClick(line);
+    getChartData(line);
   };
 
   const handleLineClick = async (line) => {
@@ -304,58 +306,57 @@ export default function Dashboard() {
         const responseData = await response.json();
         console.log("API response: of sending operator data", responseData);
         setEmployeeData(responseData.Datas);
-        } else {
+      } else {
         // Handle error response
         console.error("API error:", response.statusText);
       }
     } catch (error) {
       console.error("Error:", error);
-    }   
+    }
   };
 
+  const [isChartModalOpen, setIsChartModalOpen] = useState(false);
+  const [chartResData, setChartResData] = useState({});
+  const [chartType, setChartType] = useState("xBar"); // 'xBar' or 'r'
 
-  const [chartResData, setChartResData]=useState({})
-  const getChartData=async(line)=>{
-    console.log("chartline",line)
+  const getChartData = async (line) => {
+    console.log("chartline", line);
     const link = process.env.REACT_APP_BASE_URL;
     const chartEndPoint = "/floorincharge/get_30_45_90_days_readings_for_chart";
     const chartFullLink = link + chartEndPoint;
     // Prepare the payload for the chart data API
-     // Extract the line number from the line name
-     const lineNumber = parseInt(line.split("L")[1]);
-     // Filter station data to include only stations belonging to the selected line
-     const lineStationsIds = Object.entries(stationData.stations)
-       .filter(([key]) => parseInt(key.split("L")[1]) === lineNumber)
-       .map(([, stations]) => stations)
-       .flat();
+    // Extract the line number from the line name
+    const lineNumber = parseInt(line.split("L")[1]);
+    // Filter station data to include only stations belonging to the selected line
+    const lineStationsIds = Object.entries(stationData.stations)
+      .filter(([key]) => parseInt(key.split("L")[1]) === lineNumber)
+      .map(([, stations]) => stations)
+      .flat();
 
-       
-   // Prepare the payload for the chart data API
-  const stationIdsPayload = {};
-  lineStationsIds.forEach(stationId => {
-    const parameters = [];
-    if (employeeData[stationId]) {
-      employeeData[stationId].forEach(employee => {
-        if (employee.reading_parameters) {
-          Object.keys(employee.reading_parameters).forEach(paramKey => {
-            parameters.push(paramKey);
-          });
-        }
-      });
-    }
-    if (parameters.length > 0) {
-      stationIdsPayload[stationId] = parameters;
-    }
-  });
-
-
+    // Prepare the payload for the chart data API
+    const stationIdsPayload = {};
+    lineStationsIds.forEach((stationId) => {
+      const parameters = [];
+      if (employeeData[stationId]) {
+        employeeData[stationId].forEach((employee) => {
+          if (employee.reading_parameters) {
+            Object.keys(employee.reading_parameters).forEach((paramKey) => {
+              parameters.push(paramKey);
+            });
+          }
+        });
+      }
+      if (parameters.length > 0) {
+        stationIdsPayload[stationId] = parameters;
+      }
+    });
 
     const chartPayload = {
       station_ids: stationIdsPayload,
-      shift: "B",
+      shift: "A",
       days: 90,
     };
-    
+
     try {
       const chartResponse = await fetch(chartFullLink, {
         method: "POST",
@@ -370,7 +371,7 @@ export default function Dashboard() {
         // Handle successful response
         const chartData = await chartResponse.json();
         console.log("Chart data response:", chartData);
-        setChartResData(chartData)
+        setChartResData(chartData);
         // Update state with chart data if necessary
       } else {
         // Handle error response
@@ -379,10 +380,10 @@ export default function Dashboard() {
     } catch (error) {
       console.error("Error fetching chart data:", error);
     }
-  }
- 
-   // Parsing the API response to get the data for each station
-   const parseChartResponse = (response) => {
+  };
+
+  // Parsing the API response to get the data for each station
+  const parseChartResponse = (response) => {
     const stationData = {};
 
     Object.keys(response).forEach((date) => {
@@ -394,7 +395,7 @@ export default function Dashboard() {
           stationData[station].push({
             date,
             process,
-            values: response[date][station][process]
+            values: response[date][station][process],
           });
         });
       });
@@ -402,10 +403,101 @@ export default function Dashboard() {
 
     return stationData;
   };
+
   const chartData = parseChartResponse(chartResData);
-  console.log("chart data ",chartData)
 
+  const processChartData = (data) => {
+    const processedData = {};
 
+    Object.keys(data).forEach((date) => {
+      const stations = data[date];
+
+      Object.keys(stations).forEach((station) => {
+        const parameters = stations[station];
+
+        Object.keys(parameters).forEach((parameter) => {
+          const readings = parameters[parameter]
+            .map(Number)
+            .filter((value) => value !== null);
+
+          const xBar =
+            readings.reduce((sum, value) => sum + value, 0) / readings.length;
+          const rValue = Math.max(...readings) - Math.min(...readings);
+
+          if (!processedData[station]) {
+            processedData[station] = {};
+          }
+
+          processedData[station][parameter] = { xBar, rValue };
+        });
+      });
+    });
+
+    return processedData;
+  };
+
+  const chartDataz = parseChartResponse({
+    "2024-07-03": {
+      "G01 F02 L01 S01": {
+        "TPMS-01 PR250 014": ["2", "2", "2", "2", "2"],
+        "TPMS-01 PR251 014": ["2", "2", "2", "2", "2"],
+        "TPMS-01 PR252 014": ["2", "2", "2", "2", "2"],
+      },
+    },
+    "2024-08-06": {
+      "G01 F02 L01 S01": {
+        "TPMS-01 PR250 014": ["1.998", "1.956", "1.856", "1.755", "2.00"],
+      },
+    },
+    "2024-08-08": {
+      "G01 F02 L01 S01": {
+        "TPMS-01 PR250 014": ["2", "2", "2", "2", "2"],
+        "TPMS-01 PR251 014": ["2", "2", "2", "2", "2"],
+      },
+    },
+    "2024-08-10": {
+      "G01 F02 L01 S01": {
+        "TPMS-01 PR250 014": ["2", "1.987", "0.685", "1.999", "1.333"],
+      },
+    },
+    "2024-08-16": {
+      "G01 F02 L01 S01": {
+        "TPMS-01 PR250 014": ["1", "0.3", "1.369", "2", "0.799"],
+      },
+    },
+    "2024-08-21": {
+      "G01 F02 L01 S01": {
+        "TPMS-01 PR250 014": ["0.123", "0.523", "1.111", "1.999", "0.999"],
+      },
+    },
+  });
+
+  console.log("charts data", chartData);
+
+  const handleChartTypeChange = (type) => {
+    setChartType(type);
+  };
+
+  // Callback to receive chart data
+  // const handleChartDataReady = (processedData, station) => {
+  //   setStationValues(prevValues => ({
+  //     ...prevValues,
+  //     [station]: processedData[0] || {} // Assuming processedData has the required structure
+  //   }));
+  // };
+  // Callback to receive chart data
+  const handleChartDataReady = (processedData) => {
+    const values = processedData.reduce((acc, { date, xBar, r, process }) => {
+      if (!acc[process]) {
+        acc[process] = { xBar, r };
+      }
+      return acc;
+    }, {});
+
+    setStationValues(values);
+  };
+
+  console.log("station values", stationValues);
   // Initially fetch data for line L01
   useEffect(() => {
     // if (stationData && Object.keys(stationData).length > 0) {
@@ -424,7 +516,7 @@ export default function Dashboard() {
     }
   }, [stationData]);
 
-  //   // Function to store stationData in localStorage
+  // Function to store stationData in localStorage
   // const storeStationDataInLocalStorage = (stationData) => {
   //   localStorage.setItem('stationData', JSON.stringify(stationData));
   // };
@@ -586,6 +678,52 @@ export default function Dashboard() {
     setShowStations(false);
   };
 
+  const [selectedStation, setSelectedStation] = useState(null);
+  const [selectedChartType, setSelectedChartType] = useState("xBar");
+  const openModal = (station) => {
+    console.log("open modal", station);
+    setSelectedStation(station);
+    setIsChartModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsChartModalOpen(false);
+    setSelectedStation(null);
+  };
+
+  // const calculateXBar = (values) => {
+  //   const numericValues = values.map(Number); // Convert to numbers
+  //   const sum = numericValues.reduce((acc, val) => acc + val, 0);
+  //   return (sum / numericValues.length).toFixed(2);
+  // };
+
+  // const calculateR = (values) => {
+  //   const numericValues = values.map(Number); // Convert to numbers
+  //   const max = Math.max(...numericValues);
+  //   const min = Math.min(...numericValues);
+  //   return (max - min).toFixed(2);
+  // };
+  const calculateXBar = (values) => {
+    const validValues = values.filter(value => value !== null).map(Number);
+    if (validValues.length === 5) {
+      const sum = validValues.reduce((a, b) => a + b, 0);
+      return sum / validValues.length;
+    }
+    return null;
+  };
+  
+  
+  const calculateR = (values) => {
+    const validValues = values.filter(value => value !== null).map(Number);
+    if (validValues.length === 5) {
+      const max = Math.max(...validValues);
+      const min = Math.min(...validValues);
+      return max - min;
+    }
+    return null;
+  };
+
+  
   return (
     <>
       <DashboardR />
@@ -745,12 +883,12 @@ export default function Dashboard() {
                       const isSameProcess = currentProcess === prevProcess;
                       const isSame = currentProcess === futureProcess;
                       // Check if index is 0 and compare with future process
-                      const sameProcess =
-                        index == 0
-                          ? employeeData[futureStation]
-                            ? employeeData[futureStation][0].process_no
-                            : null
-                          : false;
+                      const sameProcess = false;
+                      // index == 0
+                      //   ? employeeData[futureStation]
+                      //     ? employeeData[futureStation][0].process_no
+                      //     : null
+                      //   : false;
 
                       return (
                         // <div className="operator_line" key={index}>
@@ -956,83 +1094,207 @@ export default function Dashboard() {
                   </div>
                 ) : (
                   // chart component
-                  <div className="dashboard_stations">
-                     {stations.map((station, index) => {
-                         
-                      const employeeDataForStation = employeeData[station];
-                      const chartDataForStation=chartData[station]||[]
-                   
-            
-                      return (
-                        <div className={`operator_line `}>
-                          {employeeDataForStation ? (
-                            employeeDataForStation.map((employee, empIndex) => {
-                              return (
-                                <>
-                                 <div className={`home`}>
-                            <div className="card_chart_container">
-                            <div className="upper_chart_rw">
-                                <div className="upper_chart_row">
-                                  <p>{station}</p>
-                                  <p>Air Pressure 2-4M/KM</p>
+                  <>
+                    {/* <div className="chart_type_selector">
+    <button onClick={() => handleChartTypeChange('xBar')}>X-bar Chart</button>
+    <button onClick={() => handleChartTypeChange('r')}>R Chart</button>
+  </div> */}
+                    <div className="dashboard_stations">
+                      <div style={{ marginBottom: "1rem" }}>
+                        <select
+                          value={selectedChartType}
+                          onChange={(e) => setSelectedChartType(e.target.value)}
+                        >
+                          <option value="xBar">X-Bar</option>
+                          <option value="r">R</option>
+                        </select>
+                      </div>
+                      {stations.map((station, index) => {
+                        const employeeDataForStation = employeeData[station];
+                        const chartDataForStation = chartData[station] || [];
+                        const stationStats = stationValues[station] || {};
+
+                        console.log("chartDataForStation", chartDataForStation);
+
+                        return (
+                          <div
+                            className={`operator_line `}
+                            onClick={() => openModal(station)}
+                          >
+                            {employeeDataForStation ? (
+                              employeeDataForStation.map(
+                                (employee, empIndex) => {
+                                  return (
+                                    <>
+                                      <div className={`home`}>
+                                        <div className="card_chart_container">
+                                          <div className="upper_chart_rw">
+                                            <div className="upper_chart_row">
+                                              <p>{station}</p>
+                                              <p>Air Pressure 2-4M/KM</p>
+                                            </div>
+                                            <div className="chart_box"></div>
+                                          </div>
+
+                                          <div className={`mid_row`}>
+                                            {chartDataForStation.length > 0 ? (
+                                              <ChartComponent
+                                                data={chartDataForStation.map(
+                                                  (data) => ({
+                                                    name: data.date,
+                                                    [selectedChartType]:
+                                                      selectedChartType ===
+                                                      "xBar"
+                                                        ? calculateXBar(
+                                                            data.values
+                                                          )
+                                                        : calculateR(
+                                                            data.values
+                                                          ),
+                                                  })
+                                                )}
+                                                type={selectedChartType}
+                                              />
+                                            ) : (
+                                              <p
+                                                style={{ textAlign: "center" }}
+                                              >
+                                                No Chart Available
+                                              </p>
+                                            )}
+                                          </div>
+                                          <div className="bottom_row">
+                                            <div className="bottom_section grey">
+                                              <p>R:{stationStats.r || ""}</p>
+                                            </div>
+                                            <div className="bottom_section lightgrey">
+                                              <p>X:{stationStats.xBar}</p>
+                                            </div>
+                                            <div className="bottom_section grey">
+                                              <p>CFK:10</p>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </>
+                                  );
+                                }
+                              )
+                            ) : (
+                              <div className={`home`}>
+                                <div className="card_chart_container">
+                                  <div className="upper_chart_rw">
+                                    <div className="upper_chart_row">
+                                      <p>{station}</p>
+                                      <p></p>
+                                    </div>
+                                    <div></div>
+                                  </div>
+
+                                  <div className={`mid_row`}>
+                                    <p style={{ textAlign: "center" }}>
+                                      No Chart Available
+                                    </p>
+                                  </div>
+                                  <div className="bottom_row">
+                                    <div className="bottom_section grey">
+                                      <p></p>
+                                    </div>
+                                    <div className="bottom_section lightgrey">
+                                      <p></p>
+                                    </div>
+                                    <div className="bottom_section grey">
+                                      <p></p>
+                                    </div>
+                                  </div>
                                 </div>
-                                <div className="chart_box"></div>
-                              </div>                            
-                             
-                              <div className={`mid_row`}>
-                              {chartDataForStation.length > 0 ? (
-                          <ChartComponent data={chartDataForStation} />
-                        ) : (
-                          <p>No Chart Available</p>
-                        )}
                               </div>
-                              <div className="bottom_row">
-                              <div className="bottom_section grey">
-                                <p>R:46</p>
-                              </div>
-                              <div className="bottom_section lightgrey">
-                                <p>X:12</p>
-                              </div>
-                              <div className="bottom_section grey">
-                                <p>CFK:10</p>
-                              </div>
-                            </div>
-                            </div>                            
+                            )}
                           </div>
+                        );
+                      })}
+
+                      <div>
+                        {
+                          <Modal
+                            show={isChartModalOpen}
+                            onHide={closeModal}
+                            backdrop={true} // Enables closing the modal when clicking outside
+                            keyboard={true} // Allows closing the modal with the ESC key
+                            centered
+                          >
+                            <Modal.Header
+                              closeButton
+                              className="custom-modal-header"
+                            >
+                              <Modal.Title>
+                                Charts for {selectedStation}
+                              </Modal.Title>
+                              <button
+                                type="button"
+                                className="close"
+                                onClick={closeModal}
+                              >
+                                &times; {/* This is the "×" symbol */}
+                              </button>
+                            </Modal.Header>
+                            <Modal.Body>
+                              {/* <h5>X-Bar Chart</h5>
+      {chartData[selectedStation] && chartData[selectedStation].length > 0 ? (
+        <ChartComponent data={chartData[selectedStation].filter(data => data.type === 'xBar')} />
+      ) : (
+        <p>No X-Bar Chart Data Available</p>
+      )}
+      <h5>R Chart</h5>
+      {chartData[selectedStation] && chartData[selectedStation].length > 0 ? (
+        <ChartComponent data={chartData[selectedStation].filter(data => data.type === 'r')} />
+      ) : (
+        <p>No R Chart Data Available</p>
+      )} */}
+                              {chartData[selectedStation] &&
+                              chartData[selectedStation].length > 0 ? (
+                                <>
+                                  <div>
+                                    <h5>X-Bar Chart</h5>
+                                    <ChartComponent
+                                      data={chartData[selectedStation].map(
+                                        (data) => ({
+                                          name: data.date,
+                                          xBar: calculateXBar(data.values),
+                                        })
+                                      )}
+                                      type="xBar"
+                                      process={
+                                        chartData[selectedStation][0].process
+                                      }
+                                    />
+                                  </div>
+                                  <div>
+                                    <h5>R Chart</h5>
+                                    <ChartComponent
+                                      data={chartData[selectedStation].map(
+                                        (data) => ({
+                                          name: data.date,
+                                          r: calculateR(data.values),
+                                        })
+                                      )}
+                                      type="r"
+                                      process={
+                                        chartData[selectedStation][0].process
+                                      }
+                                    />
+                                  </div>
                                 </>
-                              );
-                            })
-                          ) : (
-                            <div className={`home`}>
-                            <div className="card_chart_container">
-                              <div className="upper_chart_rw">
-                                <div className="upper_chart_row">
-                                  <p>{station}</p>
-                                  <p></p>
-                                  </div>    
-                                  <div></div>                     
-                              </div>
-                             
-                              <div className={`mid_row`}><p style={{textAlign:'center'}}>No Chart Available</p></div>
-                              <div className="bottom_row">
-                              <div className="bottom_section grey">
-                                <p></p>
-                              </div>
-                              <div className="bottom_section lightgrey">
-                                <p></p>
-                              </div>
-                              <div className="bottom_section grey">
-                                <p></p>
-                              </div>
-                            </div>
-                            </div>
-                            
-                          </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
+                              ) : (
+                                <p>No Chart Data Available</p>
+                              )}
+                            </Modal.Body>
+                            <Modal.Footer></Modal.Footer>
+                          </Modal>
+                        }
+                      </div>
+                    </div>
+                  </>
                 )}
               </div>
             )
@@ -1041,5 +1303,3 @@ export default function Dashboard() {
     </>
   );
 }
-
-

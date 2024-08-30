@@ -1,4 +1,5 @@
 import "./App.css";
+
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./Components/Navbar/Navbar";
 import Login from "./Components/Login/Login";

@@ -164,6 +164,7 @@ const ExportCharts = ({
     }
   }, [availableDates, readingData, selectedStationId, selectedShift, constVal]);
 
+
   const calculateAverage = (array) => {
     const sum = array.reduce((acc, value) => acc + parseFloat(value), 0);
     return sum / array.length;
@@ -181,6 +182,7 @@ const ExportCharts = ({
       chartInstance.update();
       rangeChartInstance.update();
 
+      
       const base64Image1 = chartInstance.toBase64Image();
       const base64Image2 = rangeChartInstance.toBase64Image();
 
@@ -425,5 +427,6 @@ const ExportCharts = ({
     </>
   );
 };
+
 
 export default ExportCharts;
